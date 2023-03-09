@@ -1,0 +1,13 @@
+[package]
+name = "rialight_ui"
+version = "1.0.0"
+edition = "2021"
+authors = ["hydroper <matheusdiasdesouzads@gmail.com>"]
+repository = "https://github.com/rialight/api"
+license = "ISC"
+description = "Rialight user interface module."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+

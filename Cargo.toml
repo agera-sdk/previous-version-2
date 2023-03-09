@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "rialight",
+    "rialight_app_config",
+    "rialight_build",
+    "rialight_display",
+    "rialight_filesystem",
+    "rialight_intl",
+    "rialight_temporal",
+    "rialight_test_app",
+    "rialight_ui",
+]

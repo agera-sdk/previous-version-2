@@ -1,0 +1,18 @@
+[package]
+name = "rialight"
+version = "1.0.1"
+edition = "2021"
+authors = ["hydroper <matheusdiasdesouzads@gmail.com>"]
+repository = "https://github.com/rialight/api"
+license = "ISC"
+description = "Rialight utilities module."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rialight_filesystem = { version = "1", path = "../rialight_filesystem" }
+rialight_intl = { version = "1", path = "../rialight_intl" }
+rialight_temporal = { version = "1", path = "../rialight_temporal" }
+rialight_util = { version = "1", path = "../rialight_util" }
+lazy-regex = "2.3.0"
+tokio = { version = "1", features = ["full"] }

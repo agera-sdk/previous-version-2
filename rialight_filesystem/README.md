@@ -1,0 +1,101 @@
+# rialight::filesystem
+
+File system module.
+
+## Progress
+
+For now, everything is implemented, except for the web browser.
+
+- [ ] `file.exists()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.is_directory()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.is_file()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.is_symbolic_link()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.canonicalize()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.canonicalize_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.copy_to()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.copy_to_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.create_directory()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.create_directory_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.read_bytes()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.read_bytes_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.read_utf8()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.read_utf8_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.get_directory_listing()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.delete_empty_directory()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.delete_empty_directory_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.delete_all_directory()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.delete_all_directory_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.delete_file()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.delete_file_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.rename()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.rename_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.write()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.write_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.creation_date()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.creation_date_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.modification_date()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.modification_date_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.size()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
+- [ ] `file.size_async()`
+  - [x] Host Operating System implementation
+  - [ ] Browser implementation
