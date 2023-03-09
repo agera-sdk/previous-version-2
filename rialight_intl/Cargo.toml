@@ -1,6 +1,6 @@
 [package]
 name = "rialight_intl"
-version = "1.2.3"
+version = "1.2.4"
 edition = "2021"
 authors = ["hydroper <matheusdiasdesouzads@gmail.com>"]
 repository = "https://github.com/rialight/api"
@@ -22,5 +22,5 @@ rialight_util = { version = "1", path = "../rialight_util" }
 tokio = { version = "1", features = ["full"] }
 unic-langid-impl = "0.9.1"
 
-[target.'cfg(all(target_family = "wasm", target_os = "unknown"))'.dependencies]
-stdweb = "0.4.20"
+# [target.'cfg(all(target_family = "wasm", target_os = "unknown"))'.dependencies]
+# stdweb = "0.4.20"

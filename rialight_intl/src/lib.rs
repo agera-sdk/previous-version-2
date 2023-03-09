@@ -26,13 +26,7 @@ impl HasTextDirection for locale::Locale {
 
 impl HasTextDirection for locale::LanguageIdentifier {
     fn text_direction(&self) -> TextDirection {
-        self.language.text_direction()
-    }
-}
-
-impl HasTextDirection for locale::subtags::Language {
-    fn text_direction(&self) -> TextDirection {
-        match self.as_str() {
+        match self.language.as_str() {
             | "ar" | "ara"
             | "arc"
             | "az" | "aze"

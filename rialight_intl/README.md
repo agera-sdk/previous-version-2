@@ -8,6 +8,7 @@ Use either the Ecma-262 Intl or the [ICU4X project](https://crates.io/crates/icu
 
 Not all browsers implement all of Ecma-262 Intl API, or ICU4X doesn't cover all of Intl, so we'll have to support less Intl things for the time being. The goal of this crate is to implement all of Intl. Add more checkboxes for specific features here.
 
+- [ ] Currently the `text_direction()` is incorrectly implemented. It compares the language part, not the script part. To fix that, `LocaleExpander` from `icu` provides a maximize method, but the constructor requires the data provider. https://github.com/unicode-org/icu4x/issues/3172#issuecomment-1462282871
 - [ ] Include `icu` data only for non-WebAssembly target.
 - [ ] Learn how to use `js!` macro from `stdweb`.
 - [ ] Collator
