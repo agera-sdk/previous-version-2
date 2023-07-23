@@ -61,6 +61,8 @@ The `File` object can support the `file:`, `app:` and `app-storage:` URIs.
   - In the browser, these files are stored in the RAM.
 - `app-storage:` refers to files in the application data storage directory. They are data stored dynamically in the application with persistence.
   - In the browser, it uses the origin-private file system API.
+    - https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API#origin_private_file_system
+    - Synchronous API: https://developer.mozilla.org/en-US/docs/Web/API/FileSystemSyncAccessHandle
 
 ### Gaming
 
