@@ -28,3 +28,7 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
 ### File System
 
 The `File` object can support the `file:`, `app:` and `app-storage:` URIs.
+
+- `file:` refers to files in the user's device file system.
+- `app:` refers to files in the application installation directory. They are assets originally included in the application source that are bundled within the application installer. These files are read-only and cannot be manipulated.
+- `app-storage:` refers to files in the application data storage directory. They are data stored dynamically in the application with persistence.
