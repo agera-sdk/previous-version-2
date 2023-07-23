@@ -10,7 +10,7 @@ Rialight takes inspiration from:
 
 - Adobe AIR (or Flash Player)
 - Godot Engine
-- Angular Framework
+- Reactive UI Frameworks such as React
 
 ## Draft Ideas
 
