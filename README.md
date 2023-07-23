@@ -2,30 +2,35 @@
 
 > **Note:** Rialight is not yet done.
 
-Rialight aims to be a multi-purpose graphical application framework combining reactivity and nodes and shipping various fundamental APIs, requiring you to just know the Rust standard library and the Rialight API.
+Rialight aims to be a multi-purpose gaming and graphical application framework combining reactivity and nodes and shipping various fundamental APIs, requiring you to just know the Rust standard library and the Rialight API.
 
 Rialight can be used for creating graphical applications, but **cannot be** used for creating websites. Rialight applications can be embedded in websites.
 
-Rialight also supports a gaming API.
+Rialight takes inspiration from:
+
+- Adobe AIR (or Flash Player)
+- Godot Engine
+- Angular Framework
 
 ## Draft Ideas
 
 ### Application Template
 
-The application templates, that can be created via the Rialight CLI, will share common functionality, including translation resources (using the Fluent syntax).
+The application templates, that can be created via the Rialight CLI, will share common functionality, including translation resources which use the [Fluent syntax](https://projectfluent.org).
 
-Building or publishing an application should bundle its assets files for the `app:` URI into the installer.
+Building or publishing an application should bundle its assets files into the installer, which can be later retrieved through the File API using an `app:` URI.
 
 ### Graphics
 
 In regards to the graphics API, it'd be interesting to combine reactivity and node trees:
 
-- Reactive Components
-  - Similiar to either Angular or React. They can use graphical nodes.
 - Nodes, the primary way to construct a visual application.
-  - The `Node` object is the primary item of the graphics API, which has a limited set of variants, such as `Rectangle` and `Button`. All of them share full customisation and common properties like visibility and transform (including 3D matrix) which are inherited by default from their parent.
+  - The `Node` object is the primary item of the graphics API, which has a limited set of various variants, such as `Rectangle`, `Button`, `TabBar` and `Modal`. All of them share full customisation and common properties like visibility and transform (including 3D matrix) which are inherited by default from their parent.
+    - Children manipulation
 - Skins
   - Nodes share skins. Skins are inherited by default. They are similiar to CSS, but faster.
+- Reactive Components
+  - Similiar to either Angular or React. They can make use of graphical nodes, similiar as to how components from reactive web frameworks use DOM elements.
 
 ### File System
 
@@ -37,6 +42,6 @@ The `File` object can support the `file:`, `app:` and `app-storage:` URIs.
 
 ### Gaming
 
-Rialight supports an API based on the Entity-Component-System pattern, which is essential for game developers, with support for physics.
+Rialight supports a gaming API based on the Entity-Component-System pattern, which is essential for game developers, with support for physics.
 
 The Gaming API is an optional feature that can be turned on or off.
