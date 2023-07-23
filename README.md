@@ -1,10 +1,8 @@
 # Rialight
 
-This framework has not began yet. One time it may start. I'm keeping the `src` directory temporarily as it contains previous code for internationalization using Fluent and file system APIs.
+Not yet done.
 
-This framework will only require you to know the `std` API other than its own API, allowing you to create graphical applications for any purpose with no boilerplate configuration required, eliminating use of additional crates and using features that can be turned on and off. This project is not active in the moment and I will refactor everything once I get back to it.
-
-Rialight can be similiar to Adobe AIR, Godot Engine and React.
+Rialight aims to be a multi-purpose graphical application framework combining reactivity and nodes and shipping various fundamental APIs, requiring you to just know `std` other than itself.
 
 ## Draft Ideas
 
