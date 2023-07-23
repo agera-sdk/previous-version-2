@@ -1,0 +1,12 @@
+[workspace]
+members = [
+    "src/core",
+    "src/app_config",
+    "src/build",
+    "src/display",
+    "src/filesystem",
+    "src/intl",
+    "src/temporal",
+    "src/sample_app",
+    "src/ui",
+]
