@@ -58,7 +58,9 @@ The `File` object can support the `file:`, `app:` and `app-storage:` URIs.
 
 - `file:` refers to files in the user's device file system.
 - `app:` refers to files in the application installation directory. They are assets originally included in the application source that are bundled within the application installer. These files are read-only and cannot be manipulated.
+  - In the browser, these files are stored in the RAM.
 - `app-storage:` refers to files in the application data storage directory. They are data stored dynamically in the application with persistence.
+  - In the browser, it uses the origin-private file system API.
 
 ### Gaming
 
