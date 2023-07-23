@@ -1,8 +1,10 @@
 # Rialight
 
-Not yet done.
+> **Note:** Rialight is not yet done.
 
-Rialight aims to be a multi-purpose graphical application framework combining reactivity and nodes and shipping various fundamental APIs, requiring you to just know `std` other than itself.
+Rialight aims to be a multi-purpose graphical application framework combining reactivity and nodes and shipping various fundamental APIs, requiring you to just know the Rust standard library and the Rialight API.
+
+Rialight can be used for creating applications, but **cannot be** used for creating websites. Rialight applications can be embedded in websites.
 
 ## Draft Ideas
 
