@@ -30,7 +30,7 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
   - Nodes don't describe just graphics. They also emit events, such as `on_enter_frame` and `on_click` events.
     - Somes nodes may not have a certain event, which is a rare case, panicking when retrieving it. In that case, for an event that is not supported by all node kinds, the documentation can list the only supported node kinds.
 - Skins
-  - Nodes share skins. Skins are inherited by default. They are similiar to CSS, but faster.
+  - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
 - Reactive Components
   - Similiar to either Angular or React. They can make use of graphical nodes, similiar as to how components from reactive web frameworks use DOM elements.
 
