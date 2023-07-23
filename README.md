@@ -27,7 +27,8 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
 - Nodes, the primary way to construct a visual application.
   - The `Node` object is the primary item of the graphics API, which has a limited set of various variants, such as `Rectangle`, `Button`, `TabBar` and `Modal`. All of them share full customisation and common properties like visibility and transform (including 3D matrix) which are inherited by default from their parent.
     - Children manipulation
-  - Nodes don't describe just graphics. They also emit events, such as `enter_frame` and `click` events.
+  - Nodes don't describe just graphics. They also emit events, such as `on_enter_frame` and `on_click` events.
+    - Somes nodes may not have a certain event, which is a rare case, panicking when retrieving it. In that case, for an event that is not supported by all node kinds, the documentation can list the only supported node kinds.
 - Skins
   - Nodes share skins. Skins are inherited by default. They are similiar to CSS, but faster.
 - Reactive Components
