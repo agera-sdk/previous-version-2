@@ -14,11 +14,20 @@ Rialight takes inspiration from:
 
 ## Draft Ideas
 
-### Application Template
+### Project Template
 
-The application templates, that can be created via the Rialight CLI, will share common functionality, including translation resources which use the [Fluent syntax](https://projectfluent.org).
+When using the `rialight` command, you create new projects instantly:
 
-Building or publishing an application should bundle its assets files into the installer, which can be later retrieved through the File API using an `app:` URI.
+- `rialight new my-app`
+- `rialight new --game my-game`
+
+The project templates share common functionality, including translation resources which use the [Fluent syntax](https://projectfluent.org).
+
+### Debugging and Exporting
+
+Exporting a project should bundle its assets files into the installer, which can be later retrieved through the File API using an `app:` URI.
+
+Rialight uses Cargo, meaning `cargo run` works for debugging. You can also use `rialight run` or its alias `rialight debug`.
 
 ### Graphics
 
