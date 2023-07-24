@@ -1,12 +1,51 @@
-//! Provides literals for certain `std` collections, including `HashMap`.
+//! Provides literals for various collections.
+
+/// Initialises any map type from a list of key-value pairs in curly brackets.
+///
+/// ## Example
+///
+/// ```
+/// use rialight::util::collection_literals::map;
+/// take_my_map(map!{
+///     "a" => "foo",
+///     "b" => "bar",
+/// });
+/// ```
+///
+/// ## Rest
+/// 
+/// Rest is not supported yet. If you need it, just use `FromIterator`.
+///
+pub macro map {
+    ($($key:expr => $value:expr,)+) => {
+        {
+            #[allow(unused_mut)]
+            let mut r_map = ::std::vec::Vec::new();
+            $(
+                let _ = r_map.push(($key, $value));
+            )*
+            ::std::iter::FromIterator::from_iter(r_map)
+        }
+    },
+    ($($key:expr => $value:expr),*) => {
+        {
+            #[allow(unused_mut)]
+            let mut r_map = ::std::vec::Vec::new();
+            $(
+                let _ = r_map.push(($key, $value));
+            )*
+            ::std::iter::FromIterator::from_iter(r_map)
+        }
+    }
+}
 
 /// Creates a `HashMap` object from a list of key-value pairs in curly brackets.
 ///
 /// ## Example
 ///
 /// ```
-/// use rialight::util::collection_literals::hashmap;
-/// let map = hashmap!{
+/// use rialight::util::collection_literals::hash_map;
+/// let map = hash_map!{
 ///     "a" => "foo",
 ///     "b" => "bar",
 /// };
@@ -18,7 +57,7 @@
 /// 
 /// Rest is not supported yet. If you need it, just use `FromIterator`.
 ///
-pub macro hashmap {
+pub macro hash_map {
     ($($key:expr => $value:expr,)+) => {
         {
             #[allow(unused_mut)]
@@ -46,8 +85,8 @@ pub macro hashmap {
 /// ## Example
 ///
 /// ```
-/// use rialight::util::collection_literals::btreemap;
-/// let map = btreemap!{
+/// use rialight::util::collection_literals::btree_map;
+/// let map = btree_map!{
 ///     "a" => "foo",
 ///     "b" => "bar",
 /// };
@@ -59,7 +98,7 @@ pub macro hashmap {
 /// 
 /// Rest is not supported yet. If you need it, just use `FromIterator`.
 ///
-pub macro btreemap {
+pub macro btree_map {
     ($($key:expr => $value:expr,)+) => {
         {
             #[allow(unused_mut)]
@@ -82,20 +121,56 @@ pub macro btreemap {
     }
 }
 
+/// Initialises any set type from a list of values in brackets.
+///
+/// ## Example
+///
+/// ```
+/// use rialight::util::collection_literals::set;
+/// take_my_set(set!["foo"]);
+/// ```
+///
+/// ## Rest
+///
+/// Rest is not supported yet. If you need it, just use `FromIterator`.
+///
+pub macro set {
+    ($($value:expr,)+) => [
+        {
+            #[allow(unused_mut)]
+            let mut r_set = ::std::vec::Vec::new();
+            $(
+                let _ = r_set.push($value);
+            )*
+            ::std::iter::FromIterator::from_iter(r_set)
+        }
+    ],
+    ($($value:expr),*) => [
+        {
+            #[allow(unused_mut)]
+            let mut r_set = ::std::vec::Vec::new();
+            $(
+                let _ = r_set.push($value);
+            )*
+            ::std::iter::FromIterator::from_iter(r_set)
+        }
+    ]
+}
+
 /// Creates a `HashSet` object from a list of values in brackets.
 ///
 /// ## Example
 ///
 /// ```
-/// use rialight::util::collection_literals::hashset;
-/// assert!(hashset!["foo"].contains("foo"));
+/// use rialight::util::collection_literals::hash_set;
+/// assert!(hash_set!["foo"].contains("foo"));
 /// ```
 ///
 /// ## Rest
 /// 
 /// Rest is not supported yet. If you need it, just use `FromIterator`.
 ///
-pub macro hashset {
+pub macro hash_set {
     ($($value:expr,)+) => [
         {
             #[allow(unused_mut)]
@@ -123,15 +198,15 @@ pub macro hashset {
 /// ## Example
 ///
 /// ```
-/// use rialight::util::collection_literals::btreeset;
-/// assert!(btreeset!{"foo"}.contains("foo"));
+/// use rialight::util::collection_literals::btree_set;
+/// assert!(btree_set!{"foo"}.contains("foo"));
 /// ```
 ///
 /// ## Rest
 /// 
 /// Rest is not supported yet. If you need it, just use `FromIterator`.
 ///
-pub macro btreeset {
+pub macro btree_set {
     ($($value:expr,)+) => [
         {
             #[allow(unused_mut)]
@@ -157,22 +232,34 @@ pub macro btreeset {
 #[cfg(test)]
 mod test {
     use super::{
-        hashmap, hashset, btreemap, btreeset,
+        map, set, hash_map, hash_set, btree_map, btree_set,
     };
+    use std::collections::{HashMap, HashSet};
 
     #[test]
     fn map_literal() {
-        let map = hashmap!{"a" => "foo", "b" => "bar"};
+        let map: HashMap<&'static str, &'static str> = map!{
+            "a" => "foo",
+            "b" => "bar",
+        };
         assert_eq!(map["a"], "foo");
         assert_eq!(map["b"], "bar");
-        let map = btreemap!{"a" => "foo", "b" => "bar"};
+
+        let map = hash_map!{"a" => "foo", "b" => "bar"};
+        assert_eq!(map["a"], "foo");
+        assert_eq!(map["b"], "bar");
+
+        let map = btree_map!{"a" => "foo", "b" => "bar"};
         assert_eq!(map["a"], "foo");
         assert_eq!(map["b"], "bar");
     }
 
     #[test]
     fn set_literal() {
-        assert!(hashset!["foo"].contains("foo"));
-        assert!(btreeset!["foo"].contains("foo"));
+        let set: HashSet<&'static str> = set!["foo"];
+        assert!(set.contains("foo"));
+
+        assert!(hash_set!["foo"].contains("foo"));
+        assert!(btree_set!["foo"].contains("foo"));
     }
 }
