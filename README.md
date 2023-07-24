@@ -147,7 +147,8 @@ The network API, `rialight::net`.
 
 - HTTP
 - TCP
-- Sockets? I've no experience with TCP and sockets.
+- Sockets (TCP abstraction; in the browser it uses WebSockets)
+- UDP
 
 ### Media
 
