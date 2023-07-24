@@ -70,6 +70,7 @@ The UI API, `rialight::ui`.
 - Some parts of the UI API are used by the graphics API.
 - The UI API defines interfaces for reactive UI component which are defined by the developer.
   - An UI component may use graphics nodes from the graphics API, `rialight::graphics`.
+  - _Reactive_ data can be shared across all UI components. There may be a proper API for that. In that case, when a state changes, it causes parts of a component that use that state to render again.
 
 ### File System
 
