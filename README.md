@@ -42,7 +42,7 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
       - `node.meta_data_entries()`
         - Iterator of key-value pairs of type `(String, Any)`.
       - `node.get_meta_data(key)`, `node.has_meta_data(key)`, `node.set_meta_data(key, value)` and `node.delete_meta_data(key)`
-      - These methods accept a `PrimitiveOrOwnedString` as key, so you can pass a `&str` or `String`.
+      - These methods accept a `PrimitiveOrOwnedStringToOwned` as key, so you can pass a `&str` or `String`.
   - Nodes don't describe just graphics. They also emit events, accessed as `node.on_some_event().listen(listen_fn)`, such as `on_enter_frame` and `on_click` events.
     - Somes nodes may not have a certain event, which is a rare case, panicking when retrieving it. In that case, for an event that is not supported by all node kinds, the documentation can list the only supported node kinds.
   - Few events are not accessed as listeners, using a single callback instead:
@@ -127,12 +127,9 @@ Ideas for the utilities API, `rialight::util`. The utilities API is standalone a
 
 - Lazy Statics
 - Collection Literals (Map and Set)
-- URI and URI Component Encoding
 - Flags
 - `Bytes`
   - Growable and mutable array of bytes with endianness and several input and output methods.
-- `PrimitiveOrOwnedString` trait
-  - Allow only `String` or `&str` in a parameter and convert it implicitly to a `String`. Like `fn f(a: impl PrimitiveOrOwnedString) {}`, allowing `f("foo")` and `f("foo".to_owned())`.
 - Regular Expression pattern
   - Support for comments and whitespace using the `x` flag.
   - API strives to be as flexible as the JavaScript's one.
@@ -141,6 +138,7 @@ Ideas for the utilities API, `rialight::util`. The utilities API is standalone a
 - Serialization and deserialization.
 - `Observable`
   - Based on [this TC39 proposal](https://github.com/tc39/proposal-observable).
+- URI and URI Component Encoding
 
 ### Network
 
