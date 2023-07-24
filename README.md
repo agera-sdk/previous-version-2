@@ -52,8 +52,6 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
   - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
   - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
   - Skins are described in Rust code.
-- Reactive Components
-  - Similiar to either Angular or React. They can make use of graphical nodes, similiar as to how components from reactive web frameworks use DOM elements.
   - Rialight may use either raw Rust or a markup macro for writing components.
 
 Accessibility:
@@ -69,7 +67,9 @@ Accessibility:
 
 The UI API, `rialight::ui`.
 
-- The UI API is used by the graphics API.
+- Some parts of the UI API are used by the graphics API.
+- The UI API defines interfaces for reactive UI component which are defined by the developer.
+  - An UI component may use graphics nodes from the graphics API, `rialight::graphics`.
 
 ### File System
 
@@ -202,7 +202,6 @@ The core API, `rialight::core`, basically defines the application interfaces. It
 
 - Application Translations
 - Application Input Maps
-  - Similiar to Godot.
   - They can be remapped in the runtime.
 - Application Shortcuts
   - They can be remapped in the runtime.
@@ -212,3 +211,7 @@ The core API, `rialight::core`, basically defines the application interfaces. It
   - Help should be included by default, not launching the graphical application if `--help` or `-h` is specified.
 
 The core internals, `rialight::core_internals`, should not be used anywhere. They are used by the APIs, including file system, for instance, to determine the application's installation directory.
+
+## Comparison to Other Technologies
+
+- The concept of nodes is similiar to the concept of DOM elements: you cannot subtype a specific DOM element kind and instead use the existing ones. Although the framework strives to have as many node kinds as possible, you may need to wrap it into an unrelated type or create an UI component from the UI API (`rialight::ui`).
