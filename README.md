@@ -63,7 +63,15 @@ Accessibility:
     - You can optionally allow user inputs other than touch or pointer to switch control focus.
 - Touch
 
+### UI
+
+The UI API, `rialight::ui`.
+
+- The UI API is used by the graphics API.
+
 ### File System
+
+Ideas for the File System API, `rialight::filesystem`.
 
 The `File` object can support the `file:`, `app:` and `app-storage:` URIs.
 
@@ -101,11 +109,18 @@ Ideas for the mathematics API, `rialight::math`.
 
 ### Utilities
 
+Ideas for the utilities API, `rialight::util`.
+
+- `Bytes`
+  - Growable and mutable array of bytes with endianness and several input and output methods.
 - Traits
   - `PrimitiveOrBoxedString`
     - Allow only `String` or `&str` in a parameter and convert it implicitly to a `String`.
+- Serialization and deserialization.
 
 ### Network
+
+The network API, `rialight::net`.
 
 - HTTP
 - TCP
@@ -113,13 +128,46 @@ Ideas for the mathematics API, `rialight::math`.
 
 ### Media
 
+The media API, `rialight::media`.
+
 - Video
 - Camera
 
 ### Sound
 
-No ideas yet.
+The sound API, `rialight::sound`.
+
+- No ideas yet.
+
+### Crypto
+
+The crypto API, `rialight::crypto`.
+
+- No ideas yet.
 
 ### Security
 
-- Crypto
+The security API, `rialight::security`.
+
+- No ideas yet.
+
+### Accessibility
+
+The accessibility API, `rialight:a11n`.
+
+- No ideas yet.
+
+### Internationalization
+
+The internationalization API, `rialight::intl`.
+
+- Locale object
+  - Text direction
+- Display Names and More
+- Translations
+
+### Temporal
+
+The temporal API, `rialight::temporal`.
+
+- Based on the TC39 Temporal API.
