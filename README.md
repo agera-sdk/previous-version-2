@@ -91,6 +91,8 @@ The Gaming API is an optional feature that can be turned on or off.
 
 ### Mathematics
 
+Ideas for the mathematics API, `rialight::math`.
+
 - Geometry
   - Defines shapes and intersections.
   - Shapes have coordinates, including rectangles.
