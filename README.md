@@ -126,7 +126,7 @@ Ideas for the mathematics API, `rialight::math`.
 Ideas for the utilities API, `rialight::util`. The utilities API is standalone and does not require the other Rialight APIs, so it can be used for unrelated Rust projects.
 
 - Lazy Statics
-- Map and Set Literals
+- Collection Literals (Map and Set)
 - URI and URI Component Encoding
 - Flags
 - `Bytes`
