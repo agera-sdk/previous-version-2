@@ -8,9 +8,9 @@ Rialight can be used for creating graphical applications, but **cannot be** used
 
 Rialight takes inspiration from:
 
-- Adobe AIR (or Flash Player)
 - Godot Engine
 - Reactive UI Frameworks such as React
+- Adobe AIR (or Flash Player)
 
 ## Draft Ideas
 
@@ -30,6 +30,8 @@ Exporting a project should bundle its assets files into the installer, which can
 Rialight uses Cargo, meaning `cargo run` works for debugging. You can also use `rialight run` or its alias `rialight debug`.
 
 ### Graphics
+
+The `rialight::graphics` and `rialight::ui` APIs co-work together.
 
 In regards to the graphics API, it'd be interesting to combine reactivity and node trees:
 
