@@ -50,22 +50,12 @@ pub macro map {
 pub macro hash_map {
     ($($key:expr => $value:expr,)+) => {
         {
-            #[allow(unused_mut)]
-            let mut r_map = ::std::collections::HashMap::new();
-            $(
-                let _ = r_map.insert($key, $value);
-            )*
-            r_map
+            ::std::collections::HashMap::<_, _>::from_iter([$(($key, $value)),+])
         }
     },
     ($($key:expr => $value:expr),*) => {
         {
-            #[allow(unused_mut)]
-            let mut r_map = ::std::collections::HashMap::new();
-            $(
-                let _ = r_map.insert($key, $value);
-            )*
-            r_map
+            ::std::collections::HashMap::<_, _>::from_iter([$(($key, $value)),+])
         }
     }
 }
@@ -91,22 +81,12 @@ pub macro hash_map {
 pub macro btree_map {
     ($($key:expr => $value:expr,)+) => {
         {
-            #[allow(unused_mut)]
-            let mut r_map = ::std::collections::BTreeMap::new();
-            $(
-                let _ = r_map.insert($key, $value);
-            )*
-            r_map
+            ::std::collections::BTreeMap::<_, _>::from_iter([$(($key, $value)),+])
         }
     },
     ($($key:expr => $value:expr),*) => {
         {
-            #[allow(unused_mut)]
-            let mut r_map = ::std::collections::BTreeMap::new();
-            $(
-                let _ = r_map.insert($key, $value);
-            )*
-            r_map
+            ::std::collections::BTreeMap::<_, _>::from_iter([$(($key, $value)),+])
         }
     }
 }
@@ -153,22 +133,12 @@ pub macro set {
 pub macro hash_set {
     ($($value:expr,)+) => [
         {
-            #[allow(unused_mut)]
-            let mut r_set = ::std::collections::HashSet::new();
-            $(
-                let _ = r_set.insert($value);
-            )*
-            r_set
+            ::std::collections::HashSet::<_>::from_iter([$($value),+])
         }
     ],
     ($($value:expr),*) => [
         {
-            #[allow(unused_mut)]
-            let mut r_set = ::std::collections::HashSet::new();
-            $(
-                let _ = r_set.insert($value);
-            )*
-            r_set
+            ::std::collections::HashSet::<_>::from_iter([$($value),+])
         }
     ]
 }
@@ -189,22 +159,12 @@ pub macro hash_set {
 pub macro btree_set {
     ($($value:expr,)+) => [
         {
-            #[allow(unused_mut)]
-            let mut r_set = ::std::collections::BTreeSet::new();
-            $(
-                let _ = r_set.insert($value);
-            )*
-            r_set
+            ::std::collections::BTreeSet::<_>::from_iter([$($value),+])
         }
     ],
     ($($value:expr),*) => [
         {
-            #[allow(unused_mut)]
-            let mut r_set = ::std::collections::BTreeSet::new();
-            $(
-                let _ = r_set.insert($value);
-            )*
-            r_set
+            ::std::collections::BTreeSet::<_>::from_iter([$($value),+])
         }
     ]
 }
