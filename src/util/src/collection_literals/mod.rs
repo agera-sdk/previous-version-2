@@ -19,22 +19,12 @@
 pub macro map {
     ($($key:expr => $value:expr,)+) => {
         {
-            #[allow(unused_mut)]
-            let mut r_map = ::std::vec::Vec::new();
-            $(
-                let _ = r_map.push(($key, $value));
-            )*
-            ::std::iter::FromIterator::from_iter(r_map)
+            ::std::iter::FromIterator::from_iter([$(($key, $value)),+])
         }
     },
     ($($key:expr => $value:expr),*) => {
         {
-            #[allow(unused_mut)]
-            let mut r_map = ::std::vec::Vec::new();
-            $(
-                let _ = r_map.push(($key, $value));
-            )*
-            ::std::iter::FromIterator::from_iter(r_map)
+            ::std::iter::FromIterator::from_iter([$(($key, $value)),+])
         }
     }
 }
@@ -137,22 +127,12 @@ pub macro btree_map {
 pub macro set {
     ($($value:expr,)+) => [
         {
-            #[allow(unused_mut)]
-            let mut r_set = ::std::vec::Vec::new();
-            $(
-                let _ = r_set.push($value);
-            )*
-            ::std::iter::FromIterator::from_iter(r_set)
+            ::std::iter::FromIterator::from_iter([$($value),+])
         }
     ],
     ($($value:expr),*) => [
         {
-            #[allow(unused_mut)]
-            let mut r_set = ::std::vec::Vec::new();
-            $(
-                let _ = r_set.push($value);
-            )*
-            ::std::iter::FromIterator::from_iter(r_set)
+            ::std::iter::FromIterator::from_iter([$($value),+])
         }
     ]
 }
