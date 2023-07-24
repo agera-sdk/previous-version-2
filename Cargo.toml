@@ -4,6 +4,7 @@ members = [
     "src/core",
     "src/core_internals",
     "src/crypto",
+    "src/event",
     "src/gaming",
     "src/graphics",
     "src/math",
