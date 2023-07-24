@@ -124,6 +124,7 @@ Ideas for the mathematics API, `rialight::math`.
 
 Ideas for the utilities API, `rialight::util`.
 
+- Lazy Statics
 - `Bytes`
   - Growable and mutable array of bytes with endianness and several input and output methods.
 - `PrimitiveOrBoxedString` trait
