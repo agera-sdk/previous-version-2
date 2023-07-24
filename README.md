@@ -170,7 +170,7 @@ The security API, `rialight::security`.
 
 ### Accessibility
 
-The accessibility API, `rialight:a11n`.
+The accessibility API, `rialight::a11y`.
 
 - No ideas yet.
 
@@ -188,3 +188,15 @@ The internationalization API, `rialight::intl`.
 The temporal API, `rialight::temporal`.
 
 - Based on [this TC39 Temporal API](https://github.com/tc39/proposal-temporal).
+
+### Core
+
+The core API, `rialight::core`, basically defines the application interfaces. It can cover:
+
+- Application Translations
+- Application Input Maps
+  - Similiar to Godot.
+  - They can be remapped in the runtime.
+- Application Shortcuts
+  - They can be remapped in the runtime.
+  - Used for instance by media editing softwares.
