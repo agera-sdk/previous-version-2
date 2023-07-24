@@ -76,7 +76,7 @@ The `app-storage:` URI does not work when exporting the project to the browser, 
 For the `app-storage:` URI, this uses the origin-private file system API in the browser.
   - https://users.rust-lang.org/t/bindings-for-browser-origin-private-fs/97417/2?u=hydroper1
 
-This API strives to be similiar to the web one.
+Due to this, the web-compatible file system API is entirely asynchronous.
 
 ### Gaming
 
