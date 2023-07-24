@@ -73,9 +73,8 @@ If you need to use `app-storage:` in the browser, switch to using `rialight::fil
 
 The `app-storage:` URI does not work when exporting the project to the browser, because of lacking API in the browser, including synchronous operations. In case you need this feature, use a specialized version of `File` that works with `app-storage:` across all platforms, `rialight::filesystem::webcompat::File`.
 
-For the `app-storage:` URI, this uses the origin-private file system API.
-  - https://developer.mozilla.org/en-US/docs/Web/API/File_System_Access_API#origin_private_file_system
-  - Sync: https://developer.mozilla.org/en-US/docs/Web/API/FileSystemSyncAccessHandle
+For the `app-storage:` URI, this uses the origin-private file system API in the browser.
+  - https://users.rust-lang.org/t/bindings-for-browser-origin-private-fs/97417/2?u=hydroper1
 
 This API strives to be similiar to the web one.
 
