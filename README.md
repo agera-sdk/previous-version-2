@@ -216,3 +216,11 @@ The core internals, `rialight::core_internals`, should not be used anywhere. The
 ## Comparison to Other Technologies
 
 - The concept of nodes is similiar to the concept of DOM elements: you cannot subtype a specific DOM element kind and instead use the existing ones. Although the framework strives to have as many node kinds as possible, you may need to wrap it into an unrelated type or create an UI component from the UI API (`rialight::ui`).
+
+## Rust Setup
+
+The framework currently requires the nightly Rust to be used. It is easy to switch to `nightly`:
+
+```
+rustup default nightly
+```

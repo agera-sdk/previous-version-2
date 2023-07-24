@@ -5,7 +5,7 @@
 /// ## Example
 ///
 /// ```
-/// use rialight::util::hashmap;
+/// use rialight::util::collection_literals::hashmap;
 /// let map = hashmap!{
 ///     "a" => "foo",
 ///     "b" => "bar",
@@ -46,7 +46,7 @@ pub macro hashmap {
 /// ## Example
 ///
 /// ```
-/// use rialight::util::btreemap;
+/// use rialight::util::collection_literals::btreemap;
 /// let map = btreemap!{
 ///     "a" => "foo",
 ///     "b" => "bar",
@@ -87,7 +87,7 @@ pub macro btreemap {
 /// ## Example
 ///
 /// ```
-/// use rialight::util::hashset;
+/// use rialight::util::collection_literals::hashset;
 /// assert!(hashset!["foo"].contains("foo"));
 /// ```
 ///
@@ -123,7 +123,7 @@ pub macro hashset {
 /// ## Example
 ///
 /// ```
-/// use rialight::util::btreeset;
+/// use rialight::util::collection_literals::btreeset;
 /// assert!(btreeset!{"foo"}.contains("foo"));
 /// ```
 ///
