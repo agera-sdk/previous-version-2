@@ -34,7 +34,7 @@ Rialight uses Cargo, meaning `cargo run` works for debugging. You can also use `
 In regards to the graphics API, it'd be interesting to combine reactivity and node trees:
 
 - Nodes, the primary way to construct a visual application.
-  - The `Node` object is the primary item of the graphics API, which has a limited set of various variants, such as `Rectangle`, `Button`, `TabBar` and `Modal`. All of them share full customisation and common properties like visibility and transform (including 3D matrix) which are inherited by default from their parent.
+  - The `Node` object is the primary item of the graphics API, which has a limited set of various variants, such as `Rectangle`, `Canvas`, `Button`, `TabBar` and `Modal`. All of them share full customisation and common properties like visibility and transform (including 3D matrix) which are inherited by default from their parent.
     - Children manipulation
     - Meta data (optional mapping from `String` to `Any` for attaching logical data)
       - `node.meta_data_entries()`
@@ -104,3 +104,22 @@ Ideas for the mathematics API, `rialight::math`.
 - Traits
   - `PrimitiveOrBoxedString`
     - Allow only `String` or `&str` in a parameter and convert it implicitly to a `String`.
+
+### Network
+
+- HTTP
+- TCP
+- Sockets? I've no experience with TCP and sockets.
+
+### Media
+
+- Video
+- Camera
+
+### Sound
+
+No ideas yet.
+
+### Security
+
+- Crypto
