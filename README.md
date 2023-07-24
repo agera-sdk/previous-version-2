@@ -126,9 +126,10 @@ Ideas for the utilities API, `rialight::util`.
 
 - `Bytes`
   - Growable and mutable array of bytes with endianness and several input and output methods.
-- Traits
-  - `PrimitiveOrBoxedString`
-    - Allow only `String` or `&str` in a parameter and convert it implicitly to a `String`. Like `fn f(a: impl PrimitiveOrBoxedString) {}`, allowing `f("foo")` and `f("foo".to_owned())`.
+- `PrimitiveOrBoxedString` trait
+  - Allow only `String` or `&str` in a parameter and convert it implicitly to a `String`. Like `fn f(a: impl PrimitiveOrBoxedString) {}`, allowing `f("foo")` and `f("foo".to_owned())`.
+- Regular Expression pattern
+  - API strives to be as flexible as the JavaScript's one.
 - Serialization and deserialization.
 - `Observable`
   - Based on [this TC39 proposal](https://github.com/tc39/proposal-observable).
