@@ -206,3 +206,5 @@ The core API, `rialight::core`, basically defines the application interfaces. It
 - Command Line Interface
   - Allows a graphical application to also be used as a command in a terminal. An application can be configured to be launched graphically manually, allowing to only launch it according to the given command line arguments.
   - Help should be included by default, not launching the graphical application if `--help` or `-h` is specified.
+
+The core internals, `rialight::core_internals`, should not be used anywhere. They are used by the APIs, including file system, for instance, to determine the application's installation directory.
