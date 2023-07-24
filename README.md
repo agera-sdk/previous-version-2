@@ -99,6 +99,17 @@ Rialight supports a gaming API based on the Entity-Component-System pattern, whi
 
 The Gaming API is an optional feature that can be turned on or off.
 
+### Events
+
+Ideas for the event API, `rialight::event`.
+
+- `Event<T>`
+  - An event that can be listened to. `event.listen(|e| {});`
+- `EventListener`
+  - Object returned by `event.listen(listen_fn)`.
+  - Can be cancelled: `event_listener.cancel();`
+- Structures for native events, including touch and keyboard events.
+
 ### Mathematics
 
 Ideas for the mathematics API, `rialight::math`.
@@ -117,8 +128,10 @@ Ideas for the utilities API, `rialight::util`.
   - Growable and mutable array of bytes with endianness and several input and output methods.
 - Traits
   - `PrimitiveOrBoxedString`
-    - Allow only `String` or `&str` in a parameter and convert it implicitly to a `String`.
+    - Allow only `String` or `&str` in a parameter and convert it implicitly to a `String`. Like `fn f(a: impl PrimitiveOrBoxedString) {}`, allowing `f("foo")` and `f("foo".to_owned())`.
 - Serialization and deserialization.
+- `Observable`
+  - Based on [this TC39 proposal](https://github.com/tc39/proposal-observable).
 
 ### Network
 
@@ -172,4 +185,4 @@ The internationalization API, `rialight::intl`.
 
 The temporal API, `rialight::temporal`.
 
-- Based on the TC39 Temporal API.
+- Based on [this TC39 Temporal API](https://github.com/tc39/proposal-temporal).
