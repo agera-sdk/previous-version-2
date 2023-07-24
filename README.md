@@ -89,9 +89,13 @@ Rialight supports a gaming API based on the Entity-Component-System pattern, whi
 
 The Gaming API is an optional feature that can be turned on or off.
 
-### Geometry
+### Mathematics
 
-- Rectangle has coordinates and a dimension
+- Geometry
+  - Defines shapes and intersections.
+  - Shapes have coordinates, including rectangles.
+- SI (Système International d'unités)
+  - Measurement units and their conversions.
 
 ### Utilities
 
