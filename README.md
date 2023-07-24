@@ -36,12 +36,18 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
 - Nodes, the primary way to construct a visual application.
   - The `Node` object is the primary item of the graphics API, which has a limited set of various variants, such as `Rectangle`, `Button`, `TabBar` and `Modal`. All of them share full customisation and common properties like visibility and transform (including 3D matrix) which are inherited by default from their parent.
     - Children manipulation
-  - Nodes don't describe just graphics. They also emit events, such as `on_enter_frame` and `on_click` events.
+  - Nodes don't describe just graphics. They also emit events, accessed as `node.on_some_event().listen(listen_fn)`, such as `on_enter_frame` and `on_click` events.
     - Somes nodes may not have a certain event, which is a rare case, panicking when retrieving it. In that case, for an event that is not supported by all node kinds, the documentation can list the only supported node kinds.
+  - Few events are not accessed as listeners, using a single callback instead:
+    - `node.on_enter_frame(enter_frame_fn)` sets listener for the enter frame event
+    - `node.on_user_input(user_input_fn)` sets listener for an user input event
 - Skins
   - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
+  - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
+  - Skins are described in Rust code.
 - Reactive Components
   - Similiar to either Angular or React. They can make use of graphical nodes, similiar as to how components from reactive web frameworks use DOM elements.
+  - Rialight may use either raw Rust or a markup macro for writing components.
 
 Accessibility:
 
