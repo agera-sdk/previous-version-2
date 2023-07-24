@@ -130,7 +130,10 @@ Ideas for the utilities API, `rialight::util`. The utilities API is standalone a
 - `PrimitiveOrOwnedString` trait
   - Allow only `String` or `&str` in a parameter and convert it implicitly to a `String`. Like `fn f(a: impl PrimitiveOrOwnedString) {}`, allowing `f("foo")` and `f("foo".to_owned())`.
 - Regular Expression pattern
+  - Support for comments and whitespace using the `x` flag.
   - API strives to be as flexible as the JavaScript's one.
+  - `regex.replace(str, replacement)` accepts either a string or callback as argument and is the same as JavaScript's `str.replace(regex, replacement)`.
+  - `regex.replace_all(str, replacement)`
 - Serialization and deserialization.
 - `Observable`
   - Based on [this TC39 proposal](https://github.com/tc39/proposal-observable).
@@ -200,3 +203,6 @@ The core API, `rialight::core`, basically defines the application interfaces. It
 - Application Shortcuts
   - They can be remapped in the runtime.
   - Used for instance by media editing softwares.
+- Command Line Interface
+  - Allows a graphical application to also be used as a command in a terminal. An application can be configured to be launched graphically manually, allowing to only launch it according to the given command line arguments.
+  - Help should be included by default, not launching the graphical application if `--help` or `-h` is specified.
