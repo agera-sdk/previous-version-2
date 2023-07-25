@@ -42,7 +42,6 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
       - `node.meta_data_entries()`
         - Iterator of key-value pairs of type `(String, Any)`.
       - `node.get_meta_data(key)`, `node.has_meta_data(key)`, `node.set_meta_data(key, value)` and `node.delete_meta_data(key)`
-      - These methods accept a `PrimitiveOrOwnedStringToOwned` as key, so you can pass a `&str` or `String`.
   - Nodes don't describe just graphics. They also emit events, accessed as `node.on_some_event().listen(listen_fn)`, such as `on_enter_frame` and `on_click` events.
     - Somes nodes may not have a certain event, which is a rare case, panicking when retrieving it. In that case, for an event that is not supported by all node kinds, the documentation can list the only supported node kinds.
   - Few events are not accessed as listeners, using a single callback instead:
