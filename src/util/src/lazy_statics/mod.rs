@@ -1,7 +1,7 @@
 /*!
-Provides a macro for declaring lazily evaluated statics.
+Work with lazily evaluated statics.
 
-Using this macro, it is possible to have `static`s that require code to be
+Using the `lazy_static!` macro, it is possible to have `static`s that require code to be
 executed at runtime in order to be initialized.
 This includes anything requiring heap allocations, like vectors or hash maps,
 as well as anything that requires function calls to be computed.
