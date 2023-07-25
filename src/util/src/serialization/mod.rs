@@ -1,6 +1,6 @@
 //! Work with serialization.
 //! 
-//! # JSON example
+//! # Typed serialization
 //!
 //! Here is a simple example serializing and deserializing a typed structure in JSON:
 //!
@@ -33,7 +33,8 @@
 //! # Untyped JSON
 //! 
 //! The `json::deserialize` and `json::serialize` functions support the
-//! [`rialight::util::serialization::json::Value`] structure:
+//! [`rialight::util::serialization::json::Value`] structure, which represents
+//! an untyped value.
 //!
 //! ```rust
 //! enum Value {
@@ -43,6 +44,18 @@
 //!     String(String),
 //!     Array(Vec<Value>),
 //!     Object(Map<String, Value>),
+//! }
+//! ```
+//!
+//! An untyped JSON value can be constructed with the `json!` macro.
+//! 
+//! ```
+//! use rialight::util::serialization::json::json;
+//! 
+//! fn main() {
+//!     let _ = json!({
+//!         "x": "y"
+//!     });
 //! }
 //! ```
 
