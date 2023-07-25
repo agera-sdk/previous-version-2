@@ -206,6 +206,16 @@ The core API, `rialight::core`, basically defines the application interfaces. It
 
 The core internals, `rialight::core_internals`, should not be used anywhere. They are used by the APIs, including file system, for instance, to determine the application's installation directory.
 
+### Prelude
+
+The `rialight::prelude` crate can be used to include commonly used things in scope. It includes:
+
+- Collection Literals
+- Regular expressions
+- Bitwise Flags
+- Lazily Evaluated Statics
+- JSON Serialization
+
 ## Comparison to Other Technologies
 
 - The concept of nodes is similiar to the concept of DOM elements: you cannot subtype a specific DOM element kind and instead use the existing ones. Although the framework strives to have as many node kinds as possible, you may need to wrap it into an unrelated type or create an UI component from the UI API (`rialight::ui`).
@@ -222,8 +232,7 @@ rustup default nightly
 
 Working at the utilities API. All done (using third-party crates under the hood), except:
 
-- [ ] Regular expressions
-  - [ ] Regular expression literal
-    - Compiled only once.
-  - [ ] Comments and whitespace
+- [x] Regular expressions
+  - [ ] Document its syntax, including supported flags
 - [ ] Observable
+- [ ] Encoding an decoding of URIs and URI components via regular expression

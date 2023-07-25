@@ -5,7 +5,7 @@
 //! Work with untyped JSON using the [`json!`] macro and its main `Value` enumeration.
 //!
 //! ```
-//! use rialight::util::serialization::json::json;
+//! use rialight::prelude::*;
 //! 
 //! fn main() {
 //!     let _ = json!({
@@ -116,7 +116,7 @@ pub fn serialize_with_writer_pretty<W, T>(writer: W, value: &T) -> Result<()>
 /// a [`Value`] with very natural JSON syntax.
 ///
 /// ```
-/// use rialight::util::serialization::json::json;
+/// use rialight::prelude::*;
 ///
 /// fn main() {
 ///     // The type of `jessica` is `Value`

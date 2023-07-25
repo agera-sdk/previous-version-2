@@ -5,7 +5,7 @@
 //! Here is a simple example serializing and deserializing a typed structure in JSON:
 //!
 //! ```rust
-//! use rialight::util::serialization::{json, Deserialize, Serialize};
+//! use rialight::prelude::*;
 //! 
 //! #[derive(Serialize, Deserialize, Debug)]
 //! struct Point {
@@ -50,7 +50,7 @@
 //! An untyped JSON value can be constructed with the `json!` macro.
 //! 
 //! ```
-//! use rialight::util::serialization::json::json;
+//! use rialight::prelude::*;
 //! 
 //! fn main() {
 //!     let _ = json!({

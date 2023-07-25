@@ -9,7 +9,7 @@ as well as anything that requires function calls to be computed.
 # Syntax
 
 ```ignore
-use rialight::util::lazy_statics::lazy_static;
+use rialight::prelude::*;
 
 lazy_static! {
     [pub] static ref NAME_1: TYPE_1 = EXPR_1;
@@ -22,7 +22,7 @@ lazy_static! {
 Attributes (including doc comments) are supported as well:
 
 ```rust
-# use rialight::util::lazy_statics::lazy_static;
+# use rialight::prelude::*;
 lazy_static! {
     /// This is an example for using doc comment attributes
     static ref EXAMPLE: u8 = 42;
@@ -50,7 +50,7 @@ have generally the same properties as regular "static" variables:
 Using the macro:
 
 ```rust
-use rialight::util::lazy_statics::lazy_static;
+use rialight::prelude::*;
 use std::collections::HashMap;
 
 lazy_static! {
