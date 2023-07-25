@@ -22,3 +22,4 @@
 //! let my_reg_exp = RegExp::new(r"pattern", "flags");
 //! ```
 
+use super::code_points::CodePointsReader;

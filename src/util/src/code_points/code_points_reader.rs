@@ -1,13 +1,23 @@
 use std::str::CharIndices;
 
 /// The `CodePointsReader` type is used for iterating code points
-/// from left-to-right from a string with additional manipulation methods.
+/// from left-to-right in a string with additional manipulation methods.
 #[derive(Clone)]
 pub struct CodePointsReader<'a> {
     char_indices: CharIndices<'a>,
 }
 
 impl<'a> CodePointsReader<'a> {
+    /// Indicates if there are remaining code points to read.
+    pub fn has_remaining(&self) -> bool {
+        self.clone().char_indices.next().is_some()
+    }
+
+    /// Indicates if the reader has reached the end of the string.
+    pub fn reached_end(&self) -> bool {
+        self.clone().char_indices.next().is_none()
+    }
+
     /// Returns the current index in the string.
     pub fn index(&self) -> usize {
         self.clone().char_indices.next().map_or(0, |(i, _)| i)
@@ -46,9 +56,22 @@ impl<'a> CodePointsReader<'a> {
         }
         r
     }
+
+    /// Constructs a `CodePointsReader` from a string at a given `index` position.
+    /// If `index` is beyond the limit, the reader reaches the end of the string.
+    pub fn from_index(string: &'a str, index: usize) -> CodePointsReader<'a> {
+        let mut indices = string.char_indices();
+        for _ in 0..index {
+            if indices.next().is_none() {
+                break;
+            }
+        }
+        CodePointsReader { char_indices: indices }
+    }
 }
 
 impl<'a> From<&'a str> for CodePointsReader<'a> {
+    /// Constructs a `CodePointsReader` from a string.
     fn from(value: &'a str) -> Self {
         CodePointsReader { char_indices: value.char_indices() }
     }
@@ -59,5 +82,23 @@ impl<'a> Iterator for CodePointsReader<'a> {
 
     fn next(&mut self) -> Option<Self::Item> {
         self.char_indices.next().map(|(_, cp)| cp)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::CodePointsReader;
+    #[test]
+    fn test() {
+        let mut reader = CodePointsReader::from("foo");
+        assert!(reader.has_remaining());
+        assert_eq!(reader.peek_seq(5), "foo");
+        assert_eq!(reader.peek_seq(1), "f");
+        assert_eq!(reader.peek_or_zero(), 'f');
+        for _ in 0..3 {
+            reader.next();
+        }
+        assert_eq!(reader.peek_or_zero(), '\x00');
+        assert!(reader.reached_end());
     }
 }
