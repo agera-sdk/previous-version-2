@@ -220,3 +220,13 @@ The framework currently requires the nightly Rust to be used. It is easy to swit
 ```
 rustup default nightly
 ```
+
+## Tasks
+
+Working at the utilities API. All done (using third-party crates under the hood), except:
+
+- [ ] Regular expressions
+  - [ ] Regular expression literal
+    - Compiled only once.
+  - [ ] Comments and whitespace
+- [ ] Observable
