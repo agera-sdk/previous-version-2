@@ -1,5 +1,5 @@
 /*!
-A macro for declaring lazily evaluated statics.
+Provides a macro for declaring lazily evaluated statics.
 
 Using this macro, it is possible to have `static`s that require code to be
 executed at runtime in order to be initialized.

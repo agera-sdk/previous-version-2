@@ -127,8 +127,7 @@ Ideas for the utilities API, `rialight::util`. The utilities API is standalone a
 - Lazy Statics
 - Collection Literals (Map and Set)
 - Flags
-- `Bytes`
-  - Growable and mutable array of bytes with endianness and several input and output methods.
+- Bytes for working with binaries
 - Regular Expression pattern
   - Support for comments and whitespace using the `x` flag.
   - API strives to be as flexible as the JavaScript's one.
