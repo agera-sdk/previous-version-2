@@ -17,16 +17,13 @@
 use super::{Deserialize, Serialize};
 
 pub use serde_json::{
-    Deserializer,
     Error,
     Map,
     Number,
-    Serializer,
-    StreamDeserializer,
     Value,
-    json
 };
-pub type Result<T> = std::result::Result<T, Error>;
+pub use serde_json::json;
+pub use self::error::Result;
 
 /// Deserializes a JSON string into a value.
 pub fn deserialize<'a, T>(string: &'a str) -> Result<T>
@@ -161,5 +158,58 @@ pub fn serialize_with_writer_pretty<W, T>(writer: W, value: &T) -> Result<()>
 /// ```
 /// 
 pub mod untyped_value {
-    pub use serde_json::Value;
+    pub use super::map::Map;
+    pub use serde_json::value::{
+        Value,
+        Index,
+        Serializer,
+    };
+}
+
+/// Work with JSON deserialization.
+pub mod deserialization {
+    pub use serde_json::de::{
+        Deserializer,
+        IoRead,
+        SliceRead,
+        StrRead,
+        StreamDeserializer,
+    };
+    pub use serde_json::de::Read;
+}
+
+/// Work with JSON serialization.
+pub mod serialization {
+    pub use serde_json::ser::{
+        CompactFormatter,
+        PrettyFormatter,
+        Serializer,
+        CharEscape,
+        Formatter,
+    };
+}
+
+/// Work with errors during JSON serialization.
+pub mod error {
+    pub use serde_json::error::{
+        Error,
+        Category,
+    };
+    pub type Result<T> = std::result::Result<T, Error>;
+}
+
+/// Work with JSON maps.
+pub mod map {
+    pub use serde_json::map::{
+        IntoIter,
+        Iter,
+        IterMut,
+        Keys,
+        Map,
+        OccupiedEntry,
+        VacantEntry,
+        Values,
+        ValuesMut,
+        Entry,
+    };
 }

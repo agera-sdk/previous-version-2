@@ -128,12 +128,12 @@ Ideas for the utilities API, `rialight::util`. The utilities API is standalone a
 - Collection Literals (Map and Set)
 - Flags
 - Bytes for working with binaries
+- Serialization
 - Regular Expression pattern
   - Support for comments and whitespace using the `x` flag.
   - API strives to be as flexible as the JavaScript's one.
   - `regex.replace(str, replacement)` accepts either a string or callback as argument and is the same as JavaScript's `str.replace(regex, replacement)`.
   - `regex.replace_all(str, replacement)`
-- Serialization and deserialization.
 - `Observable`
   - Based on [this TC39 proposal](https://github.com/tc39/proposal-observable).
 - URI and URI Component Encoding
