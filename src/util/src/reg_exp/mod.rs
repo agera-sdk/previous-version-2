@@ -1,7 +1,7 @@
 //! Work with regular expressions.
 //!
 //! Regular expressions are patterns used to match character
-//! combinations in strings. It is compatible with the
+//! combinations in strings. It is highly similiar to
 //! JavaScript regular expressions with additional features,
 //! including comments and whitespace.
 //!
