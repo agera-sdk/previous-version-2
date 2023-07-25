@@ -13,6 +13,7 @@ members = [
     "src/math",
     "src/media",
     "src/net",
+    "src/prelude",
     "src/security",
     "src/sound",
     "src/temporal",
