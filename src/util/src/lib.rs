@@ -13,3 +13,4 @@ pub mod bytes;
 pub mod serialization;
 pub mod code_points;
 pub mod reg_exp;
+pub mod uri;

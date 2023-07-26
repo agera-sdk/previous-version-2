@@ -180,9 +180,7 @@ pub macro btree_set {
 
 #[cfg(test)]
 mod test {
-    use super::{
-        map, set, hash_map, hash_set, btree_map, btree_set,
-    };
+    use super::*;
     use std::collections::{HashMap, HashSet};
 
     #[test]
