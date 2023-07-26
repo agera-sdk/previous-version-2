@@ -1,3 +1,7 @@
+pub use std::collections::{
+    HashMap as Map,
+    HashSet as Set,
+};
 pub use rialight_util::serialization::{
     json,
     json::json,
@@ -6,9 +10,6 @@ pub use rialight_util::serialization::{
 };
 pub use rialight_util::lazy_statics::lazy_static;
 pub use rialight_util::flags::flags;
-pub use rialight_util::collections::{
-    Map, Set,
-};
 pub use rialight_util::collection_literals::{map, set};
 pub use rialight_util::reg_exp::{
     RegExp,

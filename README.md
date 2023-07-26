@@ -122,12 +122,7 @@ Ideas for the mathematics API, `rialight::math`.
 Ideas for the utilities API, `rialight::util`. The utilities API is standalone and does not require the other Rialight APIs, so it can be used for unrelated Rust projects.
 
 - Lazy Statics
-- Collections
-  - Map
-    - A map type that uses either `HashMap` or `BTreeMap` under the hood.
-  - Set
-    - A set type that uses either `HashSet` or `BTreeSet` under the hood.
-- Collection Literals (Map and Set)
+- Collection Literals (map and set)
 - Flags
 - Bytes for working with binaries
 - Serialization
@@ -215,11 +210,14 @@ The core internals, `rialight::core_internals`, should not be used anywhere. The
 
 The `rialight::prelude` crate can be used to include commonly used things in scope. It includes:
 
+- Map and Set Collections that use a hash algorithm (same from the standard library, `std::collections`)
 - Collection Literals
 - Regular expressions
 - Bitwise Flags
 - Lazily Evaluated Statics
 - JSON Serialization
+
+All of these are described in the utilities API.
 
 ## Comparison to Other Technologies
 
@@ -237,7 +235,6 @@ rustup default nightly
 
 Working at the utilities API. All done (using third-party crates under the hood), except:
 
-- [ ] Map and Set collections that work as an union for types like `HashMap` and `BTreeMap`.
 - [x] Regular expressions
   - [ ] Document its syntax, including supported flags
 - [ ] Observable

@@ -5,20 +5,8 @@
 //! ```
 //! use rialight::prelude::*;
 //! 
-//! let m: M = map! { k => v };
-//! let s: S = set! [v1, v2];
-//! ```
-//! 
-//! Notice there is no rest syntax yet.
-//!
-//! # Specific Type Literals
-//!
-//! Using literals such as `hash_map!` does not require them to be typed.
-//!
-//! ```
-//! use rialight::util::collection_literals::{hash_map};
-//! 
-//! let m = hash_map! { "key" = "value" };
+//! let m: Map<K, V> = map! { k => v };
+//! let s: Set<T> = set! [v1, v2];
 //! ```
 
 /// Initialises any map type from a list of key-value pairs in curly brackets.

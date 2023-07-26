@@ -11,7 +11,7 @@ description = "Rialight utilities API."
 
 [dependencies]
 bitflags = "2.3.3"
-bytes = "1.4.0"
+bytes = { version = "1.4.0", features = ["serde"] }
 lazy-regex = "3.0.0"
 lazy_static = "1.4.0"
 serde = "1.0.175"
