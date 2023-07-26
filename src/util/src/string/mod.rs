@@ -4,14 +4,14 @@ Utilities for strings.
 
 use super::{collections::*, reg_exp::*};
 
-/// The `StringApply` trait allows formatting string parameters
-/// of arbitrary name that is computed dynamically.
+/// The `StringIncognitoFormat` trait allows formatting string parameters
+/// of arbitrary name that is computed at runtime.
 ///
 /// The implementation for `&str` accepts parameters in curly brackets form:
 /// 
 /// ```plain
 /// {param_name}     # parameter to replace
-/// {"unparsed"}`    # uninterpreted sequence
+/// {"unparsed"}     # uninterpreted sequence
 /// ```
 ///
 /// # Example
@@ -19,9 +19,12 @@ use super::{collections::*, reg_exp::*};
 /// ```
 /// use rialight::prelude::*;
 /// let user_string = "some user string: {id}";
-/// assert_eq!("x", user_string.apply(map!{"id".into() => "x".into()}));
+/// assert_eq!("x", user_string.incognito_format(map!{"id".into() => "x".into()}));
+/// 
+/// // if a string contains curly brackets, they must be escaped.
+/// let escaped = r#"{"{"}"#;
 /// ```
 ///
-pub trait StringApply {
-    fn apply(&self, arguments: Map<String, String>) -> String;
+pub trait StringIncognitoFormat {
+    fn incognito_format(&self, arguments: Map<String, String>) -> String;
 }

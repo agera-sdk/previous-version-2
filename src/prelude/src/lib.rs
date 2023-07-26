@@ -35,9 +35,10 @@ pub use rialight_util::reg_exp::{
 pub use rialight_util::observable::{
     Observable,
     AbstractObserver,
+    BoxedObserver,
     Observer,
     SubscriberFunction,
     Subscription,
     SubscriptionObserver,
 };
-pub use rialight_util::strings::StringApply;
+pub use rialight_util::strings::StringIncognitoFormat;
