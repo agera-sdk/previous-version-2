@@ -25,7 +25,7 @@ fn my_observable() -> Observable<String> {
 
         // return a cleanup function that runs once all observers
         // unsubscribe.
-        || {
+        &|| {
             dispose_of_observable();
         }
     })
@@ -66,9 +66,18 @@ let _ = my_observable()
     .filter(|value| should_filter)
     .map(|value| new_value);
 ```
+
+You can directly construct an `Observable` from a list of values:
+
+```
+Observable::from(["red", "green", "blue"])
+    .subscribe(|color| {
+        println!("{}", color);
+    });
+```
 */
 
-use std::sync::RwLock;
+use std::sync::{RwLock, Arc};
 
 /// An `Observable` represents a sequence of values which
 /// may be observed.
@@ -81,7 +90,7 @@ impl<'a, T, Error> Observable<'a, T, Error> {
         Self { subscriber }
     }
 
-    pub fn subscribe(&self, observer: impl Into<BoxedObserver<T, Error>>) -> Subscription<T, Error> {
+    pub fn subscribe(&self, observer: impl Into<BoxedObserver<T, Error>>) -> Arc<Subscription<T, Error>> {
         Subscription::new(observer.into(), self.subscriber)
     }
 }
@@ -104,46 +113,65 @@ impl<'a, T, Iterable> From<Iterable> for Observable<'a, T, ()>
     }
 }
 
-pub type SubscriberFunction<'a, T, Error = ()> = &'a dyn FnMut(SubscriptionObserver<T, Error>) -> &'a dyn FnMut();
+pub type SubscriberFunction<'a, T, Error = ()> = &'a dyn Fn(SubscriptionObserver<T, Error>) -> &'a dyn Fn();
 
 pub struct Subscription<T, Error = ()> {
-    cleanup: RwLock<Option<Box<dyn Fn()>>>,
-    observer: RwLock<Option<BoxedObserver<T, Error>>>,
+    cleanup: RwLock<Option<Arc<dyn Fn()>>>,
+    observer: RwLock<Option<Arc<RwLock<BoxedObserver<T, Error>>>>>,
 }
 
 impl<T, Error> Subscription<T, Error> {
-    pub fn new<'a>(observer: BoxedObserver<T, Error>, subscriber: SubscriberFunction<'a, T, Error>) -> Self {
-        let this = Self {
+    pub fn new<'a>(observer: BoxedObserver<T, Error>, subscriber: SubscriberFunction<'a, T, Error>) -> Arc<Self> {
+        let this = Arc::new(Self {
             cleanup: RwLock::new(None),
-            observer: RwLock::new(Some(observer)),
-        };
-        observer.start(this);
+            observer: RwLock::new(Some(Arc::new(RwLock::new(observer)))),
+        });
+        this.observer.read().unwrap().as_ref().unwrap().read().unwrap().start(Arc::clone(&this));
 
         // if the observer has unsubscribed from the start method, exit
-        if subscription_closed(this) {
+        if subscription_closed(&this) {
             return this;
         }
 
-        let observer = SubscriptionObserver { subscription: this };
+        let observer = SubscriptionObserver { subscription: Arc::clone(&this) };
+
+        // call the subscriber function.
         let cleanup = subscriber(observer);
+
+        // the return value of the cleanup is always a function.
+        *this.cleanup.write().unwrap() = Some(Arc::new(cleanup));
+
+        if subscription_closed(&this) {
+            cleanup_subscription(&this);
+        }
+
+        this
+    }
+
+    pub fn closed(&self) -> bool {
+        subscription_closed(self)
+    }
+
+    pub fn unsubscribe(&self) {
+        close_subscription(self);
     }
 }
 
 pub struct SubscriptionObserver<T, Error = ()> {
-    subscription: Subscription<T, Error>,
+    subscription: Arc<Subscription<T, Error>>,
 }
 
 impl<T, Error> SubscriptionObserver<T, Error> {
 
     pub fn closed(&self) -> bool {
-        subscription_closed(self.subscription)
+        subscription_closed(&self.subscription)
     }
 
     pub fn next(&self, value: T) {
         let subscription = self.subscription;
 
         // if the stream if closed, then exit.
-        if subscription_closed(subscription) {
+        if subscription_closed(&subscription) {
             return;
         }
 
@@ -153,41 +181,44 @@ impl<T, Error> SubscriptionObserver<T, Error> {
         }
 
         // send the next value to the sink.
-        observer.unwrap().next(value);
+        observer.unwrap().read().unwrap().next(value);
     }
 
     pub fn error(&self, error: Error) {
         let subscription = self.subscription;
 
         // if the stream if closed, throw the error to the caller.
-        if subscription_closed(subscription) {
+        if subscription_closed(&subscription) {
             return;
         }
 
         let observer = subscription.observer.read().unwrap();
         if let Some(o) = *observer {
+            let o = o.read().unwrap();
+            *subscription.observer.write().unwrap() = None;
             o.error(error);
         } else {
             // host_report_errors(e)
         }
 
-        cleanup_subscription(subscription);
+        cleanup_subscription(&subscription);
     }
 
     pub fn complete(&self) {
         let subscription = self.subscription;
 
         // if the stream if closed, throw the error to the caller.
-        if subscription_closed(subscription) {
+        if subscription_closed(&subscription) {
             return;
         }
 
         let observer = subscription.observer.read().unwrap();
         if let Some(o) = *observer {
+            let o = o.read().unwrap();
+            *subscription.observer.write().unwrap() = None;
             o.complete();
         }
-
-        cleanup_subscription(subscription);
+        cleanup_subscription(&subscription);
     }
 }
 
@@ -199,7 +230,7 @@ pub struct Observer<T, Error = ()> {
     pub next: Box<dyn Fn(T)>,
     pub error: Box<dyn Fn(Error)>,
     pub complete: Box<dyn Fn()>,
-    pub start: Option<Box<dyn Fn(Subscription<T, Error>)>>,
+    pub start: Option<Box<dyn Fn(Arc<Subscription<T, Error>>)>>,
 }
 
 impl<T, Error> AbstractObserver<T, Error> for Observer<T, Error> {
@@ -212,7 +243,7 @@ impl<T, Error> AbstractObserver<T, Error> for Observer<T, Error> {
     fn complete(&self) {
         self.complete();
     }
-    fn start(&self, subscription: Subscription<T, Error>) {
+    fn start(&self, subscription: Arc<Subscription<T, Error>>) {
         self.start.map(|start| start(subscription));
     }
 }
@@ -276,5 +307,34 @@ pub trait AbstractObserver<T, Error = ()> {
     fn next(&self, value: T) {}
     fn error(&self, error: Error) {}
     fn complete(&self) {}
-    fn start(&self, subscription: Subscription<T, Error>) {}
+    fn start(&self, subscription: Arc<Subscription<T, Error>>) {}
+}
+
+fn cleanup_subscription<T, Error>(subscription: &Subscription<T, Error>) {
+    assert!(subscription.observer.read().unwrap().is_none());
+    let cleanup = *subscription.cleanup.read().unwrap();
+    if cleanup.is_none() {
+        return;
+    }
+    let cleanup = Arc::clone(&cleanup.unwrap());
+
+    // drop the reference to the cleanup function so that we won't call it
+    // more than once.
+    *subscription.cleanup.write().unwrap() = None;
+
+    // call the cleanup function.
+    cleanup();
+}
+
+fn subscription_closed<T, Error>(subscription: &Subscription<T, Error>) -> bool {
+    let observer = *subscription.observer.read().unwrap();
+    observer.is_none()
+}
+
+fn close_subscription<T, Error>(subscription: &Subscription<T, Error>) {
+    if subscription_closed(subscription) {
+        return;
+    }
+    *subscription.observer.write().unwrap() = None;
+    cleanup_subscription(subscription);
 }
