@@ -1,6 +1,18 @@
 /*!
 Work with file paths in a cross-platform way.
 
+# Absolute Paths
+
+This module only considers an _absolute path_ to be a path
+that starts with a path separator.
+
+In the Windows operating system, absolute paths may start with a drive letter followed by
+a colon. This module does not detect Windows absolute paths with drive letter
+as they are similiar to URIs.
+
+This allows this module to be used for purposes other than
+working with files in an operating system.
+
 # Example
 
 ```
@@ -64,8 +76,26 @@ pub fn relative(from_path: &str, to_path: &str) -> String {
     if r.is_empty() { ".".to_owned() } else { r.to_owned() }
 }
 
+/// Resolves multiple paths.
+///
+/// Behavior:
+/// - If no paths are provided, this method returns an empty string.
+/// - Eliminates the portions `..` and `.`.
+/// - If a path starts with a path separator, any subsequent paths are resolved relative to that path.
+/// - All path separators that are backslashes (`\`) are replaced by forward ones (`/`).
+/// - If any path starts with a path separator, this function returns an absolute path.
+/// - Any empty portion and trailing path separators, such as in `a/b/` and `a//b` are eliminated.
+/// ```
+/// assert_eq!("", file_paths::resolve_n([]));
+/// assert_eq!("a", file_paths::resolve_n(["a/b/.."]));
+/// assert_eq!("a", file_paths::resolve_n(["a/b", ".."]));
+/// assert_eq!("/bar", file_paths::resolve_n(["/foo", "/bar"]));
+/// ```
 pub fn resolve_n<'a, T: IntoIterator<Item = &'a str>>(paths: T) -> String {
     let paths = paths.into_iter().collect::<Vec<&'a str>>();
+    if paths.len() == 0 {
+        return "".to_owned();
+    }
     if paths.len() == 1 {
         return resolve_one(paths[0].as_ref());
     }
@@ -79,7 +109,7 @@ pub fn resolve_n<'a, T: IntoIterator<Item = &'a str>>(paths: T) -> String {
 /// - Eliminates the portions `..` and `.`.
 /// - If `path2` starts with a path separator, this function returns a resolution of solely `path2`.
 /// - All path separators that are backslashes (`\`) are replaced by forward ones (`/`).
-/// - If any of the paths starts with a path separator, it is kept.
+/// - If any path starts with a path separator, this function returns an absolute path.
 /// - Any empty portion and trailing path separators, such as in `a/b/` and `a//b` are eliminated.
 /// ```
 /// assert_eq!("/a/b", file_paths::resolve("/c", "/a/b"));
@@ -112,7 +142,7 @@ pub fn resolve(path1: &str, path2: &str) -> String {
 /// Behavior:
 /// - Eliminates the portions `..` and `.`.
 /// - All path separators that are backslashes (`\`) are replaced by forward ones (`/`).
-/// - If the path starts with a path separator, it is kept.
+/// - If the path starts with a path separator, an absolute path is returned.
 /// - Any empty portion and trailing path separators, such as in `a/b/` and `a//b` are eliminated.
 /// ```
 /// assert_eq!("a/b", file_paths::resolve_one("a/b/"));
@@ -140,6 +170,102 @@ fn resolve_one_without_starting_sep(path: &str) -> String {
     r.join("/")
 }
 
+/// Changes the extension of a path and returns a new string.
+/// This method adds any lacking dot (`.`) prefix automatically to the
+/// `extension` argument.
+///
+/// This method allows multiple dots per extension. If that is not
+/// desired, use [`change_last_extension`].
+///
+/// # Example
+/// 
+/// ```
+/// use rialight::util::file_paths;
+/// assert_eq!("a.y", file_paths::change_extension("a.x", ".y"));
+/// assert_eq!("a.z", file_paths::change_extension("a.x.y", ".z"));
+/// assert_eq!("a.z.w", file_paths::change_extension("a.x.y", ".z.w"));
+/// ```
+///
+pub fn change_extension(path: &str, extension: &str) -> String {
+    let extension = (if extension.starts_with(".") { "" } else { "." }).to_owned() + extension;
+    if reg_exp_find!(r"(\.[^\.]+)+$", path).is_none() {
+        return path.to_owned() + &extension;
+    }
+    reg_exp_replace!(r"(\.[^\.]+)+$", path, |_, _| &extension).into_owned()
+}
+
+/// Changes only the last extension of a path and returns a new string.
+/// This method adds any lacking dot (`.`) prefix automatically to the
+/// `extension` argument.
+///
+/// # Exceptions
+///
+/// Panics if the extension contains more than one dot.
+///
+pub fn change_last_extension(path: &str, extension: &str) -> String {
+    let extension = (if extension.starts_with(".") { "" } else { "." }).to_owned() + extension;
+    if extension[1..].find('.').is_some() {
+        panic!("The argument to file_paths::change_last_extension() must only contain one extension; got {}", extension);
+    }
+    if reg_exp_find!(r"(\..+)$", path).is_none() {
+        return path.to_owned() + &extension;
+    }
+    reg_exp_replace!(r"(\..+)$", path, |_, _| &extension).into_owned()
+}
+
+/// Adds prefix dot to extension if missing.
+fn extension_arg(extension: &str) -> String {
+    (if extension.starts_with(".") { "" } else { "." }).to_owned() + extension
+}
+
+/// Checks if a file path has a specific extension.
+/// This method adds any lacking dot (`.`) prefix automatically to the
+/// `extension` argument.
+pub fn has_extension(path: &str, extension: &str) -> bool {
+    let extension = (if extension.starts_with(".") { "" } else { "." }).to_owned() + extension;
+    path.ends_with(&extension_arg(&extension))
+}
+
+/// Checks if a file path has any of multiple specific extensions.
+/// This method adds any lacking dot (`.`) prefix automatically to each
+/// extension argument.
+pub fn has_extensions<'a, T: IntoIterator<Item = &'a str>>(path: &str, extensions: T) -> bool {
+    extensions.into_iter().any(|ext| has_extension(path, ext))
+}
+
+/// Returns the base name of a file path.
+///
+/// # Example
+/// 
+/// ```
+/// use rialight::util::file_paths;
+/// assert_eq!("qux.html", file_paths::base_name("foo/qux.html"));
+/// ```
+pub fn base_name(path: &str) -> String {
+    resolve_one(path).split('/').last().map_or("", |s| s).to_owned()
+}
+
+/// Returns the base name of a file path, removing any of the specified extensions.
+/// This method adds any lacking dot (`.`) prefix automatically to each
+/// extension argument.
+///
+/// # Example
+/// 
+/// ```
+/// use rialight::util::file_paths;
+/// assert_eq!("qux", file_paths::base_name_without_ext("foo/qux.html", [".html"]));
+/// ```
+pub fn base_name_without_ext<'a, T>(path: &str, extensions: T) -> String
+    where T: IntoIterator<Item = &'a str>
+{
+    let extensions = extensions.into_iter().map(|s| extension_arg(s)).collect::<Vec<String>>();
+    resolve_one(path).split('/').last().map_or("".to_owned(), |base| {
+        reg_exp_replace!(r"(\.[^\.]+)+$", base, |_, prev_ext: &str| {
+            (if extensions.iter().any(|ext| ext == &prev_ext) { "" } else { prev_ext }).to_owned()
+        }).into_owned()
+    })
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -156,5 +282,12 @@ mod test {
         assert_eq!("c", relative("/a/b", "/a/b/c"));
         assert_eq!("../../c/d", relative("/a/b", "/c/d"));
         assert_eq!("../c", relative("/a/b", "/a/c"));
+        assert!(has_extensions("a.x", [".x", ".y"]));
+        assert_eq!("a.y", change_extension("a.x", ".y"));
+        assert_eq!("a.z", change_extension("a.x.y", ".z"));
+        assert_eq!("a.z.w", change_extension("a.x.y", ".z.w"));
+
+        assert_eq!("qux.html", base_name("foo/qux.html"));
+        assert_eq!("qux", base_name_without_ext("foo/qux.html", [".html"]));
     }
 }

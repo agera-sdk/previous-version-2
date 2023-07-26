@@ -52,10 +52,14 @@ let text = "Foo fuu";
 let text = reg_exp_replace_all!(
     r#"\bf(?P<suffix>\w+)"#i,
     text,
-    |_, suffix| format!("F<{}>", suffix),
+    |_, suffix: &str| format!("F<{}>", suffix),
 );
 assert_eq!(text, "F<oo> F<uu>");
 ```
+
+Currently, the capture groups in the callback given to macros such as these
+must be typed as above, often with just `&str`, otherwise the macro
+may report wrong diagnostics.
 */
 
 pub mod syntax;

@@ -1,3 +1,4 @@
+pub use std::borrow::Borrow;
 pub use std::collections::{
     HashMap as Map,
     HashSet as Set,

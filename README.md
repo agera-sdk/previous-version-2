@@ -236,4 +236,3 @@ rustup default nightly
 Working at the utilities API. All done (using third-party crates under the hood), except:
 
 - [ ] Observable
-- [ ] Generic File Path functions
