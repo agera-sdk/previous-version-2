@@ -33,6 +33,16 @@ Flags, such as `i`, can be passed as suffix when using the `reg_exp!` literal:
 let _ = reg_exp!(r"pattern"i);
 ```
 
+# Creating a static regular expression
+
+Sometimes you may wish to not repeat a certain regular expression literal.
+In that case you can use the `static_reg_exp!` literal and annotate it with
+`StaticRegExp` to define a global regular expression:
+
+```
+static GLOBAL_REGEX: StaticRegExp = static_reg_exp!(r"pattern");
+```
+
 # Replacement
 
 Most commonly, macros such as `reg_exp_replace_all!` can be used to replace occurrences:
@@ -52,6 +62,7 @@ pub mod syntax;
 
 pub use lazy_regex::{
     regex as reg_exp,
+    lazy_regex as static_reg_exp,
     regex::{
         Regex as RegExp,
         Match as RegExpMatch,
@@ -70,6 +81,8 @@ pub use lazy_regex::{
     regex_replace as reg_exp_replace,
     regex_replace_all as reg_exp_replace_all,
 };
+
+pub type StaticRegExp = lazy_regex::Lazy<RegExp>;
 
 /// Work with regular expressions at binary level.
 pub mod binary {

@@ -236,5 +236,4 @@ rustup default nightly
 Working at the utilities API. All done (using third-party crates under the hood), except:
 
 - [ ] Observable
-- [ ] Encoding and decoding of URIs and URI components via regular expression
 - [ ] Generic File Path functions
