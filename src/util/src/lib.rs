@@ -6,6 +6,7 @@ on other APIs of the framework.
 #![feature(decl_macro)]
 
 pub mod lazy_statics;
+pub mod collections;
 pub mod collection_literals;
 pub mod flags;
 pub mod bytes;

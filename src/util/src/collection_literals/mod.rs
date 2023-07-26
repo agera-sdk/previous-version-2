@@ -3,7 +3,7 @@
 //! # Example
 //! 
 //! ```
-//! use rialight::util::collection_literals::{map, set};
+//! use rialight::prelude::*;
 //! 
 //! let m: M = map! { k => v };
 //! let s: S = set! [v1, v2];
@@ -26,7 +26,7 @@
 /// ## Example
 ///
 /// ```
-/// use rialight::util::collection_literals::map;
+/// use rialight::prelude::*;
 /// take_my_map(map!{
 ///     "a" => "foo",
 ///     "b" => "bar",
@@ -117,7 +117,7 @@ pub macro btree_map {
 /// ## Example
 ///
 /// ```
-/// use rialight::util::collection_literals::set;
+/// use rialight::prelude::*;
 /// take_my_set(set!["foo"]);
 /// ```
 ///
