@@ -31,17 +31,20 @@ fn my_observable() -> Observable<String> {
 
 let _= my_observable()
     .subscribe(Observer {
-        next: |value| {
-            // next
-        },
-        error: |error| {
-            // error
-        },
-        complete: || {
-            // complete
-        },
+        next: |value| {},
+        error: |error| {},
+        complete: || {},
     })
     .unsubscribe();
+
+let _= my_observable()
+    .subscribe(|value| { /* next */});
+
+let _= my_observable()
+    .subscribe(|value| { /* next */}, |error| { /* error */ });
+
+let _= my_observable()
+    .subscribe(|value| { /* next */}, |error| { /* error */ }, || { /* complete */ });
 
 // you can also use functional methods such as `filter` and `map`.
 let _ = my_observable()
@@ -62,6 +65,7 @@ impl<'a, T, Error> Observable<'a, T, Error> {
     }
 
     pub fn subscribe(observer: impl Into<Box<dyn AbstractObserver<T, Error>>>) -> Subscription<T, Error> {
+        //
     }
 }
 
@@ -72,9 +76,9 @@ pub struct Subscription<T, Error = ()> {
 
 /// `Observer` is the default implementation for the `AbstractObserver` trait.
 pub struct Observer<'a, 'b, 'c, T, Error = ()> {
-    pub next: &'a dyn FnMut(T),
-    pub error: &'b dyn FnMut(Error),
-    pub complete: &'c dyn FnMut(),
+    pub next: &'a dyn Fn(T),
+    pub error: &'b dyn Fn(Error),
+    pub complete: &'c dyn Fn(),
 }
 
 impl<'a, 'b, 'c, T, Error> AbstractObserver<T> for Observer<'a, 'b, 'c, T, Error> {
@@ -96,12 +100,38 @@ impl<'a, 'b, 'c, T, Error> Into<Box<dyn AbstractObserver<T, Error>>> for Observe
     }
 }
 
-impl<T> Into<Box<dyn AbstractObserver<T>>> for &dyn FnMut() {
+impl<T> Into<Box<dyn AbstractObserver<T>>> for &dyn Fn(T) {
     fn into(self) -> Box<dyn AbstractObserver<T>> {
-        Box::new(Observer {
-            next: self,
-            error: |_| {},
-            complete: |_| {},
-        })
+        Box::new(Observer { next: self, error: |_| {}, complete: |_| {}, })
+    }
+}
+
+impl<T, Error> Into<Box<dyn AbstractObserver<T, Error>>> for (&dyn Fn(T), &dyn Fn(Error)) {
+    fn into(self) -> Box<dyn AbstractObserver<T, Error>> {
+        Box::new(Observer { next: self.0, error: self.1, complete: |_| {}, })
+    }
+}
+
+impl<T, Error> Into<Box<dyn AbstractObserver<T, Error>>> for (&dyn Fn(T), &dyn Fn(Error), &dyn Fn()) {
+    fn into(self) -> Box<dyn AbstractObserver<T, Error>> {
+        Box::new(Observer { next: self.0, error: self.1, complete: self.2, })
+    }
+}
+
+impl<T> Into<Box<dyn AbstractObserver<T>>> for &dyn FnMut(T) {
+    fn into(self) -> Box<dyn AbstractObserver<T>> {
+        Box::new(Observer { next: self, error: |_| {}, complete: |_| {}, })
+    }
+}
+
+impl<T, Error> Into<Box<dyn AbstractObserver<T, Error>>> for (&dyn FnMut(T), &dyn FnMut(Error)) {
+    fn into(self) -> Box<dyn AbstractObserver<T, Error>> {
+        Box::new(Observer { next: self.0, error: self.1, complete: |_| {}, })
+    }
+}
+
+impl<T, Error> Into<Box<dyn AbstractObserver<T, Error>>> for (&dyn FnMut(T), &dyn FnMut(Error), &dyn FnMut()) {
+    fn into(self) -> Box<dyn AbstractObserver<T, Error>> {
+        Box::new(Observer { next: self.0, error: self.1, complete: self.2, })
     }
 }

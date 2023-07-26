@@ -241,3 +241,6 @@ Working at the utilities API. All done (using third-party crates under the hood)
     - [ ] Fully RustDoc according to TC39 proposal
     - [ ] `map` (creates a new `Observable` with a new type)
     - [ ] `filter` (creates a new `Observable` that filters data from the original)
+- [ ] String Apply
+  - Used where Rust's standard library cannot be used for formatting parameters of arbitrary name. For example, an user may give a `param_name` and you may want to format it.
+  - That is simply a trait `StringApply` implemented for `&'a str`, used with `some_string.apply(map!["k" => "v"])`
