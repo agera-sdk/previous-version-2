@@ -87,11 +87,9 @@ impl<T, Error> Observable<T, Error>
 
     /// Returns a new `Observable` that performs a map on data from the original.
     pub fn map<U>(&self, map_fn: impl Fn(T) -> U + Send + Sync + 'static) -> Observable<U, Error>
-        where
-            T: Clone,
-            U: Send + Sync + 'static
+        where U: Send + Sync + 'static
     {
-        let orig = Arc::new(self.clone());
+        let orig = Self { subscriber: Arc::clone(&self.subscriber) };
         let map_fn = Arc::new(map_fn);
         let f: SubscriberFunction<U, Error> = Arc::new(move |observer| {
             let map_fn = map_fn.clone();
@@ -99,7 +97,7 @@ impl<T, Error> Observable<T, Error>
             let (observer_1, observer_2, observer_3) = (Arc::clone(&observer), Arc::clone(&observer), Arc::clone(&observer));
             let subscription = orig.subscribe(observer! {
                 next: move |value: T| {
-                    observer_1.next(map_fn(value.clone()));
+                    observer_1.next(map_fn(value));
                 },
                 error: move |error| {
                     observer_2.error(error);
@@ -119,7 +117,30 @@ impl<T, Error> Observable<T, Error>
     pub fn filter(&self, filter_fn: impl Fn(T) -> bool + 'static + Send + Sync) -> Observable<T, Error>
         where T: Clone
     {
-        todo!();
+        let orig = Self { subscriber: Arc::clone(&self.subscriber) };
+        let filter_fn = Arc::new(filter_fn);
+        let f: SubscriberFunction<T, Error> = Arc::new(move |observer| {
+            let filter_fn = filter_fn.clone();
+            let observer = Arc::new(observer);
+            let (observer_1, observer_2, observer_3) = (Arc::clone(&observer), Arc::clone(&observer), Arc::clone(&observer));
+            let subscription = orig.subscribe(observer! {
+                next: move |value: T| {
+                    if filter_fn(value.clone()) {
+                        observer_1.next(value);
+                    }
+                },
+                error: move |error| {
+                    observer_2.error(error);
+                },
+                complete: move || {
+                    observer_3.complete();
+                },
+            });
+            Arc::new(move || {
+                subscription.unsubscribe();
+            })
+        });
+        Self::new(f)
     }
 }
 
@@ -144,11 +165,7 @@ impl<T, Iterable> From<Iterable> for Observable<T, ()>
     }
 }
 
-pub type SubscriberFunction<T, Error = ()>
-    where
-        T: Send + Sync + 'static,
-        Error: Send + Sync + 'static
-    = Arc<(dyn Fn(SubscriptionObserver<T, Error>) -> Arc<(dyn Fn() + Sync + Send + 'static)> + Sync + Send + 'static)>;
+pub type SubscriberFunction<T, Error = ()> = Arc<(dyn Fn(SubscriptionObserver<T, Error>) -> Arc<(dyn Fn() + Sync + Send + 'static)> + Sync + Send + 'static)>;
 
 /// A `Subscription` is returned by `subscribe`.
 pub struct Subscription<T, Error = ()>
