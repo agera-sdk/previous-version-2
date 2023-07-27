@@ -26,6 +26,11 @@
 /// Rest is not supported yet. If you need it, just use `FromIterator`.
 ///
 pub macro map {
+    () => {
+        {
+            ::std::iter::FromIterator::from_iter([])
+        }
+    },
     ($($key:expr => $value:expr,)+) => {
         {
             ::std::iter::FromIterator::from_iter([$(($key, $value)),+])
@@ -57,6 +62,11 @@ pub macro map {
 /// Rest is not supported yet. If you need it, just use `FromIterator`.
 ///
 pub macro hash_map {
+    () => {
+        {
+            ::std::collections::HashMap::<_, _>::from_iter([])
+        }
+    },
     ($($key:expr => $value:expr,)+) => {
         {
             ::std::collections::HashMap::<_, _>::from_iter([$(($key, $value)),+])
@@ -88,6 +98,11 @@ pub macro hash_map {
 /// Rest is not supported yet. If you need it, just use `FromIterator`.
 ///
 pub macro btree_map {
+    () => {
+        {
+            ::std::collections::BTreeMap::<_, _>::from_iter([])
+        }
+    },
     ($($key:expr => $value:expr,)+) => {
         {
             ::std::collections::BTreeMap::<_, _>::from_iter([$(($key, $value)),+])
@@ -114,6 +129,11 @@ pub macro btree_map {
 /// Rest is not supported yet. If you need it, just use `FromIterator`.
 ///
 pub macro set {
+    () => [
+        {
+            ::std::iter::FromIterator::from_iter([])
+        }
+    ],
     ($($value:expr,)+) => [
         {
             ::std::iter::FromIterator::from_iter([$($value),+])
@@ -140,6 +160,11 @@ pub macro set {
 /// Rest is not supported yet. If you need it, just use `FromIterator`.
 ///
 pub macro hash_set {
+    () => [
+        {
+            ::std::collections::HashSet::<_, _>::from_iter([])
+        }
+    ],
     ($($value:expr,)+) => [
         {
             ::std::collections::HashSet::<_>::from_iter([$($value),+])
@@ -166,6 +191,11 @@ pub macro hash_set {
 /// Rest is not supported yet. If you need it, just use `FromIterator`.
 ///
 pub macro btree_set {
+    () => [
+        {
+            ::std::collections::BTreeSet::<_, _>::from_iter([])
+        }
+    ],
     ($($value:expr,)+) => [
         {
             ::std::collections::BTreeSet::<_>::from_iter([$($value),+])

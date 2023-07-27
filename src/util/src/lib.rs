@@ -11,7 +11,6 @@ pub mod collection_literals;
 pub mod flags;
 pub mod bytes;
 pub mod serialization;
-pub mod code_points;
 pub mod reg_exp;
 pub mod uri;
 pub mod file_paths;
