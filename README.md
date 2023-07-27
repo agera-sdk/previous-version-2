@@ -258,8 +258,19 @@ Working at file system:
 
 - Design an API that works across all platforms, including Android.
   - [ ] Provide ways of requesting permissions using asynchronous results that works across all platforms
+  - **DO NOT** use all of the `rialight_util::file_paths` module's functions directly; wrap them first to handle the path prefix for Windows according to a given `manipulation` parameter (important because of `app:` and `app-storage:` which work differently).
+    - [ ] Implement the operations below under `rialight_util::file_paths::os_based`
+    - [ ] For `relative`, if given `manipulation` is Windows, then:
+      - For each of the path arguments, if that path argument starts with a Windows supported prefix (including the UNC path prefix), do the following:
+        - If the rest of the path is empty, add a single path separator to it.
+      - ... Decide further steps here! Do it carefully because it may be either a UNC path prefix or a drive prefix (which can be different in both arguments), which may involve replacing the return result's path separator with that prefix.
+    - [ ] For `resolve`, if given `manipulation` is Windows, get the set _P_ of path arguments (`[from, to]`) containing a Windows supported prefix. If there are none, simply delegate to `rialight_util::file_paths::resolve`. If there are any, do the following:
+      - Let _p_ be the result of retaining the Windows supported prefix from the last element of that set _P_.
+      - Let _r_ be the result of delegating to `rialight_util::file_paths::resolve`, replacing each present Windows supported prefix from the arguments by a path separator.
+      - If _p_ is the UNC prefix (`\\`), return _p_ + `r[1..]`
+      - Return _p_ + _r_
   - [ ] Windows
-    - [ ] For native paths, additional path manipulations are done wherever needed for the absolute path prefix which is `drive_letter:`.
+    - [ ] For native paths, the path prefix is either `drive:` or `\\`.  `drive` is a case-insensitive letter.
   - [ ] Android
     - [ ] On Android, `app:` and `app-storage:` do not use a static from the Rialight core internals; call the Java API function [`context.getFilesDir`](https://developer.android.com/reference/android/content/Context#getFilesDir()).
   - [ ] Web-compatible `File` API at `rialight::filesystem::webcompat`

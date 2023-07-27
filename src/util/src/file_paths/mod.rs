@@ -6,9 +6,12 @@ Work with file paths in a cross-platform way.
 This module only considers an _absolute path_ to be a path
 that starts with a path separator.
 
-In the Windows operating system, absolute paths may start with a drive letter followed by
-a colon. This module does not detect Windows absolute paths with drive letter
-as they are similiar to URIs.
+This module does not handle Windows operating system absolute paths.
+In the Windows operating system, absolute paths may either start with a drive letter followed by
+a colon or an UNC path prefix (`\\`). This module by default does not
+handle Windows absolute paths. If you need this, use the [`rialight_util::file_paths::os_based`]
+module instead, which has functions that accept an additional parameter whose type is an enumeration of
+a special operating system to handle determined at runtime.
 
 This allows this module to be used for purposes other than
 working with files in an operating system.
@@ -29,6 +32,8 @@ use super::reg_exp::*;
 
 static PATH_SEPARATOR: StaticRegExp = static_reg_exp!(r"[/\\]");
 static STARTS_WITH_PATH_SEPARATOR: StaticRegExp = static_reg_exp!(r"^[/\\]");
+
+pub mod os_based;
 
 /**
 Finds the relative path between `from_path` and `to_path`.
