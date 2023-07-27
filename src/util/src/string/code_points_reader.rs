@@ -77,6 +77,13 @@ impl<'a> From<&'a str> for CodePointsReader<'a> {
     }
 }
 
+impl<'a> From<&'a String> for CodePointsReader<'a> {
+    /// Constructs a `CodePointsReader` from a string.
+    fn from(value: &'a String) -> Self {
+        CodePointsReader { char_indices: value.char_indices() }
+    }
+}
+
 impl<'a> Iterator for CodePointsReader<'a> {
     type Item = char;
 
