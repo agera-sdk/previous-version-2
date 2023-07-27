@@ -37,7 +37,8 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
 
 - Nodes, the primary way to construct a visual application.
   - The `Node` object is the primary item of the graphics API, which has a limited set of various variants, such as `Rectangle`, `Canvas`, `Button`, `TabBar` and `Modal`. All of them share full customisation and common properties like visibility and transform (including 3D matrix) which are inherited by default from their parent.
-    - Children manipulation
+    - _Reference:_ A `Node` is a thread-safe reference type that uses reference counting internally. If you need a weak reference to a node, you can downgrade it to a `WeakRefNode`.
+    - _Children:_ The `Node` type supports common child operations. It also supports node paths described later in this list.
     - Meta data (optional mapping from `String` to `MetaDataValue` for attaching any data)
       - `pub type MetaDataValue = Box<dyn Any + Send + Sync>;`
   - Nodes don't describe just graphics. They also emit events, accessed as `node.on_some_event().listen(listen_fn)`, such as `on_enter_frame` and `on_click` events.
@@ -49,7 +50,7 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
   - _Finding nodes_: The most common method for finding nodes by identifier is `by_path`, which accepts a node path.
   - _Node paths:_ Node paths are paths using the slash (`/`) separator and `..` and `.` portions. A `..` portion resolves to the parent and a `.` portion resolves to the current node. If a node path is absolute, that is, it starts with a path separator, it resolves a node relative to the topmost parent.
     - `node.get_path()` returns the absolute node path.
-  - _Node kinds:_The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind. Note that the set of node kinds cannot be extended.
+  - _Node kinds:_The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind. Note that the set of node kinds cannot be extended. Node kinds have dedicated types for convenience, such as `Button`. Calling `Button::new` returns a `Node`.
 - Skins
   - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
   - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
@@ -255,15 +256,12 @@ rustup default nightly
 
 When futurely working on graphical nodes:
 
-- Garbage collection:
-  - Considered using the `gc` crate internally, but it has one current limitation: it's thread-local, therefore resolve the question: what to use else?
-    - [ ] Maybe `Arc` and `std::sync::Weak`?
-    - [ ] Some concurrent crate?
-    - [ ] Invent my own?
-- Provide `Node` and futurely `WeakRefNode` that may be useful for some users.
-- Use garbage collection inside, not exposing it to the user. For example, just `Node` and no additional type. The equality operator should work as well, comparing the nodes by reference. The clone method clones by reference.
-- Internationalization (`rialight::intl`)
-  - Use ICU internally and wrap it _entirely_ instead of aliasing to it:
-    - [Display names for language and region](https://github.com/unicode-org/icu4x/issues/3167)
-    - [Default data provider](https://github.com/unicode-org/icu4x/issues/3180)
-    - [Locale directionality](https://github.com/unicode-org/icu4x/issues/3172)
+- Provide the types `Node` and `WeakRefNode`. Inside `Node` is stored an internal `Arc<NonRefNode>` and inside `WeakRefNode` is an internal `Weak<Gc<NonRefNode>>` to which it dereferences.
+- The equality operator compares by reference and the clone method clones by reference.
+
+When futurely working with internationalization:
+
+- Use ICU internally and wrap it _entirely_ instead of aliasing to it:
+  - [Display names for language and region](https://github.com/unicode-org/icu4x/issues/3167)
+  - [Default data provider](https://github.com/unicode-org/icu4x/issues/3180)
+  - [Locale directionality](https://github.com/unicode-org/icu4x/issues/3172)
