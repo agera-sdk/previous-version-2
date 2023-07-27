@@ -37,21 +37,9 @@ let _ = my_observable()
         next: |value| {},
         error: |error| {},
         complete: || {},
-        start: || {},
+        start: |subscription| {},
     })
     .unsubscribe();
-
-// alias
-
-let _ = my_observable()
-    .subscribe(|value| { /* next */});
-
-let _ = my_observable()
-    .subscribe((
-        |value| { /* next     */ },
-        |error| { /* error    */ }
-        ||      { /* complete */ }
-    ));
 
 // you can also use functional methods such as `filter` and `map`.
 let _ = my_observable()
@@ -83,15 +71,51 @@ pub struct Observable<T, Error = ()>
 
 impl<T, Error> Observable<T, Error>
     where
-    T: Send + Sync + 'static,
-    Error: Send + Sync + 'static
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
 {
+    /// Constructs an observable given a callback.
     pub fn new(subscriber: SubscriberFunction<T, Error>) -> Self {
         Self { subscriber }
     }
 
+    /// Subscribes to the sequence with an observer.
     pub fn subscribe(&self, observer: impl Into<BoxedObserver<T, Error>>) -> Arc<Subscription<T, Error>> {
         Subscription::new(observer.into(), Arc::clone(&self.subscriber))
+    }
+
+    /// Returns a new `Observable` that performs a map on data from the original.
+    pub fn map<U>(&self, map_fn: impl Fn(T) -> U + Send + Sync + 'static) -> Observable<U, Error>
+        where
+            T: Clone,
+            U: Send + Sync + 'static
+    {
+        let f: SubscriberFunction<U, Error> = Arc::new(move |observer| {
+            let observer = Arc::new(observer);
+            let (observer_1, observer_2, observer_3) = (Arc::clone(&observer), Arc::clone(&observer), Arc::clone(&observer));
+            let subscription = self.subscribe(observer! {
+                next: move |value: T| {
+                    observer_1.next(map_fn(value.clone()));
+                },
+                error: move |error| {
+                    observer_2.error(error);
+                },
+                complete: move || {
+                    observer_3.complete();
+                },
+            });
+            Arc::new(move || {
+                subscription.unsubscribe();
+            })
+        });
+        Observable::<U, Error>::new(f)
+    }
+
+    /// Returns a new `Observable` that filters data from the original.
+    pub fn filter(&self, filter_fn: impl Fn(T) -> bool + 'static + Send + Sync) -> Observable<T, Error>
+        where T: Clone
+    {
+        todo!();
     }
 }
 
@@ -118,6 +142,7 @@ impl<T, Iterable> From<Iterable> for Observable<T, ()>
 
 pub type SubscriberFunction<T, Error = ()> = Arc<(dyn Fn(SubscriptionObserver<T, Error>) -> Arc<(dyn Fn() + Sync + Send)> + Sync + Send)>;
 
+/// A `Subscription` is returned by `subscribe`.
 pub struct Subscription<T, Error = ()>
     where
         T: Send + Sync + 'static,
@@ -132,7 +157,7 @@ impl<T, Error> Subscription<T, Error>
         T: Send + Sync + 'static,
         Error: Send + Sync + 'static
 {
-    pub fn new(observer: BoxedObserver<T, Error>, subscriber: SubscriberFunction<T, Error>) -> Arc<Self> {
+    fn new(observer: BoxedObserver<T, Error>, subscriber: SubscriberFunction<T, Error>) -> Arc<Self> {
         let this = Arc::new(Self {
             cleanup: RwLock::new(None),
             observer: RwLock::new(Some(Arc::new(RwLock::new(observer)))),
@@ -159,15 +184,18 @@ impl<T, Error> Subscription<T, Error>
         this
     }
 
+    /// Indicates whether the subscription is closed.
     pub fn closed(&self) -> bool {
         subscription_closed(self)
     }
 
+    /// Cancels the subscription.
     pub fn unsubscribe(&self) {
         close_subscription(self);
     }
 }
 
+/// A `SubscriptionObserver` wraps the observer object supplied to `subscribe`.
 pub struct SubscriptionObserver<T, Error = ()>
     where
         T: Send + Sync + 'static,
@@ -181,10 +209,12 @@ impl<T, Error> SubscriptionObserver<T, Error>
         T: Send + Sync + 'static,
         Error: Send + Sync + 'static
 {
+    /// Indicates whether the subscription is closed.
     pub fn closed(&self) -> bool {
         subscription_closed(&self.subscription)
     }
 
+    /// Sends the next value in the sequence.
     pub fn next(&self, value: T) {
         let subscription = Arc::clone(&self.subscription);
 
@@ -202,6 +232,7 @@ impl<T, Error> SubscriptionObserver<T, Error>
         observer.unwrap().read().unwrap().next(value);
     }
 
+    /// Sends the sequence error.
     pub fn error(&self, error: Error) {
         let subscription = Arc::clone(&self.subscription);
 
@@ -222,6 +253,7 @@ impl<T, Error> SubscriptionObserver<T, Error>
         cleanup_subscription(&subscription);
     }
 
+    /// Sends the completion notification.
     pub fn complete(&self) {
         let subscription = Arc::clone(&self.subscription);
 
@@ -240,19 +272,22 @@ impl<T, Error> SubscriptionObserver<T, Error>
     }
 }
 
+/// The `BoxedObserver` type represents an abstract observer into a box.
 pub type BoxedObserver<T, Error = ()> = Box<dyn AbstractObserver<T, Error>>;
 
 /// The `observer!` macro constructs an `Observer` by allowing
 /// you to omit any of the listeners and not needing to box them explictly.
 pub macro observer {
+    // empty
+    () => { Observer::<_, _> { next: Box::new(|_| {}), error: Box::new(|_| {}), complete: Box::new(|| {}), start: None, } },
     // only next (no trailing comma)
     (
         next: $next_fn:expr
-    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new(|error| {}), complete: Box::new(|| {}), start: None, } },
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new(|_| {}), complete: Box::new(|| {}), start: None, } },
     // only next (with trailing comma)
     (
         next: $next_fn:expr,
-    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new(|error| {}), complete: Box::new(|| {}), start: None, } },
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new(|_| {}), complete: Box::new(|| {}), start: None, } },
     // next and error (no trailing comma)
     (
         next: $next_fn:expr, error: $error_fn:expr
@@ -286,9 +321,13 @@ pub struct Observer<T, Error = ()>
         T: Send + Sync + 'static,
         Error: Send + Sync + 'static
 {
+    /// Receives the next value in the sequence.
     pub next: Box<dyn Fn(T) + Sync + Send>,
+    /// Receives the sequence error.
     pub error: Box<dyn Fn(Error) + Sync + Send>,
+    /// Receives a completion notification.
     pub complete: Box<dyn Fn() + Sync + Send>,
+    /// Receives the subscription object when `subscribe` is called.
     pub start: Option<Box<dyn Fn(Arc<Subscription<T, Error>>) + Sync + Send>>,
 }
 
@@ -344,7 +383,7 @@ impl<T, Error> Into<Observer<T, Error>> for (&'static (dyn Fn(T) + Sync + Send +
     }
 }
 
-impl<T, Error> Into<Observer<T, Error>> for (&'static (dyn Fn(T) + Sync + Send + 'static), &'static (dyn Fn(Error) + Sync + Send + 'static), &'static (dyn Fn() + Sync + Send))
+impl<T, Error> Into<Observer<T, Error>> for (&'static (dyn Fn(T) + Sync + Send + 'static), &'static (dyn Fn(Error) + Sync + Send + 'static), &'static (dyn Fn() + Sync + Send + 'static))
     where
         T: Send + Sync + 'static,
         Error: Send + Sync + 'static
@@ -383,7 +422,7 @@ impl<T, Error> Into<BoxedObserver<T, Error>> for (&'static (dyn Fn(T) + Sync + S
     }
 }
 
-impl<T, Error> Into<BoxedObserver<T, Error>> for (&'static (dyn Fn(T) + Sync + Send + 'static), &'static (dyn Fn(Error) + Sync + Send + 'static), &'static (dyn Fn() + Sync + Send))
+impl<T, Error> Into<BoxedObserver<T, Error>> for (&'static (dyn Fn(T) + Sync + Send + 'static), &'static (dyn Fn(Error) + Sync + Send + 'static), &'static (dyn Fn() + Sync + Send + 'static))
     where
         T: Send + Sync + 'static,
         Error: Send + Sync + 'static
@@ -400,9 +439,13 @@ pub trait AbstractObserver<T, Error = ()>: Send + Sync
         T: Send + Sync + 'static,
         Error: Send + Sync + 'static
 {
+    /// Receives the next value in the sequence.
     fn next(&self, _value: T) {}
+    /// Receives the sequence error.
     fn error(&self, _error: Error) {}
+    /// Receives a completion notification.
     fn complete(&self) {}
+    /// Receives the subscription object when `subscribe` is called.
     fn start(&self, _subscription: Arc<Subscription<T, Error>>) {}
 }
 
@@ -452,30 +495,25 @@ mod test {
     use super::*;
 
     #[test]
-    fn test() {
-        fn my_observable() -> Observable<String> {
-            Observable::new(Arc::new(|observer| {
-                // send initial data
-                observer.next("initial value".into());
-        
-                // return a cleanup function that runs once all observers
-                // unsubscribe.
-                Arc::new(|| {
-                    println!("disposed.");
-                })
-            }))
-        }
-        
-        let _ = my_observable()
-            .subscribe(observer! {
-                // subconsequent listeners can be omitted
-                next: |value| {
-                    println!("{}", value);
-                },
-                error: |_error| {},
-                complete: || {},
-                start: |_| {},
+    fn subscription() {
+        let list = Arc::new(RwLock::new(vec![]));
+        let list2 = Arc::clone(&list);
+        Observable::<_, ()>::new(Arc::new(|observer| {
+            for color in ["red", "green", "blue"] {
+                observer.next(color.to_owned());
+            }
+            Arc::new(|| {
+                // cleanup
             })
-            .unsubscribe();
+        }))
+            .subscribe(observer! {
+                next: move |color| {
+                    list2.write().unwrap().push(color);
+                },
+            });
+        assert_eq!(
+            *list.read().unwrap(),
+            Vec::from_iter(["red", "green", "blue"])
+        );
     }
 }
