@@ -50,7 +50,8 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
   - _Finding nodes_: The most common method for finding nodes by identifier is `by_path`, which accepts a node path.
   - _Node paths:_ Node paths are paths using the slash (`/`) separator and `..` and `.` portions. A `..` portion resolves to the parent and a `.` portion resolves to the current node. If a node path is absolute, that is, it starts with a path separator, it resolves a node relative to the topmost parent.
     - `node.get_path()` returns the absolute node path.
-  - _Node kinds:_The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind. Note that the set of node kinds cannot be extended. Node kinds have dedicated types for convenience, such as `Button`. Calling `Button::new` returns a `Node`.
+  - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind. Note that the set of node kinds cannot be extended. Node kinds have dedicated types for consulting their API documentation, such as `Button`. Calling `Button::new` returns a `Node`; however `Button` itself is not the `Node` type. The home API documentation for `rialight::graphics` has a list of supported node kinds, referencing the dedicated types.
+  - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and an union of node kinds (stored in an `Arc`).
 - Skins
   - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
   - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
@@ -279,6 +280,7 @@ Working at file system:
 When futurely working on graphical nodes:
 
 - Provide the types `Node` and `WeakRefNode`. Inside `Node` is stored an internal `Arc<NonRefNode>` and inside `WeakRefNode` is an internal `Weak<Gc<NonRefNode>>` to which it dereferences.
+- Store a node kind in a `Node` behind an `Arc`, inside an union containing other node kinds.
 - The equality operator compares by reference and the clone method clones by reference.
 
 When futurely working with internationalization:
