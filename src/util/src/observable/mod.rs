@@ -19,16 +19,16 @@ the `AbstractObserver` trait.
 use rialight::prelude::*;
 
 fn my_observable() -> Observable<String> {
-    Observable::new(&|observer| {
+    Observable::new(Arc::new(|observer| {
         // send initial data
         observer.next("initial value");
 
         // return a cleanup function that runs once all observers
         // unsubscribe.
-        &|| {
+        Arc::new(|| {
             dispose_of_observable();
-        }
-    })
+        })
+    }))
 }
 
 let _ = my_observable()
@@ -73,47 +73,66 @@ use std::sync::{RwLock, Arc};
 
 /// An `Observable` represents a sequence of values which
 /// may be observed.
-pub struct Observable<'a, T, Error = ()> {
-    subscriber: SubscriberFunction<'a, T, Error>,
+pub struct Observable<T, Error = ()>
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
+    subscriber: SubscriberFunction<T, Error>,
 }
 
-impl<'a, T, Error> Observable<'a, T, Error> {
-    pub fn new(subscriber: SubscriberFunction<'a, T, Error>) -> Self {
+impl<T, Error> Observable<T, Error>
+    where
+    T: Send + Sync + 'static,
+    Error: Send + Sync + 'static
+{
+    pub fn new(subscriber: SubscriberFunction<T, Error>) -> Self {
         Self { subscriber }
     }
 
     pub fn subscribe(&self, observer: impl Into<BoxedObserver<T, Error>>) -> Arc<Subscription<T, Error>> {
-        Subscription::new(observer.into(), self.subscriber)
+        Subscription::new(observer.into(), Arc::clone(&self.subscriber))
     }
 }
 
-impl<'a, T, Iterable> From<Iterable> for Observable<'a, T, ()>
-    where Iterable: IntoIterator<Item = T> + Send + Sync + 'a
+impl<T, Iterable> From<Iterable> for Observable<T, ()>
+    where
+        Iterable: IntoIterator<Item = T> + Send + Sync + 'static,
+        T: Clone + Send + Sync + 'static
 {
     /// Constructs an `Observable` from a list of values.
     fn from(value: Iterable) -> Self {
-        Self::new(&|observer| {
-            for item in value.into_iter() {
-                observer.next(item);
+        let value = value.into_iter().collect::<Vec<T>>();
+        Self::new(Arc::new(move |observer| {
+            for item in &value {
+                observer.next(item.clone());
                 if observer.closed() {
-                    return &|| {};
+                    return Arc::new(|| {});
                 }
             }
             observer.complete();
-            &|| {}
-        })
+            Arc::new(|| {})
+        }))
     }
 }
 
-pub type SubscriberFunction<'a, T, Error = ()> = &'a (dyn Fn(SubscriptionObserver<T, Error>) -> &'a (dyn Fn() + Sync + Send) + Sync + Send);
+pub type SubscriberFunction<T, Error = ()> = Arc<(dyn Fn(SubscriptionObserver<T, Error>) -> Arc<(dyn Fn() + Sync + Send)> + Sync + Send)>;
 
-pub struct Subscription<T, Error = ()> {
+pub struct Subscription<T, Error = ()>
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     cleanup: RwLock<Option<Arc<dyn Fn() + Sync + Send>>>,
     observer: RwLock<Option<Arc<RwLock<BoxedObserver<T, Error>>>>>,
 }
 
-impl<T, Error> Subscription<T, Error> {
-    pub fn new<'a>(observer: BoxedObserver<T, Error>, subscriber: SubscriberFunction<'a, T, Error>) -> Arc<Self> {
+impl<T, Error> Subscription<T, Error>
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
+    pub fn new(observer: BoxedObserver<T, Error>, subscriber: SubscriberFunction<T, Error>) -> Arc<Self> {
         let this = Arc::new(Self {
             cleanup: RwLock::new(None),
             observer: RwLock::new(Some(Arc::new(RwLock::new(observer)))),
@@ -131,7 +150,7 @@ impl<T, Error> Subscription<T, Error> {
         let cleanup = subscriber(observer);
 
         // the return value of the cleanup is always a function.
-        *this.cleanup.write().unwrap() = Some(Arc::new(cleanup));
+        *this.cleanup.write().unwrap() = Some(Arc::clone(&cleanup));
 
         if subscription_closed(&this) {
             cleanup_subscription(&this);
@@ -149,25 +168,32 @@ impl<T, Error> Subscription<T, Error> {
     }
 }
 
-pub struct SubscriptionObserver<T, Error = ()> {
+pub struct SubscriptionObserver<T, Error = ()>
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     subscription: Arc<Subscription<T, Error>>,
 }
 
-impl<T, Error> SubscriptionObserver<T, Error> {
-
+impl<T, Error> SubscriptionObserver<T, Error>
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     pub fn closed(&self) -> bool {
         subscription_closed(&self.subscription)
     }
 
     pub fn next(&self, value: T) {
-        let subscription = self.subscription;
+        let subscription = Arc::clone(&self.subscription);
 
         // if the stream if closed, then exit.
         if subscription_closed(&subscription) {
             return;
         }
 
-        let observer = subscription.observer.read().unwrap();
+        let observer = subscription.observer.read().unwrap().as_ref().map(|o| o.clone());
         if observer.is_none() {
             return;
         }
@@ -177,7 +203,7 @@ impl<T, Error> SubscriptionObserver<T, Error> {
     }
 
     pub fn error(&self, error: Error) {
-        let subscription = self.subscription;
+        let subscription = Arc::clone(&self.subscription);
 
         // if the stream if closed, throw the error to the caller.
         if subscription_closed(&subscription) {
@@ -185,7 +211,7 @@ impl<T, Error> SubscriptionObserver<T, Error> {
         }
 
         let observer = subscription.observer.read().unwrap();
-        if let Some(o) = *observer {
+        if let Some(o) = observer.as_ref().map(|o| o.clone()) {
             let o = o.read().unwrap();
             *subscription.observer.write().unwrap() = None;
             o.error(error);
@@ -197,7 +223,7 @@ impl<T, Error> SubscriptionObserver<T, Error> {
     }
 
     pub fn complete(&self) {
-        let subscription = self.subscription;
+        let subscription = Arc::clone(&self.subscription);
 
         // if the stream if closed, throw the error to the caller.
         if subscription_closed(&subscription) {
@@ -205,7 +231,7 @@ impl<T, Error> SubscriptionObserver<T, Error> {
         }
 
         let observer = subscription.observer.read().unwrap();
-        if let Some(o) = *observer {
+        if let Some(o) = observer.as_ref().map(|o| o.clone()) {
             let o = o.read().unwrap();
             *subscription.observer.write().unwrap() = None;
             o.complete();
@@ -255,29 +281,41 @@ pub macro observer {
 
 /// An `Observer` is used to receive data from an `Observable`, and
 /// is supplied as an argument to `subscribe`.
-pub struct Observer<T, Error = ()> {
+pub struct Observer<T, Error = ()>
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     pub next: Box<dyn Fn(T) + Sync + Send>,
     pub error: Box<dyn Fn(Error) + Sync + Send>,
     pub complete: Box<dyn Fn() + Sync + Send>,
     pub start: Option<Box<dyn Fn(Arc<Subscription<T, Error>>) + Sync + Send>>,
 }
 
-impl<T, Error> AbstractObserver<T, Error> for Observer<T, Error> {
+impl<T, Error> AbstractObserver<T, Error> for Observer<T, Error>
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     fn next(&self, value: T) {
-        self.next(value);
+        (self.next)(value);
     }
     fn error(&self, error: Error) {
-        self.error(error);
+        (self.error)(error);
     }
     fn complete(&self) {
-        self.complete();
+        (self.complete)();
     }
     fn start(&self, subscription: Arc<Subscription<T, Error>>) {
-        self.start.map(|start| start(subscription));
+        (self.start).as_ref().map(|start| start(subscription));
     }
 }
 
-impl<T, Error> Default for Observer<T, Error> {
+impl<T, Error> Default for Observer<T, Error>
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     fn default() -> Self {
         Self {
             next: Box::new(|_| {}),
@@ -288,43 +326,68 @@ impl<T, Error> Default for Observer<T, Error> {
     }
 }
 
-impl<T> Into<Observer<T>> for &(dyn Fn(T) + Sync + Send) {
+impl<T> Into<Observer<T>> for &'static (dyn Fn(T) + Sync + Send + 'static)
+    where T: Send + Sync + 'static
+{
     fn into(self) -> Observer<T> {
         Observer { next: Box::new(self), error: Box::new(|_| {}), complete: Box::new(|| {}), start: None }
     }
 }
 
-impl<T, Error> Into<Observer<T, Error>> for (&(dyn Fn(T) + Sync + Send), &(dyn Fn(Error) + Sync + Send)) {
+impl<T, Error> Into<Observer<T, Error>> for (&'static (dyn Fn(T) + Sync + Send + 'static), &'static (dyn Fn(Error) + Sync + Send + 'static))
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     fn into(self) -> Observer<T, Error> {
         Observer { next: Box::new(self.0), error: Box::new(self.1), complete: Box::new(|| {}), start: None }
     }
 }
 
-impl<T, Error> Into<Observer<T, Error>> for (&(dyn Fn(T) + Sync + Send), &(dyn Fn(Error) + Sync + Send), &(dyn Fn() + Sync + Send)) {
+impl<T, Error> Into<Observer<T, Error>> for (&'static (dyn Fn(T) + Sync + Send + 'static), &'static (dyn Fn(Error) + Sync + Send + 'static), &'static (dyn Fn() + Sync + Send))
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     fn into(self) -> Observer<T, Error> {
         Observer { next: Box::new(self.0), error: Box::new(self.1), complete: Box::new(self.2), start: None }
     }
 }
 
-impl<T, Error> Into<BoxedObserver<T, Error>> for Observer<T, Error> {
+impl<T, Error> Into<BoxedObserver<T, Error>> for Observer<T, Error>
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     fn into(self) -> BoxedObserver<T, Error> {
         Box::new(self)
     }
 }
 
-impl<T> Into<BoxedObserver<T>> for &(dyn Fn(T) + Sync + Send) {
+impl<T> Into<BoxedObserver<T>> for &'static (dyn Fn(T) + Sync + Send + 'static)
+    where
+        T: Send + Sync + 'static
+{
     fn into(self) -> BoxedObserver<T> {
         Box::<Observer<T>>::new(self.into())
     }
 }
 
-impl<T, Error> Into<BoxedObserver<T, Error>> for (&(dyn Fn(T) + Sync + Send), &(dyn Fn(Error) + Sync + Send)) {
+impl<T, Error> Into<BoxedObserver<T, Error>> for (&'static (dyn Fn(T) + Sync + Send + 'static), &'static (dyn Fn(Error) + Sync + Send + 'static))
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     fn into(self) -> BoxedObserver<T, Error> {
         Box::<Observer<T, Error>>::new(self.into())
     }
 }
 
-impl<T, Error> Into<BoxedObserver<T, Error>> for (&(dyn Fn(T) + Sync + Send), &(dyn Fn(Error) + Sync + Send), &(dyn Fn() + Sync + Send)) {
+impl<T, Error> Into<BoxedObserver<T, Error>> for (&'static (dyn Fn(T) + Sync + Send + 'static), &'static (dyn Fn(Error) + Sync + Send + 'static), &'static (dyn Fn() + Sync + Send))
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     fn into(self) -> BoxedObserver<T, Error> {
         Box::<Observer<T, Error>>::new(self.into())
     }
@@ -332,16 +395,24 @@ impl<T, Error> Into<BoxedObserver<T, Error>> for (&(dyn Fn(T) + Sync + Send), &(
 
 /// An `AbstractObserver` is used to receive data from an `Observable`, and
 /// is supplied as an argument to `subscribe` in boxed form.
-pub trait AbstractObserver<T, Error = ()>: Send + Sync {
-    fn next(&self, value: T) {}
-    fn error(&self, error: Error) {}
+pub trait AbstractObserver<T, Error = ()>: Send + Sync
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
+    fn next(&self, _value: T) {}
+    fn error(&self, _error: Error) {}
     fn complete(&self) {}
-    fn start(&self, subscription: Arc<Subscription<T, Error>>) {}
+    fn start(&self, _subscription: Arc<Subscription<T, Error>>) {}
 }
 
-fn cleanup_subscription<T, Error>(subscription: &Subscription<T, Error>) {
+fn cleanup_subscription<T, Error>(subscription: &Subscription<T, Error>)
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     assert!(subscription.observer.read().unwrap().is_none());
-    let cleanup = *subscription.cleanup.read().unwrap();
+    let cleanup = subscription.cleanup.read().unwrap().as_ref().map(|o| o.clone());
     if cleanup.is_none() {
         return;
     }
@@ -355,12 +426,20 @@ fn cleanup_subscription<T, Error>(subscription: &Subscription<T, Error>) {
     cleanup();
 }
 
-fn subscription_closed<T, Error>(subscription: &Subscription<T, Error>) -> bool {
-    let observer = *subscription.observer.read().unwrap();
+fn subscription_closed<T, Error>(subscription: &Subscription<T, Error>) -> bool
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
+    let observer = subscription.observer.read().unwrap().as_ref().map(|o| o.clone());
     observer.is_none()
 }
 
-fn close_subscription<T, Error>(subscription: &Subscription<T, Error>) {
+fn close_subscription<T, Error>(subscription: &Subscription<T, Error>)
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+{
     if subscription_closed(subscription) {
         return;
     }

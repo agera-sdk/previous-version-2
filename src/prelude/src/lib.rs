@@ -44,4 +44,4 @@ pub use rialight_util::observable::{
     Subscription,
     SubscriptionObserver,
 };
-pub use rialight_util::strings::StringIncognitoFormat;
+pub use rialight_util::string::StringIncognitoFormat;
