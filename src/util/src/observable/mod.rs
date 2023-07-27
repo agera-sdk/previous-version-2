@@ -90,7 +90,9 @@ impl<T, Error> Observable<T, Error>
             T: Clone,
             U: Send + Sync + 'static
     {
+        let map_fn = Arc::new(map_fn);
         let f: SubscriberFunction<U, Error> = Arc::new(move |observer| {
+            let map_fn = map_fn.clone();
             let observer = Arc::new(observer);
             let (observer_1, observer_2, observer_3) = (Arc::clone(&observer), Arc::clone(&observer), Arc::clone(&observer));
             let subscription = self.subscribe(observer! {
