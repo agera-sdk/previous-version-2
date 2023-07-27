@@ -262,3 +262,8 @@ When futurely working on graphical nodes:
     - [ ] Invent my own?
 - Provide `Node` and futurely `WeakRefNode` that may be useful for some users.
 - Use garbage collection inside, not exposing it to the user. For example, just `Node` and no additional type. The equality operator should work as well, comparing the nodes by reference. The clone method clones by reference.
+- Internationalization (`rialight::intl`)
+  - Use ICU internally and wrap it _entirely_ instead of aliasing to it:
+    - [Display names for language and region](https://github.com/unicode-org/icu4x/issues/3167)
+    - [Default data provider](https://github.com/unicode-org/icu4x/issues/3180)
+    - [Locale directionality](https://github.com/unicode-org/icu4x/issues/3172)
