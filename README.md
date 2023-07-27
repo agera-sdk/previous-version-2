@@ -240,6 +240,7 @@ Working at the utilities API. All done (using third-party crates under the hood)
   - `Observable`
     - [ ] `map`
     - [ ] `filter`
+- Find a way to remove lifetime parameter from `CodePointsReader` as it may be unintuitive and use `String`.
 
 When futurely working on graphical nodes:
 

@@ -61,6 +61,7 @@ use std::sync::{RwLock, Arc};
 
 /// An `Observable` represents a sequence of values which
 /// may be observed.
+#[derive(Clone)]
 pub struct Observable<T, Error = ()>
     where
         T: Send + Sync + 'static,
@@ -90,12 +91,13 @@ impl<T, Error> Observable<T, Error>
             T: Clone,
             U: Send + Sync + 'static
     {
+        let orig = Arc::new(self.clone());
         let map_fn = Arc::new(map_fn);
         let f: SubscriberFunction<U, Error> = Arc::new(move |observer| {
             let map_fn = map_fn.clone();
             let observer = Arc::new(observer);
             let (observer_1, observer_2, observer_3) = (Arc::clone(&observer), Arc::clone(&observer), Arc::clone(&observer));
-            let subscription = self.subscribe(observer! {
+            let subscription = orig.subscribe(observer! {
                 next: move |value: T| {
                     observer_1.next(map_fn(value.clone()));
                 },
@@ -142,7 +144,11 @@ impl<T, Iterable> From<Iterable> for Observable<T, ()>
     }
 }
 
-pub type SubscriberFunction<T, Error = ()> = Arc<(dyn Fn(SubscriptionObserver<T, Error>) -> Arc<(dyn Fn() + Sync + Send)> + Sync + Send)>;
+pub type SubscriberFunction<T, Error = ()>
+    where
+        T: Send + Sync + 'static,
+        Error: Send + Sync + 'static
+    = Arc<(dyn Fn(SubscriptionObserver<T, Error>) -> Arc<(dyn Fn() + Sync + Send + 'static)> + Sync + Send + 'static)>;
 
 /// A `Subscription` is returned by `subscribe`.
 pub struct Subscription<T, Error = ()>
