@@ -240,7 +240,6 @@ Working at the utilities API. All done (using third-party crates under the hood)
   - `Observable`
     - [ ] `map`
     - [ ] `filter`
-- [ ] `StringIncognitoFormat`
 
 When futurely working on graphical nodes:
 
