@@ -9,8 +9,7 @@ as well as anything that requires function calls to be computed.
 # Syntax
 
 ```ignore
-use rialight::prelude::*;
-
+# use rialight_util::lazy_statics::*;
 lazy_static! {
     [pub] static ref NAME_1: TYPE_1 = EXPR_1;
     [pub] static ref NAME_2: TYPE_2 = EXPR_2;
@@ -22,7 +21,7 @@ lazy_static! {
 Attributes (including doc comments) are supported as well:
 
 ```rust
-# use rialight::prelude::*;
+# use rialight_util::lazy_statics::*;
 lazy_static! {
     /// This is an example for using doc comment attributes
     static ref EXAMPLE: u8 = 42;
@@ -50,18 +49,18 @@ have generally the same properties as regular "static" variables:
 Using the macro:
 
 ```rust
-use rialight::prelude::*;
-use std::collections::HashMap;
+# use rialight_util::lazy_statics::*;
+# use std::collections::HashMap as Map;
 
 lazy_static! {
-    static ref HASHMAP: HashMap<u32, &'static str> = {
-        let mut m = HashMap::new();
+    static ref MAP: Map<u32, &'static str> = {
+        let mut m = Map::new();
         m.insert(0, "foo");
         m.insert(1, "bar");
         m.insert(2, "baz");
         m
     };
-    static ref COUNT: usize = HASHMAP.len();
+    static ref COUNT: usize = MAP.len();
     static ref NUMBER: u32 = times_two(21);
 }
 
@@ -69,7 +68,7 @@ fn times_two(n: u32) -> u32 { n * 2 }
 
 fn main() {
     println!("The map has {} entries.", *COUNT);
-    println!("The entry for `0` is \"{}\".", HASHMAP.get(&0).unwrap());
+    println!("The entry for `0` is \"{}\".", MAP.get(&0).unwrap());
     println!("A expensive calculation on a static results in: {}.", *NUMBER);
 }
 ```
@@ -77,13 +76,6 @@ fn main() {
 # Implementation details
 
 The `Deref` implementation uses a hidden static variable that is guarded by an atomic check on each access.
-
-# Cargo features
-
-This crate provides one cargo feature:
-
-- `spin_no_std`: This allows using this crate in a no-std environment, by depending on the standalone `spin` crate.
-
 */
 
 pub use lazy_static::lazy_static;

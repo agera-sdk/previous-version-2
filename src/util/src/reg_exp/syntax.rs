@@ -58,7 +58,7 @@ This example shows how an alternation works, and what it means to
 prefer a branch in the alternation over subsequent branches.
 
 ```
-use rialight::prelude::*;
+# use rialight_util::reg_exp::reg_exp;
 
 let haystack = "samwise";
 // If 'samwise' comes first in our alternation, then it is
@@ -109,11 +109,12 @@ However, such matches are permitted when using a [binary RegExp][super::binary::
 For example:
 
 ```
+# use rialight_util::reg_exp::reg_exp;
 let re = reg_exp!(r"");
 let ranges: Vec<_> = re.find_iter("💩").map(|m| m.range()).collect();
 assert_eq!(ranges, vec![0..0, 4..4]);
 
-use rialight::util::reg_exp::binary::RegExp as BinRegExp;
+use rialight_util::reg_exp::binary::RegExp as BinRegExp;
 let re = BinRegExp::new(r"").unwrap();
 let ranges: Vec<_> = re.find_iter("💩".as_bytes()).map(|m| m.range()).collect();
 assert_eq!(ranges, vec![0..0, 1..1, 2..2, 3..3, 4..4]);
@@ -167,6 +168,7 @@ Flags can be toggled within a pattern. Here’s an example that matches
 case-insensitively for the first part but case-sensitively for the second part:
 
 ```
+# use rialight_util::reg_exp::reg_exp;
 let re = reg_exp!(r"(?i)a+(?-i)b+");
 let m = re.find("AaAaAbbBBBb").unwrap();
 assert_eq!(m.as_str(), "AaAaAbb");
@@ -178,6 +180,7 @@ Multi-line mode means `^` and `$` no longer match just at the
 beginning/end of the input, but also at the beginning/end of lines:
 
 ```
+# use rialight_util::reg_exp::reg_exp;
 let re = reg_exp!(r"(?m)^line \d+");
 let m = re.find("line one\nline 2\n").unwrap();
 assert_eq!(m.as_str(), "line 2");
@@ -186,6 +189,7 @@ assert_eq!(m.as_str(), "line 2");
 Note that `^` matches after new lines, even at the end of input:
 
 ```
+# use rialight_util::reg_exp::reg_exp;
 let re = reg_exp!(r"(?m)^");
 let m = re.find_iter("test\n").last().unwrap();
 assert_eq!((m.start(), m.end()), (5, 5));
@@ -195,6 +199,7 @@ When both CRLF mode and multi-line mode are enabled, then `^` and `$`
 will match either `\r` and `\n`, but never in the middle of a `\r\n`:
 
 ```
+# use rialight_util::reg_exp::reg_exp;
 let re = reg_exp!(r"(?mR)^foo$");
 let m = re.find("\r\nfoo\r\n").unwrap();
 assert_eq!(m.as_str(), "foo");
@@ -206,6 +211,7 @@ One good example of this is using an ASCII word boundary instead of a
 Unicode word boundary, which might make some regex searches run faster:
 
 ```
+# use rialight_util::reg_exp::reg_exp;
 let re = reg_exp!(r"(?-u:\b).+(?-u:\b)");
 let m = re.find("$$abc$$").unwrap();
 assert_eq!(m.as_str(), "abc");

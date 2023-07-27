@@ -2,10 +2,7 @@
 //!
 //! This module provides an efficient byte buffer structure
 //! ([`Bytes`](struct.Bytes.html)) and traits for working with buffer
-//! implementations ([`Buf`], [`BufMut`]).
-//!
-//! [`Buf`]: trait.Buf.html
-//! [`BufMut`]: trait.BufMut.html
+//! implementations ([`Buffer`], [`BufferMut`]).
 //!
 //! # `Bytes`
 //!
@@ -23,21 +20,21 @@
 //! example:
 //!
 //! ```rust
-//! use rialight::util::bytes::{BytesMut, BufMut};
+//! use rialight_util::bytes::{BytesMut, BufferMut};
 //!
-//! let mut buf = BytesMut::with_capacity(1024);
-//! buf.put(&b"hello world"[..]);
-//! buf.put_u16(1234);
+//! let mut buffer = BytesMut::with_capacity(1024);
+//! buffer.put(&b"hello world"[..]);
+//! buffer.put_u16(1234);
 //!
-//! let a = buf.split();
+//! let a = buffer.split();
 //! assert_eq!(a, b"hello world\x04\xD2"[..]);
 //!
-//! buf.put(&b"goodbye world"[..]);
+//! buffer.put(&b"goodbye world"[..]);
 //!
-//! let b = buf.split();
+//! let b = buffer.split();
 //! assert_eq!(b, b"goodbye world"[..]);
 //!
-//! assert_eq!(buf.capacity(), 998);
+//! assert_eq!(buffer.capacity(), 998);
 //! ```
 //!
 //! In the above example, only a single buffer of 1024 is allocated. The handles
@@ -48,12 +45,12 @@
 //!
 //! [struct docs]: struct.Bytes.html
 //!
-//! # `Buf`, `BufMut`
+//! # `Buffer`, `BufferMut`
 //!
 //! These two traits provide read and write access to buffers. The underlying
 //! storage may or may not be in contiguous memory. For example, `Bytes` is a
 //! buffer that guarantees contiguous memory, but a [rope] stores the bytes in
-//! disjoint chunks. `Buf` and `BufMut` maintain cursors tracking the current
+//! disjoint chunks. `Buffer` and `BufferMut` maintain cursors tracking the current
 //! position in the underlying byte storage. When bytes are read or written, the
 //! cursor is advanced.
 //!
@@ -61,14 +58,14 @@
 //!
 //! ## Relation with `Read` and `Write`
 //!
-//! At first glance, it may seem that `Buf` and `BufMut` overlap in
+//! At first glance, it may seem that `Buffer` and `BufferMut` overlap in
 //! functionality with `std::io::Read` and `std::io::Write`. However, they
 //! serve different purposes. A buffer is the value that is provided as an
 //! argument to `Read::read` and `Write::write`. `Read` and `Write` may then
-//! perform a syscall, which has the potential of failing. Operations on `Buf`
-//! and `BufMut` are infallible.
+//! perform a syscall, which has the potential of failing. Operations on `Buffer`
+//! and `BufferMut` are infallible.
 
-pub use bytes::{Bytes, BytesMut, Buf, BufMut};
+pub use bytes::{Bytes, BytesMut, Buf as Buffer, BufMut as BufferMut};
 
 /// Utilities for working with buffers.
 ///
@@ -76,18 +73,16 @@ pub use bytes::{Bytes, BytesMut, Buf, BufMut};
 /// or may not be stored in contiguous memory. This module contains traits used
 /// to abstract over buffers as well as utilities for working with buffer types.
 ///
-/// # `Buf`, `BufMut`
+/// # `Buffer`, `BufferMut`
 ///
 /// These are the two foundational traits for abstractly working with buffers.
 /// They can be thought as iterators for byte structures. They offer additional
 /// performance over `Iterator` by providing an API optimized for byte slices.
 ///
-/// See [`Buf`] and [`BufMut`] for more details.
+/// See [`Buffer`] and [`BufferMut`] for more details.
 ///
 /// [rope]: https://en.wikipedia.org/wiki/Rope_(data_structure)
-/// [`Buf`]: trait.Buf.html
-/// [`BufMut`]: trait.BufMut.html
-pub mod buf {
+pub mod buffer {
     pub use bytes::buf::{
         Chain,
         IntoIter,
@@ -96,7 +91,7 @@ pub mod buf {
         Take,
         UninitSlice,
         Writer,
-        Buf,
-        BufMut,
+        Buf as Buffer,
+        BufMut as BufferMut,
     };
 }

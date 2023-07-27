@@ -1,18 +1,23 @@
-//! Working with JSON serialization.
-//!
-//! # Untyped JSON
-//!
-//! Work with untyped JSON using the [`json!`] macro and its main `Value` enumeration.
-//!
-//! ```
-//! use rialight::prelude::*;
-//! 
-//! fn main() {
-//!     let _ = json!({
-//!         "x": "y"
-//!     });
-//! }
-//! ```
+/*!
+Working with JSON serialization.
+
+# Untyped JSON
+
+Work with untyped JSON using the [`json!`] macro and its main `Value` enumeration.
+
+```
+# use rialight_util::{
+#     serialization::*,
+#     serialization::{json, json::json},
+# };
+
+fn main() {
+    let _ = json!({
+        "x": "y"
+    });
+}
+```
+*/
 
 use super::{Deserialize, Serialize};
 
@@ -112,11 +117,11 @@ pub fn serialize_with_writer_pretty<W, T>(writer: W, value: &T) -> Result<()>
 ///
 /// # Constructing JSON
 ///
-/// The [`rialight::util::serialization::json::json!`] macro can be used to build
+/// The [`rialight_util::serialization::json::json!`] macro can be used to build
 /// a [`Value`] with very natural JSON syntax.
 ///
 /// ```
-/// use rialight::prelude::*;
+/// # use rialight_util::serialization::{json::json};
 ///
 /// fn main() {
 ///     // The type of `jessica` is `Value`
@@ -144,6 +149,10 @@ pub fn serialize_with_writer_pretty<W, T>(writer: W, value: &T) -> Result<()>
 /// to be represented as JSON.
 ///
 /// ```
+/// # use rialight_util::serialization::json::json;
+/// #
+/// # fn random_phone() -> u16 { 0 }
+/// #
 /// let full_name = "Jessica Clara";
 /// let age_last_year = 16;
 /// 

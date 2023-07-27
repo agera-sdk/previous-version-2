@@ -16,7 +16,8 @@ the `AbstractObserver` trait.
 # Example
 
 ```
-use rialight::prelude::*;
+# use std::sync::Arc;
+# use rialight_util::observable::*;
 
 fn my_observable() -> Observable<String> {
     Observable::new(Arc::new(|observer| {
@@ -26,7 +27,7 @@ fn my_observable() -> Observable<String> {
         // return a cleanup function that runs once all observers
         // unsubscribe.
         Arc::new(|| {
-            dispose_of_observable();
+            println!("cleanup on unsubscribe");
         })
     }))
 }
@@ -41,18 +42,21 @@ let _ = my_observable()
     })
     .unsubscribe();
 
-// you can also use functional methods such as `filter` and `map`.
+// you can also use functional methods such as `retain` and `map`.
 let _ = my_observable()
-    .filter(|value| should_filter)
-    .map(|value| new_value);
+    .retain(|value| true)
+    .map(|value| value);
 ```
 
 You can directly construct an `Observable` from a list of values:
 
 ```
+# use rialight_util::observable::*;
 Observable::from(["red", "green", "blue"])
-    .subscribe(|color| {
-        println!("{}", color);
+    .subscribe(observer! {
+        next: |color| {
+            println!("{}", color);
+        },
     });
 ```
 */
@@ -61,7 +65,6 @@ use std::sync::{RwLock, Arc};
 
 /// An `Observable` represents a sequence of values which
 /// may be observed.
-#[derive(Clone)]
 pub struct Observable<T, Error = ()>
     where
         T: Send + Sync + 'static,
@@ -89,21 +92,29 @@ impl<T, Error> Observable<T, Error>
     pub fn map<U>(&self, map_fn: impl Fn(T) -> U + Send + Sync + 'static) -> Observable<U, Error>
         where U: Send + Sync + 'static
     {
-        let orig = Self { subscriber: Arc::clone(&self.subscriber) };
+        let orig = self.clone();
         let map_fn = Arc::new(map_fn);
         let f: SubscriberFunction<U, Error> = Arc::new(move |observer| {
             let map_fn = map_fn.clone();
             let observer = Arc::new(observer);
-            let (observer_1, observer_2, observer_3) = (Arc::clone(&observer), Arc::clone(&observer), Arc::clone(&observer));
             let subscription = orig.subscribe(observer! {
-                next: move |value: T| {
-                    observer_1.next(map_fn(value));
+                next: {
+                    let observer = Arc::clone(&observer);
+                    move |value: T| {
+                        observer.next(map_fn(value));
+                    }
                 },
-                error: move |error| {
-                    observer_2.error(error);
+                error: {
+                    let observer = Arc::clone(&observer);
+                    move |error| {
+                        observer.error(error);
+                    }
                 },
-                complete: move || {
-                    observer_3.complete();
+                complete: {
+                    let observer = Arc::clone(&observer);
+                    move || {
+                        observer.complete();
+                    }
                 },
             });
             Arc::new(move || {
@@ -113,27 +124,35 @@ impl<T, Error> Observable<T, Error>
         Observable::<U, Error>::new(f)
     }
 
-    /// Returns a new `Observable` that filters data from the original.
-    pub fn filter(&self, filter_fn: impl Fn(T) -> bool + 'static + Send + Sync) -> Observable<T, Error>
+    /// Returns a new `Observable` that retains only data specified by the predicate.
+    pub fn retain(&self, retain_fn: impl Fn(T) -> bool + 'static + Send + Sync) -> Observable<T, Error>
         where T: Clone
     {
-        let orig = Self { subscriber: Arc::clone(&self.subscriber) };
-        let filter_fn = Arc::new(filter_fn);
+        let orig = self.clone();
+        let retain_fn = Arc::new(retain_fn);
         let f: SubscriberFunction<T, Error> = Arc::new(move |observer| {
-            let filter_fn = filter_fn.clone();
+            let retain_fn = retain_fn.clone();
             let observer = Arc::new(observer);
-            let (observer_1, observer_2, observer_3) = (Arc::clone(&observer), Arc::clone(&observer), Arc::clone(&observer));
             let subscription = orig.subscribe(observer! {
-                next: move |value: T| {
-                    if filter_fn(value.clone()) {
-                        observer_1.next(value);
+                next: {
+                    let observer = Arc::clone(&observer);
+                    move |value: T| {
+                        if retain_fn(value.clone()) {
+                            observer.next(value);
+                        }
                     }
                 },
-                error: move |error| {
-                    observer_2.error(error);
+                error: {
+                    let observer = Arc::clone(&observer);
+                    move |error| {
+                        observer.error(error);
+                    }
                 },
-                complete: move || {
-                    observer_3.complete();
+                complete: {
+                    let observer = Arc::clone(&observer);
+                    move || {
+                        observer.complete();
+                    }
                 },
             });
             Arc::new(move || {
@@ -146,7 +165,7 @@ impl<T, Error> Observable<T, Error>
 
 impl<T, Iterable> From<Iterable> for Observable<T, ()>
     where
-        Iterable: IntoIterator<Item = T> + Send + Sync + 'static,
+        Iterable: IntoIterator<Item = T> + Send + Sync,
         T: Clone + Send + Sync + 'static
 {
     /// Constructs an `Observable` from a list of values.
@@ -162,6 +181,18 @@ impl<T, Iterable> From<Iterable> for Observable<T, ()>
             observer.complete();
             Arc::new(|| {})
         }))
+    }
+}
+
+impl<T, Error> Clone for Observable<T, Error>
+where
+    T: Send + Sync + 'static,
+    Error: Send + Sync + 'static,
+{
+    fn clone(&self) -> Self {
+        Self {
+            subscriber: Arc::clone(&self.subscriber)
+        }
     }
 }
 
@@ -267,10 +298,10 @@ impl<T, Error> SubscriptionObserver<T, Error>
         }
 
         let observer = subscription.observer.read().unwrap();
-        if let Some(o) = observer.as_ref().map(|o| o.clone()) {
-            let o = o.read().unwrap();
+        if let Some(o) = observer.as_ref().map(|o| Arc::clone(o)) {
+            drop(observer);
             *subscription.observer.write().unwrap() = None;
-            o.error(error);
+            o.read().unwrap().error(error);
         } else {
             // host_report_errors(e)
         }
@@ -288,11 +319,12 @@ impl<T, Error> SubscriptionObserver<T, Error>
         }
 
         let observer = subscription.observer.read().unwrap();
-        if let Some(o) = observer.as_ref().map(|o| o.clone()) {
-            let o = o.read().unwrap();
+        if let Some(o) = observer.as_ref().map(|o| Arc::clone(o)) {
+            drop(observer);
             *subscription.observer.write().unwrap() = None;
-            o.complete();
+            o.read().unwrap().complete();
         }
+
         cleanup_subscription(&subscription);
     }
 }
@@ -522,7 +554,6 @@ mod test {
     #[test]
     fn subscription() {
         let list = Arc::new(RwLock::new(vec![]));
-        let list2 = Arc::clone(&list);
         Observable::<_, ()>::new(Arc::new(|observer| {
             for color in ["red", "green", "blue"] {
                 observer.next(color.to_owned());
@@ -532,8 +563,27 @@ mod test {
             })
         }))
             .subscribe(observer! {
-                next: move |color| {
-                    list2.write().unwrap().push(color);
+                next: {
+                    let list = Arc::clone(&list);
+                    move |color| {
+                        list.write().unwrap().push(color);
+                    }
+                },
+            });
+        assert_eq!(
+            *list.read().unwrap(),
+            Vec::from_iter(["red", "green", "blue"])
+        );
+
+        // from a collection
+        let list = Arc::new(RwLock::new(vec![]));
+        Observable::from(Vec::from_iter(["red", "green", "blue"]))
+            .subscribe(observer! {
+                next: {
+                    let list = Arc::clone(&list);
+                    move |color| {
+                        list.write().unwrap().push(color);
+                    }
                 },
             });
         assert_eq!(

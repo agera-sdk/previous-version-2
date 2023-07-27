@@ -1,30 +1,41 @@
-//! Provides literals for various collections.
-//!
-//! # Example
-//! 
-//! ```
-//! use rialight::prelude::*;
-//! 
-//! let m: Map<K, V> = map! { k => v };
-//! let s: Set<T> = set! [v1, v2];
-//! ```
+/*!
+Provides literals for various collections.
 
-/// Initialises any map type from a list of key-value pairs in curly brackets.
-///
-/// ## Example
-///
-/// ```
-/// use rialight::prelude::*;
-/// take_my_map(map!{
-///     "a" => "foo",
-///     "b" => "bar",
-/// });
-/// ```
-///
-/// ## Rest
-/// 
-/// Rest is not supported yet. If you need it, just use `FromIterator`.
-///
+# Example
+
+```
+# use rialight_util::collections::{Map, Set};
+# use rialight_util::collection_literals::{map, set};
+
+type M = Map<&'static str, &'static str>;
+type S = Set<&'static str>;
+
+let m: M = map! { "key" => "value" };
+let s: S = set! ["value 1", "value 2"];
+```
+*/
+
+/**
+Initialises any map type from a list of key-value pairs in curly brackets.
+
+## Example
+
+```
+# use rialight_util::collections::{Map, Set};
+# use rialight_util::collection_literals::{map, set};
+#
+# fn take_my_map(argument: Map<&'static str, &'static str>) {}
+
+take_my_map(map!{
+    "a" => "foo",
+    "b" => "bar",
+});
+```
+
+## Rest
+
+Rest is not supported yet. If you need it, just use `FromIterator`.
+*/
 pub macro map {
     () => {
         {
@@ -48,7 +59,7 @@ pub macro map {
 /// ## Example
 ///
 /// ```
-/// use rialight::util::collection_literals::hash_map;
+/// use rialight_util::collection_literals::hash_map;
 /// let map = hash_map!{
 ///     "a" => "foo",
 ///     "b" => "bar",
@@ -84,7 +95,7 @@ pub macro hash_map {
 /// ## Example
 ///
 /// ```
-/// use rialight::util::collection_literals::btree_map;
+/// use rialight_util::collection_literals::btree_map;
 /// let map = btree_map!{
 ///     "a" => "foo",
 ///     "b" => "bar",
@@ -120,7 +131,11 @@ pub macro btree_map {
 /// ## Example
 ///
 /// ```
-/// use rialight::prelude::*;
+/// # use rialight_util::collections::{Map, Set};
+/// # use rialight_util::collection_literals::{map, set};
+/// #
+/// # fn take_my_set(argument: Set<&'static str>) {}
+///
 /// take_my_set(set!["foo"]);
 /// ```
 ///
@@ -151,7 +166,7 @@ pub macro set {
 /// ## Example
 ///
 /// ```
-/// use rialight::util::collection_literals::hash_set;
+/// use rialight_util::collection_literals::hash_set;
 /// assert!(hash_set!["foo"].contains("foo"));
 /// ```
 ///
@@ -182,7 +197,7 @@ pub macro hash_set {
 /// ## Example
 ///
 /// ```
-/// use rialight::util::collection_literals::btree_set;
+/// use rialight_util::collection_literals::btree_set;
 /// assert!(btree_set!{"foo"}.contains("foo"));
 /// ```
 ///

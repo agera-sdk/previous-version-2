@@ -16,20 +16,21 @@ There are two ways of constructing a regular expression object:
 
 - Using a `reg_exp!` literal, which consists of a pattern and optional flags, as follows:
 ```
-use rialight::prelude::*;
+# use rialight_util::reg_exp::*;
 let my_reg_exp = reg_exp!(r"pattern");
 let my_reg_exp = reg_exp!(r"pattern");
 ```
   `reg_exp!` literals compile the regular expression only once.
 - Or calling the `RegExp::new` constructor:
 ```
-use rialight::prelude::*;
+# use rialight_util::reg_exp::*;
 let my_reg_exp = RegExp::new(r"pattern").unwrap();
 ```
 
 Flags, such as `i`, can be passed as suffix when using the `reg_exp!` literal:
 
 ```
+# use rialight_util::reg_exp::*;
 let _ = reg_exp!(r"pattern"i);
 ```
 
@@ -40,6 +41,7 @@ In that case you can use the `static_reg_exp!` literal and annotate it with
 `StaticRegExp` to define a global regular expression:
 
 ```
+# use rialight_util::reg_exp::*;
 static GLOBAL_REGEX: StaticRegExp = static_reg_exp!(r"pattern");
 ```
 
@@ -48,6 +50,7 @@ static GLOBAL_REGEX: StaticRegExp = static_reg_exp!(r"pattern");
 Most commonly, macros such as `reg_exp_replace_all!` can be used to replace occurrences:
 
 ```
+# use rialight_util::reg_exp::*;
 let text = "Foo fuu";
 let text = reg_exp_replace_all!(
     r#"\bf(?P<suffix>\w+)"#i,

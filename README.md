@@ -246,13 +246,6 @@ rustup default nightly
 
 ## Tasks
 
-Working at the utilities API. All done (using third-party crates under the hood), except:
-
-- [x] Observable
-  - `Observable`
-    - [ ] `map`
-    - [ ] `filter`
-
 When futurely working on graphical nodes:
 
 - Use garbage collection inside and don't expose it to the user.

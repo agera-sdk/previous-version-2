@@ -39,7 +39,10 @@ pub use code_points_reader::CodePointsReader;
 /// # Example
 /// 
 /// ```
-/// use rialight::prelude::*;
+/// use rialight_util::{
+///     string::*,
+///     collection_literals::map,
+/// };
 /// let user_string: String = "some user string: {id}".into();
 /// assert_eq!("some user string: x", user_string.incognito_format(map!{"id".into() => "x".into()}));
 /// 

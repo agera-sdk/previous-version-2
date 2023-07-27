@@ -16,11 +16,11 @@ working with files in an operating system.
 # Example
 
 ```
-use rialight::util::file_paths;
+use rialight_util::file_paths;
 
 assert_eq!("a", file_paths::resolve("a/b", ".."));
 assert_eq!("a", file_paths::resolve_one("a/b/.."));
-assert_eq!("a", file_paths::resolve_n(["a/b", "c/d", "e/f", ".."]));
+assert_eq!("a/b/c/d/e", file_paths::resolve_n(["a/b", "c/d", "e/f", ".."]));
 assert_eq!("../../c/d", file_paths::relative("/a/b", "/c/d"));
 ```
 */
@@ -30,18 +30,29 @@ use super::reg_exp::*;
 static PATH_SEPARATOR: StaticRegExp = static_reg_exp!(r"[/\\]");
 static STARTS_WITH_PATH_SEPARATOR: StaticRegExp = static_reg_exp!(r"^[/\\]");
 
-/// Finds relative path between `from_path` and `to_path`.
-/// 
-/// Behavior:
-///
-/// - If the paths refer to the same path, this function returns
-/// the string `.`.
-/// 
-/// # Exceptions
-///
-/// Panics if given paths are not absolute, that is, if they do not start
-/// with a path separator.
-///
+/**
+Finds the relative path between `from_path` and `to_path`.
+
+Behavior:
+
+- If the paths refer to the same path, this function returns
+the string `.`.
+
+# Exceptions
+
+Panics if given paths are not absolute, that is, if they do not start
+with a path separator.
+
+# Example
+
+```
+use rialight_util::file_paths;
+assert_eq!(".", file_paths::relative("/a/b", "/a/b"));
+assert_eq!("c", file_paths::relative("/a/b", "/a/b/c"));
+assert_eq!("../../c/d", file_paths::relative("/a/b", "/c/d"));
+assert_eq!("../c", file_paths::relative("/a/b", "/a/c"));
+```
+*/
 pub fn relative(from_path: &str, to_path: &str) -> String {
     if ![from_path.to_owned(), to_path.to_owned()].iter().all(|path| STARTS_WITH_PATH_SEPARATOR.is_match(path)) {
         panic!("file_paths::relative() requires absolute paths as arguments");
@@ -86,6 +97,7 @@ pub fn relative(from_path: &str, to_path: &str) -> String {
 /// - If any path starts with a path separator, this function returns an absolute path.
 /// - Any empty portion and trailing path separators, such as in `a/b/` and `a//b` are eliminated.
 /// ```
+/// use rialight_util::file_paths;
 /// assert_eq!("", file_paths::resolve_n([]));
 /// assert_eq!("a", file_paths::resolve_n(["a/b/.."]));
 /// assert_eq!("a", file_paths::resolve_n(["a/b", ".."]));
@@ -112,6 +124,7 @@ pub fn resolve_n<'a, T: IntoIterator<Item = &'a str>>(paths: T) -> String {
 /// - If any path starts with a path separator, this function returns an absolute path.
 /// - Any empty portion and trailing path separators, such as in `a/b/` and `a//b` are eliminated.
 /// ```
+/// use rialight_util::file_paths;
 /// assert_eq!("/a/b", file_paths::resolve("/c", "/a/b"));
 /// assert_eq!("a/b", file_paths::resolve_one("a/b/"));
 /// assert_eq!("a/b", file_paths::resolve_one("a//b"));
@@ -145,6 +158,7 @@ pub fn resolve(path1: &str, path2: &str) -> String {
 /// - If the path starts with a path separator, an absolute path is returned.
 /// - Any empty portion and trailing path separators, such as in `a/b/` and `a//b` are eliminated.
 /// ```
+/// use rialight_util::file_paths;
 /// assert_eq!("a/b", file_paths::resolve_one("a/b/"));
 /// assert_eq!("a/b", file_paths::resolve_one("a//b"));
 /// ```
@@ -180,7 +194,7 @@ fn resolve_one_without_starting_sep(path: &str) -> String {
 /// # Example
 /// 
 /// ```
-/// use rialight::util::file_paths;
+/// use rialight_util::file_paths;
 /// assert_eq!("a.y", file_paths::change_extension("a.x", ".y"));
 /// assert_eq!("a.z", file_paths::change_extension("a.x.y", ".z"));
 /// assert_eq!("a.z.w", file_paths::change_extension("a.x.y", ".z.w"));
@@ -238,7 +252,7 @@ pub fn has_extensions<'a, T: IntoIterator<Item = &'a str>>(path: &str, extension
 /// # Example
 /// 
 /// ```
-/// use rialight::util::file_paths;
+/// use rialight_util::file_paths;
 /// assert_eq!("qux.html", file_paths::base_name("foo/qux.html"));
 /// ```
 pub fn base_name(path: &str) -> String {
@@ -252,7 +266,7 @@ pub fn base_name(path: &str) -> String {
 /// # Example
 /// 
 /// ```
-/// use rialight::util::file_paths;
+/// use rialight_util::file_paths;
 /// assert_eq!("qux", file_paths::base_name_without_ext("foo/qux.html", [".html"]));
 /// ```
 pub fn base_name_without_ext<'a, T>(path: &str, extensions: T) -> String
