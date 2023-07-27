@@ -210,6 +210,9 @@ The core internals, `rialight::core_internals`, should not be used anywhere. The
 
 The `rialight::prelude` crate can be used to include commonly used things in scope. It includes:
 
+- Some of the Rust standard library, including:
+  - `Map` and `Set` as aliases to `HashMap` an `HashSet`
+  - Types for concurrency and reference counted boxes
 - Map and Set Collections that use a hash algorithm (same from the standard library, `std::collections`)
 - Collection Literals
 - Regular expressions
@@ -219,6 +222,15 @@ The `rialight::prelude` crate can be used to include commonly used things in sco
 - Observables
 
 All of these are described in the utilities API.
+
+### Visual Editor
+
+Once Rialight develops, it can have a visual editor for the following use-cases:
+
+- Generic software
+- Gaming
+
+This visual editor will require an external IDE for logical programming, such as Visual Studio Code.
 
 ## Comparison to Other Technologies
 
