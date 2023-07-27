@@ -44,6 +44,9 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
   - Few events are not accessed as listeners, using a single callback instead:
     - `node.on_enter_frame(enter_frame_fn)` sets listener for the enter frame event
     - `node.on_user_input(user_input_fn)` sets listener for an user input event
+  - A node has an identifier.
+  - The most common method for finding nodes by identifier is `by_path`, which accepts a node path.
+  - Node paths are paths using the slash (`/`) separator and `..` and `.` portions. A `..` portion resolves to the parent and a `.` portion resolves to the current node. If a node path is absolute, it resolves a node relative to the topmost parent.
 - Skins
   - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
   - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
@@ -248,4 +251,5 @@ rustup default nightly
 
 When futurely working on graphical nodes:
 
-- Use garbage collection inside and don't expose it to the user.
+- Provide `Node` and futurely `WeakRefNode` that may be useful for some users.
+- Use garbage collection inside, not exposing it to the user. For example, just `Node` and no additional type. The equality operator should work as well, comparing the nodes by reference. The clone method clones by reference.

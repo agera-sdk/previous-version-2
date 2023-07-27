@@ -10,7 +10,7 @@ description = "Rialight utilities API."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bitflags = "2.3.3"
+bitflags = { version = "2" }
 bytes = { version = "1.4.0", features = ["serde"] }
 lazy-regex = "3.0.0"
 lazy_static = "1.4.0"
