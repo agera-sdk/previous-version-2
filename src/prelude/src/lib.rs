@@ -38,6 +38,7 @@ pub use rialight_util::observable::{
     Observable,
     AbstractObserver,
     BoxedObserver,
+    observer,
     Observer,
     SubscriberFunction,
     Subscription,

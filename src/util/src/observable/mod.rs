@@ -32,20 +32,12 @@ fn my_observable() -> Observable<String> {
 }
 
 let _ = my_observable()
-    .subscribe(Observer {
-        next: Box::new(|value| {}),
-        error: Box::new(|error| {}),
-        complete: Box::new(|| {}),
-        start: None,
-    })
-    .unsubscribe();
-
-let _ = my_observable()
-    .subscribe(Observer {
-        next: Box::new(|value| {}),
-        error: Box::new(|error| {}),
-        complete: Box::new(|| {}),
-        start: None,
+    .subscribe(observer! {
+        // subconsequent listeners can be omitted
+        next: |value| {},
+        error: |error| {},
+        complete: || {},
+        start: || {},
     })
     .unsubscribe();
 
@@ -96,7 +88,7 @@ impl<'a, T, Error> Observable<'a, T, Error> {
 }
 
 impl<'a, T, Iterable> From<Iterable> for Observable<'a, T, ()>
-    where Iterable: IntoIterator<Item = T>
+    where Iterable: IntoIterator<Item = T> + Send + Sync + 'a
 {
     /// Constructs an `Observable` from a list of values.
     fn from(value: Iterable) -> Self {
@@ -113,10 +105,10 @@ impl<'a, T, Iterable> From<Iterable> for Observable<'a, T, ()>
     }
 }
 
-pub type SubscriberFunction<'a, T, Error = ()> = &'a dyn Fn(SubscriptionObserver<T, Error>) -> &'a dyn Fn();
+pub type SubscriberFunction<'a, T, Error = ()> = &'a (dyn Fn(SubscriptionObserver<T, Error>) -> &'a (dyn Fn() + Sync + Send) + Sync + Send);
 
 pub struct Subscription<T, Error = ()> {
-    cleanup: RwLock<Option<Arc<dyn Fn()>>>,
+    cleanup: RwLock<Option<Arc<dyn Fn() + Sync + Send>>>,
     observer: RwLock<Option<Arc<RwLock<BoxedObserver<T, Error>>>>>,
 }
 
@@ -224,13 +216,50 @@ impl<T, Error> SubscriptionObserver<T, Error> {
 
 pub type BoxedObserver<T: Sized, Error = ()> = Box<dyn AbstractObserver<T, Error>>;
 
+/// The `observer!` macro constructs an `Observer` by allowing
+/// you to omit any of the listeners and not needing to box them explictly.
+pub macro observer {
+    // only next (no trailing comma)
+    (
+        next: $next_fn:expr
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new(|error| {}), complete: Box::new(|| {}), start: Box::new(|| {}), } },
+    // only next (with trailing comma)
+    (
+        next: $next_fn:expr,
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new(|error| {}), complete: Box::new(|| {}), start: Box::new(|| {}), } },
+    // next and error (no trailing comma)
+    (
+        next: $next_fn:expr, error: $error_fn:expr
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new(|| {}), start: Box::new(|| {}), } },
+    // next and error (with trailing comma)
+    (
+        next: $next_fn:expr, error: $error_fn:expr,
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new(|| {}), start: Box::new(|| {}), } },
+    // next, error, complete (no trailing comma)
+    (
+        next: $next_fn:expr, error: $error_fn:expr, complete: $complete_fn:expr
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: Box::new(|| {}), } },
+    // next, error, complete (with trailing comma)
+    (
+        next: $next_fn:expr, error: $error_fn:expr, complete: $complete_fn:expr,
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: Box::new(|| {}), } },
+    // next, error, complete, start (no trailing comma)
+    (
+        next: $next_fn:expr, error: $error_fn:expr, complete: $complete_fn:expr, start: $start_fn:expr
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: Box::new($start_fn), } },
+    // next, error, complete, start (with trailing comma)
+    (
+        next: $next_fn:expr, error: $error_fn:expr, complete: $complete_fn:expr, start: $start_fn:expr,
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: Box::new($start_fn), } },
+}
+
 /// An `Observer` is used to receive data from an `Observable`, and
 /// is supplied as an argument to `subscribe`.
 pub struct Observer<T, Error = ()> {
-    pub next: Box<dyn Fn(T)>,
-    pub error: Box<dyn Fn(Error)>,
-    pub complete: Box<dyn Fn()>,
-    pub start: Option<Box<dyn Fn(Arc<Subscription<T, Error>>)>>,
+    pub next: Box<dyn Fn(T) + Sync + Send>,
+    pub error: Box<dyn Fn(Error) + Sync + Send>,
+    pub complete: Box<dyn Fn() + Sync + Send>,
+    pub start: Option<Box<dyn Fn(Arc<Subscription<T, Error>>) + Sync + Send>>,
 }
 
 impl<T, Error> AbstractObserver<T, Error> for Observer<T, Error> {
@@ -259,19 +288,19 @@ impl<T, Error> Default for Observer<T, Error> {
     }
 }
 
-impl<T> Into<Observer<T>> for &dyn Fn(T) {
+impl<T> Into<Observer<T>> for &(dyn Fn(T) + Sync + Send) {
     fn into(self) -> Observer<T> {
         Observer { next: Box::new(self), error: Box::new(|_| {}), complete: Box::new(|| {}), start: None }
     }
 }
 
-impl<T, Error> Into<Observer<T, Error>> for (&dyn Fn(T), &dyn Fn(Error)) {
+impl<T, Error> Into<Observer<T, Error>> for (&(dyn Fn(T) + Sync + Send), &(dyn Fn(Error) + Sync + Send)) {
     fn into(self) -> Observer<T, Error> {
         Observer { next: Box::new(self.0), error: Box::new(self.1), complete: Box::new(|| {}), start: None }
     }
 }
 
-impl<T, Error> Into<Observer<T, Error>> for (&dyn Fn(T), &dyn Fn(Error), &dyn Fn()) {
+impl<T, Error> Into<Observer<T, Error>> for (&(dyn Fn(T) + Sync + Send), &(dyn Fn(Error) + Sync + Send), &(dyn Fn() + Sync + Send)) {
     fn into(self) -> Observer<T, Error> {
         Observer { next: Box::new(self.0), error: Box::new(self.1), complete: Box::new(self.2), start: None }
     }
@@ -283,19 +312,19 @@ impl<T, Error> Into<BoxedObserver<T, Error>> for Observer<T, Error> {
     }
 }
 
-impl<T> Into<BoxedObserver<T>> for &dyn Fn(T) {
+impl<T> Into<BoxedObserver<T>> for &(dyn Fn(T) + Sync + Send) {
     fn into(self) -> BoxedObserver<T> {
         Box::<Observer<T>>::new(self.into())
     }
 }
 
-impl<T, Error> Into<BoxedObserver<T, Error>> for (&dyn Fn(T), &dyn Fn(Error)) {
+impl<T, Error> Into<BoxedObserver<T, Error>> for (&(dyn Fn(T) + Sync + Send), &(dyn Fn(Error) + Sync + Send)) {
     fn into(self) -> BoxedObserver<T, Error> {
         Box::<Observer<T, Error>>::new(self.into())
     }
 }
 
-impl<T, Error> Into<BoxedObserver<T, Error>> for (&dyn Fn(T), &dyn Fn(Error), &dyn Fn()) {
+impl<T, Error> Into<BoxedObserver<T, Error>> for (&(dyn Fn(T) + Sync + Send), &(dyn Fn(Error) + Sync + Send), &(dyn Fn() + Sync + Send)) {
     fn into(self) -> BoxedObserver<T, Error> {
         Box::<Observer<T, Error>>::new(self.into())
     }
@@ -303,7 +332,7 @@ impl<T, Error> Into<BoxedObserver<T, Error>> for (&dyn Fn(T), &dyn Fn(Error), &d
 
 /// An `AbstractObserver` is used to receive data from an `Observable`, and
 /// is supplied as an argument to `subscribe` in boxed form.
-pub trait AbstractObserver<T, Error = ()> {
+pub trait AbstractObserver<T, Error = ()>: Send + Sync {
     fn next(&self, value: T) {}
     fn error(&self, error: Error) {}
     fn complete(&self) {}
