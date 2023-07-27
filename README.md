@@ -254,6 +254,17 @@ rustup default nightly
 
 ## Tasks
 
+Working at file system:
+
+- Design an API that works across all platforms, including Android.
+  - [ ] Provide ways of requesting permissions using asynchronous results that works across all platforms
+  - [ ] Windows
+    - [ ] For native paths, additional path manipulations are done wherever needed for the absolute path prefix which is `drive_letter:`.
+  - [ ] Android
+    - [ ] On Android, `app:` and `app-storage:` do not use a static from the Rialight core internals; call the Java API function [`context.getFilesDir`](https://developer.android.com/reference/android/content/Context#getFilesDir()).
+  - [ ] Web-compatible `File` API at `rialight::filesystem::webcompat`
+  - [ ] Document the API
+
 When futurely working on graphical nodes:
 
 - Provide the types `Node` and `WeakRefNode`. Inside `Node` is stored an internal `Arc<NonRefNode>` and inside `WeakRefNode` is an internal `Weak<Gc<NonRefNode>>` to which it dereferences.
@@ -265,3 +276,10 @@ When futurely working with internationalization:
   - [Display names for language and region](https://github.com/unicode-org/icu4x/issues/3167)
   - [Default data provider](https://github.com/unicode-org/icu4x/issues/3180)
   - [Locale directionality](https://github.com/unicode-org/icu4x/issues/3172)
+
+When futurely working with the application entry point:
+
+- For Android, mutate the `Context` static. Define that static only for the Android OS (`#[cfg(target_os = "android")]`).
+- File system statics
+  - Mutate things such as application installation and storage path
+    - For Android, no static path is used. A static variable holds the Android `Context` instead.

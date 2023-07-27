@@ -11,4 +11,6 @@ hiearchy of nodes in a document object model.
 
 The most important type for garbage collection is [`Gc`].
 After `Gc` is the [`GcTrait`] trait.
- */
+*/
+
+// not implemented nor designed
