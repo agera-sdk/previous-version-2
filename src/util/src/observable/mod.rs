@@ -21,7 +21,7 @@ use rialight::prelude::*;
 fn my_observable() -> Observable<String> {
     Observable::new(Arc::new(|observer| {
         // send initial data
-        observer.next("initial value");
+        observer.next("initial value".into());
 
         // return a cleanup function that runs once all observers
         // unsubscribe.
@@ -240,7 +240,7 @@ impl<T, Error> SubscriptionObserver<T, Error>
     }
 }
 
-pub type BoxedObserver<T: Sized, Error = ()> = Box<dyn AbstractObserver<T, Error>>;
+pub type BoxedObserver<T, Error = ()> = Box<dyn AbstractObserver<T, Error>>;
 
 /// The `observer!` macro constructs an `Observer` by allowing
 /// you to omit any of the listeners and not needing to box them explictly.
@@ -248,35 +248,35 @@ pub macro observer {
     // only next (no trailing comma)
     (
         next: $next_fn:expr
-    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new(|error| {}), complete: Box::new(|| {}), start: Box::new(|| {}), } },
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new(|error| {}), complete: Box::new(|| {}), start: None, } },
     // only next (with trailing comma)
     (
         next: $next_fn:expr,
-    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new(|error| {}), complete: Box::new(|| {}), start: Box::new(|| {}), } },
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new(|error| {}), complete: Box::new(|| {}), start: None, } },
     // next and error (no trailing comma)
     (
         next: $next_fn:expr, error: $error_fn:expr
-    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new(|| {}), start: Box::new(|| {}), } },
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new(|| {}), start: None, } },
     // next and error (with trailing comma)
     (
         next: $next_fn:expr, error: $error_fn:expr,
-    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new(|| {}), start: Box::new(|| {}), } },
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new(|| {}), start: None, } },
     // next, error, complete (no trailing comma)
     (
         next: $next_fn:expr, error: $error_fn:expr, complete: $complete_fn:expr
-    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: Box::new(|| {}), } },
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: None, } },
     // next, error, complete (with trailing comma)
     (
         next: $next_fn:expr, error: $error_fn:expr, complete: $complete_fn:expr,
-    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: Box::new(|| {}), } },
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: None, } },
     // next, error, complete, start (no trailing comma)
     (
         next: $next_fn:expr, error: $error_fn:expr, complete: $complete_fn:expr, start: $start_fn:expr
-    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: Box::new($start_fn), } },
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: Some(Box::new($start_fn)), } },
     // next, error, complete, start (with trailing comma)
     (
         next: $next_fn:expr, error: $error_fn:expr, complete: $complete_fn:expr, start: $start_fn:expr,
-    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: Box::new($start_fn), } },
+    ) => { Observer::<_, _> { next: Box::new($next_fn), error: Box::new($error_fn), complete: Box::new($complete_fn), start: Some(Box::new($start_fn)), } },
 }
 
 /// An `Observer` is used to receive data from an `Observable`, and
@@ -445,4 +445,37 @@ fn close_subscription<T, Error>(subscription: &Subscription<T, Error>)
     }
     *subscription.observer.write().unwrap() = None;
     cleanup_subscription(subscription);
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test() {
+        fn my_observable() -> Observable<String> {
+            Observable::new(Arc::new(|observer| {
+                // send initial data
+                observer.next("initial value".into());
+        
+                // return a cleanup function that runs once all observers
+                // unsubscribe.
+                Arc::new(|| {
+                    println!("disposed.");
+                })
+            }))
+        }
+        
+        let _ = my_observable()
+            .subscribe(observer! {
+                // subconsequent listeners can be omitted
+                next: |value| {
+                    println!("{}", value);
+                },
+                error: |_error| {},
+                complete: || {},
+                start: |_| {},
+            })
+            .unsubscribe();
+    }
 }

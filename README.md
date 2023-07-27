@@ -236,7 +236,7 @@ rustup default nightly
 
 Working at the utilities API. All done (using third-party crates under the hood), except:
 
-- [ ] Observable
+- [x] Observable
   - `Observable`
     - [ ] Fully RustDoc according to TC39 proposal
     - [ ] `map` (creates a new `Observable` with a new type)
