@@ -53,11 +53,11 @@ impl fmt::Display for Flags {
 }
 
 {
-    let mut flags = Flags::A | Flags::B;
+    let flags = Flags::A | Flags::B;
     assert!(!flags.is_empty());
     assert_eq!(format!("{}", flags), "hi!");
-    assert_eq!(format!("{:?}", Flags::A | Flags::B), "A | B");
-    assert_eq!(format!("{:?}", Flags::B), "B");
+    assert_eq!(format!("{:?}", Flags::A | Flags::B), "Flags(A | B)");
+    assert_eq!(format!("{:?}", Flags::B), "Flags(B)");
 }
 ```
 
