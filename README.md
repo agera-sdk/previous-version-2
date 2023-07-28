@@ -341,6 +341,9 @@ Working at file system:
 
 - Design an API that works across all platforms, including Android.
   - [ ] Provide ways of requesting permissions using asynchronous results that works across all platforms
+  - For asynchronous operations:
+    - Use Tokio runtime for non-browser targets
+    - Use JavaScript promises for browser targets
   - Always use `rialight_util::file_paths::os_based` instead of `rialight_util::file_paths` internally in path manipulations.
   - [ ] Windows
     - [ ] For native paths, the path prefix is either `drive:` or `\\`.  `drive` is a case-insensitive letter.
@@ -384,10 +387,15 @@ When futurely working in the CLI:
 - `rialight debug` or `run`
   - Pass the feature `rialight_multi_threaded_export` to `cargo run` internally as the host environment for debugging is generally not a web browser.
 - `rialight export`
-  - Pass the feature `rialight_multi_threaded_export` to `cargo run` internally
+  - Pass the feature `rialight_multi_threaded_export` to `cargo run` internally for a non-browser export
+
+When futurely working in the attribute macros `#[rialight::main]` and `#[rialight::build_main]`:
+
+- `rialight::main` expands to use either the multi-threaded Tokio runtime or a single-threaded runtime for the web browser.
 
 ## Web Browser Tasks
 
 - [ ] Use of some Tokio features might have to be replaced by promises in the browser if they panic due to thread spawn. For the timeouts, use `setTimeout` (and some maybe... `setInterval`) from JavaScript inside a JavaScript promise and pass it to Rust via `wasm-bindgen-futures`.
   - https://users.rust-lang.org/t/does-tokio-work-in-the-browser-if-i-use-only-a-single-thread/97663?u=hydroper1
   - Conversion between Rust futures and JavaScript promises: https://crates.io/crates/wasm-bindgen-futures
+- [ ] In the graphics APIs, User inputs and some events have to be handled based on the browser's page events
