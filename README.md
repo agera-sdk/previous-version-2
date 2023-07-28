@@ -71,8 +71,16 @@ impl Node {
 ```
   - _Cloning:_ `Node` is cloned by reference by default, not by content. Use `node.clone_node(deep)` to clone a node by content and not by reference.
   - _UI:_ Node kinds that are user interface specific (such as `Button`) are exported at the `rialight::graphics::ui` submodule to avoid confusion. They are also exported by the user interface API.
-  - _Inheritance:_ Properties such as visibility are inherited by default, with an _inherited_ variant.
+    - [ ] Optional text selection on non text inputs (text labels)
+  - _Inheritance:_ Properties such as visibility, opacity, rotation and scale are inherited by default, with an _inherited_ variant. There may be more of such properties other than these that are inherited.
   - _Responsivity:_ Node measures are device-oriented. They use the mathematical API.
+  - _Positioning:_ A node's position can be either derived, absolute or relative.
+    - Derived means the node's position is determined by the parent.
+    - Absolute means the node is positioned at a given global position.
+    - Relative means the node is positioned relative to the parent's global position with given coordinates.
+  - _Common properties:_ Scale, opacity, visibility, position, rotation, size and maybe some more.
+  - _Sizing:_ A node can have a size variant: none, full and specific (given measurement units). Nodes whose position is not _derived_ often need to specify a size variant, otherwise they may not be displayed.
+  - _Not covered here yet:_ Alignment, minimum sizing and maybe more.
 - Skins
   - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
   - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
