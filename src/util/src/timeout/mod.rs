@@ -7,12 +7,6 @@ This module is only meant to be used within the Rialight asynchronous runtime.
 */
 
 pub use std::time::Duration;
-pub use tokio::time::{
-    Timeout,
-    Instant,
-    Sleep as Wait,
-    error::Elapsed as ElapsedError,
-};
 use std::future::Future;
 
 /// Requires for a `Future` to complete before the given

@@ -131,7 +131,7 @@ Due to this, the web-compatible file system API is entirely asynchronous.
 
 ### Gaming
 
-Rialight supports a gaming API based on the Entity-Component-System pattern, which is essential for game developers, with support for physics.
+Rialight supports a gaming API based on the Entity-Component-System pattern, which is essential for game developers, with support for physics. This API runs concurrent systems, however platforms without multi-threading support (browser) do not run systems concurrently.
 
 The Gaming API is an optional feature that can be turned on or off.
 
@@ -302,12 +302,11 @@ Working at timeouts:
 
 - [ ] wrap `interval`
 - [ ] wrap `interval_at`
+- [ ] Note the following types wrap yet another "private" type, which is defined according to a `#[cfg]` attribute (also add a `#[cfg]` case for both export features not listed so that the code the compiles).
 - [ ] wrap `Timeout`
 - [ ] wrap `Instant` (note that it isn't the same from the temporal API)
-- [ ] wrap `Elapsed`
 - [ ] wrap `ElapsedError`
 - [ ] wrap `Wait`
-- [ ] Remove the top `pub use tokio::time::{}` after wrapping the types there
 - [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise.
   - [`stdweb`](https://crates.io/crates/stdweb)
   - [`web-sys`](https://crates.io/crates/web-sys)
@@ -400,11 +399,11 @@ When futurely working in the CLI:
 
 When futurely working in the attribute macros `#[rialight::main]` and `#[rialight::build_main]`:
 
-- `rialight::main` expands to use either the multi-threaded Tokio runtime or a single-threaded runtime for the web browser.
+- `rialight::main` expands to use either the multi-threaded Tokio runtime or a single-threaded runtime for the web browser (not sure how to construct the task context, but it mightn't be complicated; if there's an existing crate for that, use it for the browser only).
 
 ## Web Browser Tasks
 
-- [ ] Use of some Tokio features might have to be replaced by promises in the browser if they panic due to thread spawn. For the timeouts, use `setTimeout` (and some maybe... `setInterval`) from JavaScript inside a JavaScript promise and pass it to Rust via `wasm-bindgen-futures`.
+- [ ] The browser does not use the Tokio runtime as the browsers are single-threaded. For the timeouts, use `setTimeout` (and some maybe... `setInterval`) from JavaScript inside a JavaScript promise and pass it to Rust via `wasm-bindgen-futures`.
   - https://users.rust-lang.org/t/does-tokio-work-in-the-browser-if-i-use-only-a-single-thread/97663?u=hydroper1
   - Conversion between Rust futures and JavaScript promises: https://crates.io/crates/wasm-bindgen-futures
 - [ ] In the graphics APIs, User inputs and some events have to be handled based on the browser's page events
