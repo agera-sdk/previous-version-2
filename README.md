@@ -298,12 +298,7 @@ Working at file system:
 
 - Design an API that works across all platforms, including Android.
   - [ ] Provide ways of requesting permissions using asynchronous results that works across all platforms
-  - **DO NOT** use all of the `rialight_util::file_paths` module's functions directly; wrap them first to handle the path prefix for Windows according to a given `manipulation` parameter (important because of `app:` and `app-storage:` which work differently).
-    - [ ] Implement the operations below under `rialight_util::file_paths::os_based`
-    - [ ] For `relative`, if given `manipulation` is Windows, then: (careful! don't use literal `r"\\"`; use `UNC_PREFIX` instead)
-      - For each of the path arguments, if that path argument starts with a Windows supported prefix (including the UNC path prefix), do the following:
-        - If the rest of the path is empty, add a single path separator to it.
-      - ... Decide further steps here! Do it carefully because it may be either a UNC path prefix or a drive prefix (which can be different in both arguments), which may involve replacing the return result's path separator with that prefix.
+  - Always use `rialight_util::file_paths::os_based` instead of `rialight_util::file_paths` internally in path manipulations.
   - [ ] Windows
     - [ ] For native paths, the path prefix is either `drive:` or `\\`.  `drive` is a case-insensitive letter.
   - [ ] Android

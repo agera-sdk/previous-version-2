@@ -1,5 +1,5 @@
 /*!
-Work with file paths in a cross-platform way.
+Work with generic file paths.
 
 # Absolute Paths
 
@@ -36,12 +36,14 @@ static STARTS_WITH_PATH_SEPARATOR: StaticRegExp = static_reg_exp!(r"^[/\\]");
 pub mod os_based;
 
 /**
-Finds the relative path between `from_path` and `to_path`.
+Finds the relative path from `from_path` and `to_path`.
 
-Behavior:
+# Behavior:
 
 - If the paths refer to the same path, this function returns
-the string `.`.
+  an empty string.
+- The function ensures that both paths are absolute and resolves
+  any `..` and `.` portions inside.
 
 # Exceptions
 
@@ -52,7 +54,7 @@ with a path separator.
 
 ```
 use rialight_util::file_paths;
-assert_eq!(".", file_paths::relative("/a/b", "/a/b"));
+assert_eq!("", file_paths::relative("/a/b", "/a/b"));
 assert_eq!("c", file_paths::relative("/a/b", "/a/b/c"));
 assert_eq!("../../c/d", file_paths::relative("/a/b", "/c/d"));
 assert_eq!("../c", file_paths::relative("/a/b", "/a/c"));
@@ -70,7 +72,10 @@ pub fn relative(from_path: &str, to_path: &str) -> String {
 
     let mut common_indices = Vec::<usize>::new();
 
-    for i in 0..from_parts.len() {
+    for i in 0..usize::max(from_parts.len(), to_parts.len()) {
+        if i >= from_parts.len() || i >= to_parts.len() {
+            break;
+        }
         if from_parts[i] == to_parts[i] {
             common_indices.push(i);
         }
@@ -89,7 +94,7 @@ pub fn relative(from_path: &str, to_path: &str) -> String {
 
     let r = r.join("/");
     let r = r.trim();
-    if r.is_empty() { ".".to_owned() } else { r.to_owned() }
+    if r.is_empty() { "".to_owned() } else { r.to_owned() }
 }
 
 /// Resolves multiple paths.
@@ -296,7 +301,7 @@ mod test {
         assert_eq!("a", resolve("a/b", ".."));
         assert_eq!("a/b", resolve_one("a/b/"));
         assert_eq!("a/b", resolve_one("a//b"));
-        assert_eq!(".", relative("/a/b", "/a/b"));
+        assert_eq!("", relative("/a/b", "/a/b"));
         assert_eq!("c", relative("/a/b", "/a/b/c"));
         assert_eq!("../../c/d", relative("/a/b", "/c/d"));
         assert_eq!("../c", relative("/a/b", "/a/c"));
