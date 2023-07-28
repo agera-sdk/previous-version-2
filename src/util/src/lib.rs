@@ -1,5 +1,5 @@
 /*!
-The utilities API of the Rialight framework.
+The Rialight utilities API.
 This API is fully standalone and does not depend
 on other APIs of the framework.
 */
@@ -16,6 +16,7 @@ pub mod uri;
 pub mod file_paths;
 pub mod observable;
 pub mod string;
+pub mod temporal;
 
 // not initiated or designed:
 // pub mod gc;

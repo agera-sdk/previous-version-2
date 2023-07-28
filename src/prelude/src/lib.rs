@@ -1,3 +1,7 @@
+/*!
+The Rialight prelude API.
+*/
+
 pub use std::{
     any::Any,
     borrow::Borrow,
@@ -46,3 +50,4 @@ pub use rialight_util::observable::{
     SubscriptionObserver,
 };
 pub use rialight_util::string::StringIncognitoFormat;
+pub use rialight_util::temporal;

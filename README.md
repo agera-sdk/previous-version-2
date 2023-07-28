@@ -158,6 +158,8 @@ Ideas for the mathematics API, `rialight::math`.
 
 Ideas for the utilities API, `rialight::util`. The utilities API is standalone and does not require the other Rialight APIs, so it can be used for unrelated Rust projects.
 
+- Temporal API
+  - Based on [this TC39 Temporal API](https://github.com/tc39/proposal-temporal).
 - Lazy Statics
 - Collection Literals (map and set)
 - Flags
@@ -221,12 +223,6 @@ The internationalization API, `rialight::intl`.
 - Display Names and More
 - Translations
 
-### Temporal
-
-The temporal API, `rialight::temporal`.
-
-- Based on [this TC39 Temporal API](https://github.com/tc39/proposal-temporal).
-
 ### Core
 
 The core API, `rialight::core`, basically defines the application interfaces. It can cover:
@@ -258,6 +254,7 @@ The `rialight::prelude` crate can be used to include commonly used things in sco
 - Lazily Evaluated Statics
 - JSON Serialization
 - Observables
+- Temporal API (`temporal` as a global module)
 
 All of these are described in the utilities API.
 
@@ -293,6 +290,37 @@ rustup default nightly
 ```
 
 ## Tasks
+
+Working at temporal:
+
+- References
+  - https://tc39.es/proposal-temporal/docs
+  - https://github.com/tc39/proposal-temporal
+- [ ] Start and finish the ambiguity documentation in docs/ambiguity.rs
+  - https://tc39.es/proposal-temporal/docs/ambiguity.html
+- [ ] There are a few documentation pages in addition to ambiguity too; just iterate the TC39 Temporal API docs. Add all the home sections too to summarize the API and the _Other documentation_ section.
+- [ ] Fully document the public API according to the TC39 proposal
+- [ ] Check if `chrono` and `chrono-tz` can really be used to implement the functionality in the temporal API internally. It doesn't need to be exactly the same as the TC39's proposal. If not really viable, remove them from `Cargo.toml` and find an alternative, but it looks like it'll work well! About plain types: use the naive module from `chrono`.
+- [ ] `temporal::now`
+  - [ ] `instant`
+  - [ ] `timezone_id`
+  - [ ] `zoned_date_time`
+  - [ ] `zoned_date_time_iso`
+  - [ ] `plain_date`
+  - [ ] `plain_date_iso`
+  - [ ] `plain_time_iso`
+  - [ ] `plain_date_time`
+  - [ ] `plain_date_time_iso`
+- [ ] `temporal::Instant`
+- [ ] `temporal::ZonedDateTime`
+- [ ] `temporal::PlainDate`
+- [ ] `temporal::PlainTime`
+- [ ] `temporal::PlainDateTime`
+- [ ] `temporal::PlainYearMonth`
+- [ ] `temporal::PlainMonthDay`
+- [ ] `temporal::Duration`
+- [ ] `temporal::TimeZone`
+- [ ] `temporal::Calendar`
 
 Working at file system:
 

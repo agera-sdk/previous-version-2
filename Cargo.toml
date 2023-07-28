@@ -17,7 +17,6 @@ members = [
     "src/prelude",
     "src/security",
     "src/sound",
-    "src/temporal",
     "src/ui",
     "src/util",
 ]
