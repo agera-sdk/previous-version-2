@@ -70,31 +70,43 @@ pub fn relative(from_path: &str, to_path: &str) -> String {
     let mut from_parts: Vec<String> = PATH_SEPARATOR.split(resolve_one(from_path).as_ref()).map(|s| s.to_owned()).collect();
     let mut to_parts: Vec<String> = PATH_SEPARATOR.split(resolve_one(to_path).as_ref()).map(|s| s.to_owned()).collect();
 
+    // given each path is absolute, each one can contain an empty
+    // initial second part. in that case, remove the empty string,
+    // since the path `"/"` is previously split into a `vec!["", ""]`.
+    let from_parts = remove_empty(&mut from_parts);
+    let to_parts = remove_empty(&mut to_parts);
+
+    fn remove_empty(parts: &mut Vec<String>) -> &mut Vec<String> {
+        if parts[1] == "" {
+            parts.remove(1);
+        }
+        parts
+    }
+
     let mut common_indices = Vec::<usize>::new();
 
-    for i in 0..usize::max(from_parts.len(), to_parts.len()) {
+    let mut i = 0usize;
+    loop {
         if i >= from_parts.len() || i >= to_parts.len() {
             break;
         }
-        if from_parts[i] == to_parts[i] {
-            common_indices.push(i);
+        if from_parts[i] != to_parts[i] {
+            break;
         }
+        common_indices.push(i);
+        i += 1;
     }
     for i in common_indices.iter().rev() {
         let j = common_indices[*i];
         from_parts.remove(j);
         to_parts.remove(j);
     }
-    for _i in 0..from_parts.len() {
-        r.push("..".to_owned());
-    }
-    for s in to_parts {
-        r.push(s.clone());
-    }
+    r.append(&mut Vec::from_iter((0..from_parts.len()).map(|_| "..".to_owned())));
+    r.append(&mut to_parts.clone());
 
     let r = r.join("/");
-    let r = r.trim();
-    if r.is_empty() { "".to_owned() } else { r.to_owned() }
+    let r = r.trim_start().to_owned();
+    if r.ends_with('/') { r[..r.len() - 1].to_owned() } else { r }
 }
 
 /// Resolves multiple paths.
@@ -303,6 +315,7 @@ mod test {
         assert_eq!("a/b", resolve_one("a//b"));
         assert_eq!("", relative("/a/b", "/a/b"));
         assert_eq!("c", relative("/a/b", "/a/b/c"));
+        assert_eq!("../../c/d", relative("/a/b/c", "/a/c/d"));
         assert_eq!("..", relative("/a/b/c", "/a/b"));
         assert_eq!("../..", relative("/a/b/c", "/a"));
         assert_eq!("..", relative("/a", "/"));
