@@ -18,4 +18,24 @@ lazy-regex = "3.0.0"
 lazy_static = "1.4.0"
 serde = { version = "1.0.175", features = ["derive"] }
 serde_json = "1.0.103"
-tokio = { version = "1.29.1", features = ["time"]}
+
+# multi-threaded target only dependencies
+tokio = { version = "1.29.1", features = ["time"], optional = true }
+
+# browser export only dependencies
+stdweb = { version = "0.4.20", optional = true }
+web-sys = { version = "0.3.64", optional = true }
+wasm-bindgen-futures = { version = "0.4.37", optional = true }
+
+[features]
+# multi-threaded target only dependencies
+rialight_multi_threaded_export = [
+    "tokio",
+]
+
+# browser export only dependencies
+rialight_browser_export = [
+    "stdweb",
+    "web-sys",
+    "wasm-bindgen-futures",
+]

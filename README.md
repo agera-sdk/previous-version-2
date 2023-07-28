@@ -19,11 +19,13 @@ When using the `rialight` command, you create new projects instantly:
 
 The project templates share common functionality, including translation resources which use the [Fluent syntax](https://projectfluent.org).
 
+There is always a build script, `build.rs`, at the root of the project, which uses an empty function with a `#[rialight::build_main]` attribute. It is used internally by Rialight, but you don't need to touch it.
+
 ### Debugging and Exporting
 
 Exporting a project should bundle its assets files into the installer, which can be later retrieved through the File API using an `app:` URI.
 
-Rialight uses the Rust's package manager that comes with its installation, Cargo, meaning `cargo run` works for debugging. You can also use `rialight run` or its alias `rialight debug`.
+Rialight uses the Rust's package manager that comes with its installation, however you mustn't use `cargo run` to debug your application as it needs passing a flag to Cargo. You can debug with `rialight run` or its alias `rialight debug`.
 
 To export your application, use a Rialight command such as:
 
@@ -291,6 +293,18 @@ rustup default nightly
 
 ## Tasks
 
+Working at timeouts:
+
+- [ ] wrap `interval`
+- [ ] wrap `interval_at`
+- [ ] wrap `Timeout`
+- [ ] wrap `Instant` (note that it isn't the same from the temporal API)
+- [ ] wrap `Elapsed`
+- [ ] wrap `ElapsedError`
+- [ ] wrap `Wait`
+- [ ] For each function of the timeout module, provide a browser implementation inside of the function that does not use Tokio.
+- [ ] For the browser, `Instant::now` is implemented using `Date.now()`
+
 Working at temporal:
 
 - References
@@ -365,25 +379,15 @@ When futurely working with the application entry point:
   - Mutate things such as application installation and storage path
     - For Android, no static path is used. A static variable holds the Android `Context` instead.
 
+When futurely working in the CLI:
+
+- `rialight debug` or `run`
+  - Pass the feature `rialight_multi_threaded_export` to `cargo run` internally as the host environment for debugging is generally not a web browser.
+- `rialight export`
+  - Pass the feature `rialight_multi_threaded_export` to `cargo run` internally
+
 ## Web Browser Tasks
 
-- [ ] The dependencies `stdweb`, `web-sys` and `wasm-bindgen-futures` are internally _only present_ when exporting to the browser (`cfg(feature(rialight_browser_export))`).
-```
-[dependencies]
-
-# browser export only dependencies
-stdweb = { version = "0.4.20", optional = true }
-web-sys = { version = "0.3.64", optional = true }
-wasm-bindgen-futures = { version = "0.4.37", optional = true }
-
-[features]
-# browser export only dependencies
-rialight_browser_export = [
-    "stdweb",
-    "web-sys",
-    "wasm-bindgen-futures",
-]
-```
 - [ ] Use of some Tokio features might have to be replaced by promises in the browser if they panic due to thread spawn. For the timeouts, use `setTimeout` (and some maybe... `setInterval`) from JavaScript inside a JavaScript promise and pass it to Rust via `wasm-bindgen-futures`.
   - https://users.rust-lang.org/t/does-tokio-work-in-the-browser-if-i-use-only-a-single-thread/97663?u=hydroper1
   - Conversion between Rust futures and JavaScript promises: https://crates.io/crates/wasm-bindgen-futures
