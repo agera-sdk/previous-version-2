@@ -178,8 +178,8 @@ Ideas for the utilities API, `rialight::util`. The utilities API is standalone a
 
 The network API, `rialight::net`.
 
-- HTTP
-- TCP
+- HTTP client (not _server_)
+  - Use the crate reqwest internally
 - Sockets (TCP abstraction; in the browser it uses WebSockets)
 - UDP
 
@@ -319,6 +319,7 @@ Working at temporal:
 - [ ] `temporal::PlainYearMonth`
 - [ ] `temporal::PlainMonthDay`
 - [ ] `temporal::Duration`
+  - Wraps a `std::time::Duration`. Can be constructed in various ways through `from_years` and `add_months`.
 - [ ] `temporal::TimeZone`
 - [ ] `temporal::Calendar`
 

@@ -16,6 +16,7 @@ pub mod uri;
 pub mod file_paths;
 pub mod observable;
 pub mod string;
+pub mod timeout;
 pub mod temporal;
 
 // not initiated or designed:

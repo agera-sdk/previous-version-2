@@ -6,6 +6,7 @@ pub use std::{
     any::Any,
     borrow::Borrow,
     cell::{Cell, RefCell},
+    future::Future,
     rc::Rc,
     sync::{
         Arc,
