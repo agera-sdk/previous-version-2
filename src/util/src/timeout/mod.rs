@@ -6,8 +6,8 @@ Work with timeouts and intervals.
 This module is only meant to be used within the Rialight asynchronous runtime.
 */
 
+pub use std::time::Duration;
 pub use tokio::time::{
-    Duration,
     Timeout,
     Instant,
     Sleep as Wait,

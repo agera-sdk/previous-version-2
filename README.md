@@ -307,7 +307,8 @@ Working at timeouts:
 - [ ] wrap `Elapsed`
 - [ ] wrap `ElapsedError`
 - [ ] wrap `Wait`
-- [ ] For each function of the timeout module, provide a browser implementation inside of the function that does not use Tokio.
+- [ ] Remove the top `pub use tokio::time::{}` after wrapping the types there
+- [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise.
   - [`stdweb`](https://crates.io/crates/stdweb)
   - [`web-sys`](https://crates.io/crates/web-sys)
   - [`wasm-bindgen-futures`](https://crates.io/crates/wasm-bindgen-futures)
