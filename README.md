@@ -61,7 +61,6 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
   - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind. Note that the set of node kinds cannot be extended. Node kinds have dedicated types for consulting their API documentation, such as `Button`. Calling `Button::new` returns a `Node`; however `Button` itself is not the `Node` type. The home API documentation for `rialight::graphics` has a list of supported node kinds, referencing the dedicated types.
   - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and an union of node kinds (stored in an `Arc`).
   - _Chaining:_ Most of the `Node` methods, such as `set_visibility`, are chainable, returning a clone of the node's reference. These methods are defined similiarly to:
-  - _Cloning:_ `Node` is cloned by reference by default, not by content. Use `node.clone_node()` to clone a node by content and not by reference.
 ```rust
 impl Node {
     pub fn set_something(&self) -> Self {
@@ -70,6 +69,7 @@ impl Node {
     }
 }
 ```
+  - _Cloning:_ `Node` is cloned by reference by default, not by content. Use `node.clone_node(deep)` to clone a node by content and not by reference.
   - _UI:_ Node kinds that are user interface specific (such as `Button`) are exported at the `rialight::graphics::ui` submodule to avoid confusion. They are also exported by the user interface API.
   - _Inheritance:_ Properties such as visibility are inherited by default, with an _inherited_ variant.
   - _Responsivity:_ Node measures are device-oriented. They use the mathematical API.
