@@ -28,7 +28,7 @@ assert_eq!("../../c/d", file_paths::relative("/a/b", "/c/d"));
 ```
 */
 
-use super::reg_exp::*;
+use super::{reg_exp, reg_exp::*};
 
 static PATH_SEPARATOR: StaticRegExp = static_reg_exp!(r"[/\\]");
 static STARTS_WITH_PATH_SEPARATOR: StaticRegExp = static_reg_exp!(r"^[/\\]");
@@ -135,19 +135,18 @@ pub fn resolve_n<'a, T: IntoIterator<Item = &'a str>>(paths: T) -> String {
 /// assert_eq!("a/b", file_paths::resolve_one("a//b"));
 /// ```
 pub fn resolve(path1: &str, path2: &str) -> String {
+    if STARTS_WITH_PATH_SEPARATOR.is_match(path2) {
+        return resolve_one(path2);
+    }
     let starts_with_slash = STARTS_WITH_PATH_SEPARATOR.is_match(path1);
     let mut r: String;
-    if STARTS_WITH_PATH_SEPARATOR.is_match(path2) {
-        r = resolve_one_without_starting_sep(path2);
-    } else {
-        let path1_resolved = resolve_one_without_starting_sep(path1);
-        if path2.is_empty() {
-            r = path1_resolved;
-        }
-        else {
-            let paths_combination = path1_resolved + "/" + path2;
-            r = resolve_one_without_starting_sep(paths_combination.as_ref());
-        }
+    let path1_resolved = resolve_one_without_starting_sep(path1);
+    if path2.is_empty() {
+        r = path1_resolved;
+    }
+    else {
+        let paths_combination = path1_resolved + "/" + path2;
+        r = resolve_one_without_starting_sep(paths_combination.as_ref());
     }
     if starts_with_slash {
         r = "/".to_owned() + &r;
@@ -170,7 +169,7 @@ pub fn resolve(path1: &str, path2: &str) -> String {
 pub fn resolve_one(path: &str) -> String {
     let starts_with_slash = STARTS_WITH_PATH_SEPARATOR.is_match(path);
     let r = resolve_one_without_starting_sep(path);
-    return if starts_with_slash { "/".to_owned() + &r } else { r };
+    if starts_with_slash { "/".to_owned() + &r } else { r }
 }
 
 fn resolve_one_without_starting_sep(path: &str) -> String {

@@ -42,9 +42,9 @@ let _ = my_observable()
     })
     .unsubscribe();
 
-// you can also use functional methods such as `retain` and `map`.
+// you can also use functional methods such as `filter` and `map`.
 let _ = my_observable()
-    .retain(|value| true)
+    .filter(|value| true)
     .map(|value| value);
 ```
 
@@ -124,20 +124,20 @@ impl<T, Error> Observable<T, Error>
         Observable::<U, Error>::new(f)
     }
 
-    /// Returns a new `Observable` that retains only data specified by the predicate.
-    pub fn retain(&self, retain_fn: impl Fn(T) -> bool + 'static + Send + Sync) -> Observable<T, Error>
+    /// Returns a new `Observable` that filters data specified by the predicate.
+    pub fn filter(&self, filter_fn: impl Fn(T) -> bool + 'static + Send + Sync) -> Observable<T, Error>
         where T: Clone
     {
         let orig = self.clone();
-        let retain_fn = Arc::new(retain_fn);
+        let filter_fn = Arc::new(filter_fn);
         let f: SubscriberFunction<T, Error> = Arc::new(move |observer| {
-            let retain_fn = retain_fn.clone();
+            let filter_fn = filter_fn.clone();
             let observer = Arc::new(observer);
             let subscription = orig.subscribe(observer! {
                 next: {
                     let observer = Arc::clone(&observer);
                     move |value: T| {
-                        if retain_fn(value.clone()) {
+                        if filter_fn(value.clone()) {
                             observer.next(value);
                         }
                     }

@@ -52,7 +52,7 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
   - _Finding nodes_: The most common method for finding nodes by identifier is `by_path`, which accepts a node path.
   - _Node paths:_ Node paths are paths using the slash (`/`) separator and `..` and `.` portions. A `..` portion resolves to the parent and a `.` portion resolves to the current node. If a node path is absolute, that is, it starts with a path separator, it resolves a node relative to the topmost parent.
     - `node.get_path()` returns the absolute node path.
-  - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind. Note that the set of node kinds cannot be extended. Node kinds have dedicated types for consulting their API documentation, such as `Button`. Calling `Button::new` returns a `Node`; however `Button` itself is not the `Node` type. The home API documentation for `rialight::graphics` has a list of supported node kinds, referencing the dedicated types.
+  - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind (it uses a private trait `NodeIs` that only the supported node kinds implement). Note that the set of node kinds cannot be extended. Node kinds have dedicated types for consulting their API documentation, such as `Button`. Calling `Button::new` returns a `Node`; however `Button` itself is not the `Node` type. The home API documentation for `rialight::graphics` has a list of supported node kinds, referencing the dedicated types.
   - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and an union of node kinds (stored in an `Arc`).
   - _Chaining:_ Most of the `Node` methods, such as `set_visibility`, are chainable, returning a clone of the node's reference. These methods are defined similiarly to:
 ```rust
@@ -300,15 +300,10 @@ Working at file system:
   - [ ] Provide ways of requesting permissions using asynchronous results that works across all platforms
   - **DO NOT** use all of the `rialight_util::file_paths` module's functions directly; wrap them first to handle the path prefix for Windows according to a given `manipulation` parameter (important because of `app:` and `app-storage:` which work differently).
     - [ ] Implement the operations below under `rialight_util::file_paths::os_based`
-    - [ ] For `relative`, if given `manipulation` is Windows, then:
+    - [ ] For `relative`, if given `manipulation` is Windows, then: (careful! don't use literal `r"\\"`; use `UNC_PREFIX` instead)
       - For each of the path arguments, if that path argument starts with a Windows supported prefix (including the UNC path prefix), do the following:
         - If the rest of the path is empty, add a single path separator to it.
       - ... Decide further steps here! Do it carefully because it may be either a UNC path prefix or a drive prefix (which can be different in both arguments), which may involve replacing the return result's path separator with that prefix.
-    - [ ] For `resolve`, if given `manipulation` is Windows, get the set _P_ of path arguments (`[from, to]`) containing a Windows supported prefix. If there are none, simply delegate to `rialight_util::file_paths::resolve`. If there are any, do the following:
-      - Let _p_ be the result of retaining the Windows supported prefix from the last element of that set _P_.
-      - Let _r_ be the result of delegating to `rialight_util::file_paths::resolve`, replacing each present Windows supported prefix from the arguments by a path separator.
-      - If _p_ is the UNC prefix (`\\`), return _p_ + `r[1..]`
-      - Return _p_ + _r_
   - [ ] Windows
     - [ ] For native paths, the path prefix is either `drive:` or `\\`.  `drive` is a case-insensitive letter.
   - [ ] Android
