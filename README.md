@@ -6,6 +6,8 @@ Rialight aims to be a multi-purpose gaming and graphical application framework c
 
 Rialight can be used for creating graphical applications, but **cannot be** used for creating websites. Rialight applications can be embedded in websites.
 
+Rialight experiences can be run in mobile, desktop, gaming consoles and web browsers.
+
 Rialight takes inspiration from:
 
 - Godot Engine
@@ -27,7 +29,15 @@ The project templates share common functionality, including translation resource
 
 Exporting a project should bundle its assets files into the installer, which can be later retrieved through the File API using an `app:` URI.
 
-Rialight uses Cargo, meaning `cargo run` works for debugging. You can also use `rialight run` or its alias `rialight debug`.
+Rialight uses the Rust's package manager that comes with its installation, Cargo, meaning `cargo run` works for debugging. You can also use `rialight run` or its alias `rialight debug`.
+
+To export your application, use a Rialight command such as:
+
+```
+rialight export --platform browser
+```
+
+If you simply try using Cargo instead to export your application, you'll most likely have issues.
 
 ### Graphics
 
@@ -62,6 +72,7 @@ impl Node {
 ```
   - _UI:_ Node kinds that are user interface specific (such as `Button`) are exported at the `rialight::graphics::ui` submodule to avoid confusion. They are also exported by the user interface API.
   - _Inheritance:_ Properties such as visibility are inherited by default, with an _inherited_ variant.
+  - _Responsivity:_ Node measures are device-oriented. They use the mathematical API.
 - Skins
   - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
   - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
@@ -251,6 +262,16 @@ Once Rialight develops, it can have a visual editor for the following use-cases:
 
 This visual editor will require an external IDE for logical programming, such as Visual Studio Code.
 
+## Additional Platform Detection
+
+Internally, Rialight uses Cargo features, including `rialight_browser_export`, to detect platforms that are not operating systems, including browsers, and futurely gaming consoles, since most of these use a WebAssembly target such as `wasm32-unknown-unknown`, where the OS does not exist.
+
+Current features used for platform detection:
+
+- `rialight_browser_export`
+
+You should not worry about specifying these Cargo features as you'll be using the Rialight commands to build or export your application to a specific platform, such as `rialight export --platform browser`.
+
 ## Comparison to Other Technologies
 
 - The concept of nodes is similiar to the concept of DOM elements: you cannot subtype a specific DOM element kind and instead use the existing ones. Although the framework strives to have as many node kinds as possible, you may need to wrap it into an unrelated type or create an UI component from the UI API (`rialight::ui`).
@@ -284,7 +305,8 @@ Working at file system:
     - [ ] For native paths, the path prefix is either `drive:` or `\\`.  `drive` is a case-insensitive letter.
   - [ ] Android
     - [ ] On Android, `app:` and `app-storage:` do not use a static from the Rialight core internals; call the Java API function [`context.getFilesDir`](https://developer.android.com/reference/android/content/Context#getFilesDir()).
-  - [ ] Web-compatible `File` API at `rialight::filesystem::webcompat`
+  - [ ] Web-compatible `File` API at `rialight::filesystem::webcompat` 
+  - Consult the _Additional Platform Detection_ section for how WebAssembly-based platforms are detected, including the browser.
   - [ ] Document the API
 
 When futurely working on graphical nodes:
