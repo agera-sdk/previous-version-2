@@ -15,4 +15,5 @@ rialight_intl = { version = "1", path = "../rialight_intl" }
 rialight_temporal = { version = "1", path = "../rialight_temporal" }
 rialight_util = { version = "1", path = "../rialight_util" }
 lazy-regex = "2.3.0"
-tokio = { version = "1", features = ["full"] }
+# should be optional
+# tokio = { version = "1", features = ["full"], optional = true }

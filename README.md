@@ -178,10 +178,10 @@ Ideas for the utilities API, `rialight::util`. The utilities API is standalone a
 
 ### Network
 
-The network API, `rialight::net`.
+The network API, `rialight::net`. The internationalization API uses the HTTP part of this API for loading developer translations.
 
 - HTTP client (not _server_)
-  - Use the crate reqwest internally
+  - Use the crate `hyper` internally (not `reqwest` due to how it detects the browser via `wasm32` arch.)
 - Sockets (TCP abstraction; in the browser it uses WebSockets)
 - UDP
 
@@ -224,6 +224,7 @@ The internationalization API, `rialight::intl`.
   - Text direction
 - Display Names and More
 - Translations
+  - This API can use the network API for downloading translations if the developer desires; however, most developers will simply use the `app:` file URI from the file system API.
 
 ### Core
 
@@ -303,6 +304,9 @@ Working at timeouts:
 - [ ] wrap `ElapsedError`
 - [ ] wrap `Wait`
 - [ ] For each function of the timeout module, provide a browser implementation inside of the function that does not use Tokio.
+  - [`stdweb`](https://crates.io/crates/stdweb)
+  - [`web-sys`](https://crates.io/crates/web-sys)
+  - [`wasm-bindgen-futures`](https://crates.io/crates/wasm-bindgen-futures)
 - [ ] For the browser, `Instant::now` is implemented using `Date.now()`
 
 Working at temporal:

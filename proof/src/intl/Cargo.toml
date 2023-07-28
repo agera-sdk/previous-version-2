@@ -16,10 +16,13 @@ icu = "1.1.0"
 lazy-regex = "2.3.1"
 lazy_static = "1.4.0"
 regex = "1.7.0"
-reqwest = "0.11.14"
+# do not use it due to wasm32 which it treats wrongly for specially
+# supported platforms such as Nintendo Switch
+# reqwest = "0.11.14"
 rialight_filesystem = { version = "1", path = "../rialight_filesystem" }
 rialight_util = { version = "1", path = "../rialight_util" }
-tokio = { version = "1", features = ["full"] }
+# do not use it anymore
+# tokio = { version = "1", features = ["full"] }
 unic-langid-impl = "0.9.1"
 
 # [target.'cfg(all(target_family = "wasm", target_os = "unknown"))'.dependencies]

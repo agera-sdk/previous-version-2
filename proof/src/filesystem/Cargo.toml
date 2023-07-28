@@ -14,4 +14,5 @@ dirs = "4.0.0"
 lazy-regex = "2.4.1"
 rialight_temporal = { version = "1", path = "../rialight_temporal" }
 rialight_util = { version = "1",  path = "../rialight_util" }
-tokio = { version = "1.21.2", features = ["fs"] }
+# do not use it anymore
+# tokio = { version = "1.21.2", features = ["fs"] }
