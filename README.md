@@ -178,10 +178,14 @@ Ideas for the utilities API, `rialight::util`. The utilities API is standalone a
 
 ### Network
 
-The network API, `rialight::net`. The internationalization API uses the HTTP part of this API for loading developer translations.
+The network API, `rialight::net`. The internationalization API uses the HTTP part of this API for loading developer translations occasionally if the developer desires.
 
 - HTTP client (not _server_)
-  - Use the crate `hyper` internally (not `reqwest` due to how it detects the browser via `wasm32` arch.)
+  - For multi-thread platforms: use the crate `hyper` internally (not `reqwest` due to how it detects the browser via `wasm32` arch.)
+    - However, if https://github.com/seanmonstar/reqwest/issues/1917 is solved, use:
+      - `reqwest::browser`
+      - `reqwest::tokio`
+      - And perform two `#[cfg(...)]` according to export platform.
 - Sockets (TCP abstraction; in the browser it uses WebSockets)
 - UDP
 
