@@ -303,6 +303,10 @@ mod test {
         assert_eq!("a/b", resolve_one("a//b"));
         assert_eq!("", relative("/a/b", "/a/b"));
         assert_eq!("c", relative("/a/b", "/a/b/c"));
+        assert_eq!("..", relative("/a/b/c", "/a/b"));
+        assert_eq!("../..", relative("/a/b/c", "/a"));
+        assert_eq!("..", relative("/a", "/"));
+        assert_eq!("a", relative("/", "/a"));
         assert_eq!("../../c/d", relative("/a/b", "/c/d"));
         assert_eq!("../c", relative("/a/b", "/a/c"));
         assert!(has_extensions("a.x", [".x", ".y"]));
