@@ -33,12 +33,10 @@ Rialight uses Cargo, meaning `cargo run` works for debugging. You can also use `
 
 The `rialight::graphics` and `rialight::ui` APIs co-work together.
 
-In regards to the graphics API, it'd be interesting to combine reactivity and node trees:
-
 - Nodes, the primary way to construct a visual application.
   - The `Node` object is the primary item of the graphics API, which has a limited set of various variants, such as `Rectangle`, `Canvas`, `Button`, `TabBar` and `Modal`. All of them share full customisation and common properties like visibility and transform (including 3D matrix) which are inherited by default from their parent.
     - _Reference:_ A `Node` is a thread-safe reference type that uses reference counting internally. If you need a weak reference to a node, you can downgrade it to a `WeakRefNode`.
-    - _Children:_ The `Node` type supports common child operations. It also supports node paths described later in this list.
+    - _Children:_ The `Node` type supports common child operations. It also supports node paths described later in this list. `node.children()` returns an iterator.
     - Meta data (optional mapping from `String` to `MetaDataValue` for attaching any data)
       - `pub type MetaDataValue = Box<dyn Any + Send + Sync>;`
   - Nodes don't describe just graphics. They also emit events, accessed as `node.on_some_event().listen(listen_fn)`, such as `on_enter_frame` and `on_click` events.
@@ -52,6 +50,17 @@ In regards to the graphics API, it'd be interesting to combine reactivity and no
     - `node.get_path()` returns the absolute node path.
   - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind. Note that the set of node kinds cannot be extended. Node kinds have dedicated types for consulting their API documentation, such as `Button`. Calling `Button::new` returns a `Node`; however `Button` itself is not the `Node` type. The home API documentation for `rialight::graphics` has a list of supported node kinds, referencing the dedicated types.
   - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and an union of node kinds (stored in an `Arc`).
+  - _Chaining:_ Most of the `Node` methods, such as `set_visibility`, are chainable, returning a clone of the node's reference. These methods are defined similiarly to:
+  - _Cloning:_ `Node` is cloned by reference by default, not by content. Use `node.clone_node()` to clone a node by content and not by reference.
+```rust
+impl Node {
+    pub fn set_something(&self) -> Self {
+        // set something
+        self.clone()
+    }
+}
+```
+  - _UI:_ Node kinds that are user interface specific (such as `Button`) are exported at the `rialight::graphics::ui` submodule to avoid confusion. They are also exported by the user interface API.
 - Skins
   - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
   - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
@@ -71,7 +80,7 @@ Accessibility:
 
 The UI API, `rialight::ui`.
 
-- Some parts of the UI API are used by the graphics API.
+- The UI API exports all the node kinds related to user interface (such as `Button`) from the submodule `rialight::graphics::ui` of the graphics API. Such node kinds are not exported directly by the graphics API to avoid confusion.
 - The UI API defines interfaces for reactive UI component which are defined by the developer.
   - An UI component may use graphics nodes from the graphics API, `rialight::graphics`.
   - _Reactive_ data can be shared across all UI components. There may be a proper API for that. In that case, when a state changes, it causes parts of a component that use that state to render again.
@@ -281,7 +290,15 @@ When futurely working on graphical nodes:
 
 - Provide the types `Node` and `WeakRefNode`. Inside `Node` is stored an internal `Arc<NonRefNode>` and inside `WeakRefNode` is an internal `Weak<Gc<NonRefNode>>` to which it dereferences.
 - Store a node kind in a `Node` behind an `Arc`, inside an union containing other node kinds.
-- The equality operator compares by reference and the clone method clones by reference.
+- The equality operator compares by reference and the clone method clones the reference. _Do not_ use `#[derive(Clone)]`; implement it manually to make sure no content is cloned:
+```rust
+impl Clone for Node {
+    fn clone(&self) -> Self {
+        Self { n: Arc::clone(&self.n) }
+    }
+}
+```
+- `node.clone_node(deep)` clones the node and not its reference.
 
 When futurely working with internationalization:
 
