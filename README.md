@@ -61,6 +61,7 @@ impl Node {
 }
 ```
   - _UI:_ Node kinds that are user interface specific (such as `Button`) are exported at the `rialight::graphics::ui` submodule to avoid confusion. They are also exported by the user interface API.
+  - _Inheritance:_ Properties such as visibility are inherited by default, with an _inherited_ variant.
 - Skins
   - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
   - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
