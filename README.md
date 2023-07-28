@@ -364,3 +364,26 @@ When futurely working with the application entry point:
 - File system statics
   - Mutate things such as application installation and storage path
     - For Android, no static path is used. A static variable holds the Android `Context` instead.
+
+## Web Browser Tasks
+
+- [ ] The dependencies `stdweb`, `web-sys` and `wasm-bindgen-futures` are internally _only present_ when exporting to the browser (`cfg(feature(rialight_browser_export))`).
+```
+[dependencies]
+
+# browser export only dependencies
+stdweb = { version = "0.4.20", optional = true }
+web-sys = { version = "0.3.64", optional = true }
+wasm-bindgen-futures = { version = "0.4.37", optional = true }
+
+[features]
+# browser export only dependencies
+rialight_browser_export = [
+    "stdweb",
+    "web-sys",
+    "wasm-bindgen-futures",
+]
+```
+- [ ] Use of some Tokio features might have to be replaced by promises in the browser if they panic due to thread spawn. For the timeouts, use `setTimeout` (and some maybe... `setInterval`) from JavaScript inside a JavaScript promise and pass it to Rust via `wasm-bindgen-futures`.
+  - https://users.rust-lang.org/t/does-tokio-work-in-the-browser-if-i-use-only-a-single-thread/97663?u=hydroper1
+  - Conversion between Rust futures and JavaScript promises: https://crates.io/crates/wasm-bindgen-futures
