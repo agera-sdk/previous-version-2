@@ -9,6 +9,7 @@ members = [
     "src/filesystem",
     "src/gaming",
     "src/graphics",
+    "src/graphics_3d",
     "src/intl",
     "src/math",
     "src/media",

@@ -4,15 +4,9 @@
 
 Rialight aims to be a multi-purpose gaming and graphical application framework combining reactivity and nodes and shipping various fundamental APIs, requiring you to just know the Rust standard library and the Rialight API.
 
-Rialight can be used for creating graphical applications, but **cannot be** used for creating websites. Rialight applications can be embedded in websites.
+Rialight can be used for creating graphical applications, both two-dimensional (2D) and three-dimensional (3D), but **cannot be** used for creating websites. Rialight applications can be embedded in websites.
 
 Rialight experiences can be run in mobile, desktop, gaming consoles and web browsers.
-
-Rialight takes inspiration from:
-
-- Godot Engine
-- Reactive UI Frameworks such as React
-- Adobe AIR (or Flash Player)
 
 ## Draft Ideas
 
@@ -95,6 +89,12 @@ Accessibility:
   - Focus configuration
     - You can optionally allow user inputs other than touch or pointer to switch control focus.
 - Touch
+
+### 3D Graphics
+
+The 3D graphics API, `rialight::graphics_3d`.
+
+- The most important type is `Node3d`. It is not compatible with the two-dimensional `Node` type and cannot be mixed with it.
 
 ### UI
 
@@ -320,6 +320,7 @@ Working at file system:
 When futurely working on graphical nodes:
 
 - Provide the types `Node` and `WeakRefNode`. Inside `Node` is stored an internal `Arc<NonRefNode>` and inside `WeakRefNode` is an internal `Weak<Gc<NonRefNode>>` to which it dereferences.
+- The parent is stored as a `WeakRefNode` internally.
 - Store a node kind in a `Node` behind an `Arc`, inside an union containing other node kinds.
 - The equality operator compares by reference and the clone method clones the reference. _Do not_ use `#[derive(Clone)]`; implement it manually to make sure no content is cloned:
 ```rust
