@@ -77,7 +77,7 @@ pub fn relative(from_path: &str, to_path: &str) -> String {
     let to_parts = remove_empty(&mut to_parts);
 
     fn remove_empty(parts: &mut Vec<String>) -> &mut Vec<String> {
-        if parts[1] == "" {
+        if parts[1].is_empty() {
             parts.remove(1);
         }
         parts
@@ -85,16 +85,11 @@ pub fn relative(from_path: &str, to_path: &str) -> String {
 
     let mut common_indices = Vec::<usize>::new();
 
-    let mut i = 0usize;
-    loop {
-        if i >= from_parts.len() || i >= to_parts.len() {
-            break;
-        }
+    for i in 0..usize::min(from_parts.len(), to_parts.len()) {
         if from_parts[i] != to_parts[i] {
             break;
         }
         common_indices.push(i);
-        i += 1;
     }
     for i in common_indices.iter().rev() {
         let j = common_indices[*i];
@@ -320,6 +315,7 @@ mod test {
         assert_eq!("../..", relative("/a/b/c", "/a"));
         assert_eq!("..", relative("/a", "/"));
         assert_eq!("a", relative("/", "/a"));
+        assert_eq!("", relative("/", "/"));
         assert_eq!("../../c/d", relative("/a/b", "/c/d"));
         assert_eq!("../c", relative("/a/b", "/a/c"));
         assert!(has_extensions("a.x", [".x", ".y"]));
