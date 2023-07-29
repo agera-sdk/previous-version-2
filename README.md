@@ -453,6 +453,11 @@ fn my_entry_point() {
 
 ## Web Browser Tasks
 
+- When working with the browser, refer mostly to the `wasm_bindgen` library.
+  - API: https://rustwasm.github.io/wasm-bindgen/api/web_sys
+    - Just search there and you'll find JavaScript things
+  - JavaScript Glue
+    - https://rustwasm.github.io/wasm-bindgen/examples/import-js.html
 - [ ] The browser does not use the Tokio runtime as the browsers are single-threaded. For the timeouts, use `setTimeout` (and some maybe... `setInterval`) from JavaScript inside a JavaScript promise and pass it to Rust via `wasm-bindgen-futures`.
   - https://users.rust-lang.org/t/does-tokio-work-in-the-browser-if-i-use-only-a-single-thread/97663?u=hydroper1
   - Conversion between Rust futures and JavaScript promises: https://crates.io/crates/wasm-bindgen-futures
