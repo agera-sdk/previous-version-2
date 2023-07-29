@@ -54,10 +54,13 @@ use std::future::Future;
 /// For non Rialight users, if you're not calling this function
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
-pub async fn timeout<F>(duration: Duration, future: F) -> Timeout<F>
-    where F: Future,
-{
-    tokio::time::timeout(duration, future)
+pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
+    #[cfg(feature(rialight_multi_threaded_export))] {
+        return tokio::time::timeout(duration, future);
+    }
+    #[cfg(feature(rialight_browser_export))] {
+        todo!();
+    }
 }
 
 /// Requires a `Future` to complete before the specified instant in time.
@@ -99,10 +102,13 @@ pub async fn timeout<F>(duration: Duration, future: F) -> Timeout<F>
 /// For non Rialight users, if you're not calling this function
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
-pub async fn timeout_at<F>(deadline: Instant, future: F) -> Timeout<F>
-    where F: Future,
-{
-    tokio::time::timeout_at(deadline, future)
+pub async fn timeout_at<F: Future>(deadline: Instant, future: F) -> Timeout<F> {
+    #[cfg(feature(rialight_multi_threaded_export))] {
+        return tokio::time::timeout_at(deadline, future);
+    }
+    #[cfg(feature(rialight_browser_export))] {
+        todo!();
+    }
 }
 
 /// Asynchronously waits until `duration` has elapsed.
@@ -143,7 +149,12 @@ pub async fn timeout_at<F>(deadline: Instant, future: F) -> Timeout<F>
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn wait(duration: Duration) -> Wait {
-    tokio::time::sleep(duration)
+    #[cfg(feature(rialight_multi_threaded_export))] {
+        return tokio::time::sleep(duration);
+    }
+    #[cfg(feature(rialight_browser_export))] {
+        todo!();
+    }
 }
 
 /// Asynchronously waits until `deadline` is reached.
@@ -182,6 +193,10 @@ pub async fn wait(duration: Duration) -> Wait {
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn wait_until(deadline: Instant) -> Wait {
-    tokio::time::sleep_until(deadline)
+    #[cfg(feature(rialight_multi_threaded_export))] {
+        return tokio::time::sleep_until(deadline);
+    }
+    #[cfg(feature(rialight_browser_export))] {
+        todo!();
+    }
 }
-
