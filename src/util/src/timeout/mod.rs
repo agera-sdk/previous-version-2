@@ -7,7 +7,56 @@ This module is only meant to be used within the Rialight asynchronous runtime.
 */
 
 pub use std::time::Duration;
-use std::future::Future;
+use std::{future::Future, fmt::Display};
+
+mod platform_based;
+
+/// Error returned by [`Timeout`].
+/// 
+/// This error is returned when a timeout expires before the function
+/// was able to finish.
+#[derive(PartialEq, Clone, Debug, Copy)]
+pub struct ElapsedError;
+
+impl Display for ElapsedError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Timeout expired")
+    }
+}
+
+impl std::error::Error for ElapsedError {}
+
+/// A measurement of a monotonically nondecreasing clock. Opaque and useful only with `Duration`.
+/// 
+/// Instants are always guaranteed to be no less than any previously measured
+/// instant when created.
+/// 
+/// Instants are opaque types that can only be compared to one another. There is
+/// no method to get "the number of seconds" from an instant. Instead, it only
+/// allows measuring the duration between two instants (or comparing two
+/// instants).
+///
+/// # Mix with the temporal API
+/// 
+/// This `Instant` type is not the same as the one from the temporal API, however
+/// the `Instant` type from the temporal API can convert to the `Instant` type from the timeout API,
+/// usually by just calling `.into()`.
+/// 
+/// ```
+/// use rialight_util::{timeout::*, temporal};
+/// 
+/// let instant: Instant = temporal::now::instant().into();
+/// ```
+/// 
+/// # Mix with the Rust standard library
+/// 
+/// This `Instant` type is not the same as the one from the Rust standard library, however
+/// the `Instant` type from the Rust standard library can convert to the `Instant` type from the timeout API,
+/// usually by just calling `.into()`.
+/// 
+pub struct Instant {
+    inner: platform_based::Instant,
+}
 
 /// Requires for a `Future` to complete before the given
 /// `duration` has elapsed.
@@ -53,7 +102,10 @@ use std::future::Future;
 /// 
 pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
     #[cfg(feature = "rialight_default_export")] {
-        return tokio::time::timeout(duration, future);
+        match tokio::time::timeout(duration, future).await {
+            Err(error) => ElapsedError,
+            Ok(ret) => dontknowyet(),
+        }
     }
     #[cfg(feature = "rialight_browser_export")] {
         todo!();
@@ -102,7 +154,10 @@ pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
 /// 
 pub async fn timeout_at<F: Future>(deadline: Instant, future: F) -> Timeout<F> {
     #[cfg(feature = "rialight_default_export")] {
-        return tokio::time::timeout_at(deadline, future);
+        match tokio::time::timeout_at(deadline, future).await {
+            Err(error) => ElapsedError,
+            Ok(ret) => dontknowyet(),
+        }
     }
     #[cfg(feature = "rialight_browser_export")] {
         todo!();

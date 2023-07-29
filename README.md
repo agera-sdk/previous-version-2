@@ -311,11 +311,13 @@ Working at timeouts:
 - [ ] wrap `Interval`
   - Do not define missed_tick_behavior as it may not be possible on JavaScript
   - On JavaScript: interval works like this:
-    - https://users.rust-lang.org/t/future-based-interval-in-the-browser/97693
+    - https://users.rust-lang.org/t/future-based-interval-in-the-browser/97693/3
+    - Use approach 1 (**WITHOUT** `setInterval`) in the above post, using the optimal solution not using `setInterval` nor `setTimeout`
 - [ ] wrap `Timeout`
 - [ ] wrap `Instant` (note that it isn't the same from the temporal API)
+  - [ ] For the browser, holds "epoch" milliseconds (`instant.epochMilliseconds`)
+  - [ ] Implement from `From<std::time::Instant>`
   - [ ] For the browser, `Instant::now` is implemented using `Date.now()` (epoch milliseconds)
-- [ ] wrap `ElapsedError`
 - [ ] wrap `Wait`
 - [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise. The existing Tokio implementation needs to use conversion. Make sure each feature `#[cfg]` works.
   - In JavaScript, instants contain the number of milliseconds elapsed since the epoch, obted from `Date.now()` most commonly. This is used for things like `wait_until`.
@@ -327,6 +329,7 @@ Working at timeouts:
   - In browser this uses `setTimeout` (tracked timeout is assigned to -1 before polling to Rust future) + `clearTimeout` (invoked if tracked timeout is not -1)
   - In Tokio this spawns a thread with a wait. The thread holds an `Arc` which it receives from the spawning thread, that indicates whether the timeout was cancelled. After the wait, if this `Arc` indicates the timeout was "not" cancelled, it calls the callback from the developer.
 - [ ] Add a `background_interval` function similiar to background timeout function that returns `BackgroundInterval`.
+  - On JavaScript, **NEVER** use `clearInterval`! Just use the solution at https://users.rust-lang.org/t/future-based-interval-in-the-browser/97693/3
 
 Working at temporal:
 
@@ -349,6 +352,7 @@ Working at temporal:
   - [ ] `plain_date_time`
   - [ ] `plain_date_time_iso`
 - [ ] `temporal::Instant`
+  - [ ] Add an `Into<crate::timeout::Instant>` implementation (converts the instant into a timeout API's instant)
 - [ ] `temporal::ZonedDateTime`
 - [ ] `temporal::PlainDate`
 - [ ] `temporal::PlainTime`
