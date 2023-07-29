@@ -269,6 +269,30 @@ The `rialight::prelude` crate can be used to include commonly used things in sco
 
 All of these are described in the utilities API.
 
+### Working With the Browser
+
+When a developer wants to run a portion of Rust code for the browser only, it is recommended to detect the browser via `#[cfg(feature = "rialight_browser_export")]` and not `#[cfg(target_arch = "wasm32")]` as WebAssembly is used for unknown platforms.
+
+Rialight will initially not provide browser-specific APIs for working the browser environment, therefore if you want to communicate with JavaScript, you may want to add this to your Cargo.toml:
+
+```
+# browser export only dependencies
+stdweb = { version = "0.4.20", optional = true }
+web-sys = { version = "0.3.64", optional = true }
+wasm-bindgen = { version = "0.2.87", optional = true }
+wasm-bindgen-futures = { version = "0.4.37", optional = true }
+
+# browser export only dependencies
+rialight_browser_export = [
+    "stdweb",
+    "web-sys",
+    "wasm-bindgen",
+    "wasm-bindgen-futures",
+]
+```
+
+Crates such as `stdweb` allow communicating with JavaScript.
+
 ### Visual Editor
 
 Once Rialight develops, it can have a visual editor for the following use-cases:

@@ -3,6 +3,7 @@ When the Rialight runtime is targetting the browser.
 */
 
 use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};
+use stdweb::js;
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant;
