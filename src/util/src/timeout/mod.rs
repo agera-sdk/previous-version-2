@@ -103,6 +103,19 @@ impl SubAssign<Duration> for Instant {
     }
 }
 
+/// Future returned by [`wait`] and [`wait_until`].
+#[derive(Debug)]
+pub struct Wait {
+    inner: platform_based::Wait,
+}
+
+impl Future for Wait {
+    type Output = ();
+    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
+        std::pin::pin!(self.inner).poll(cx)
+    }
+}
+
 /// Requires for a `Future` to complete before the given
 /// `duration` has elapsed.
 /// 

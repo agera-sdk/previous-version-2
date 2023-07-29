@@ -333,13 +333,13 @@ Working at timeouts:
   - In browser, `interval_at` uses a `setTimeout` internally (uses `Date.now() - instant.epochMilliseconds`).
 - [ ] Note the following types wrap yet another "private" type, which is defined according to a `#[cfg]` attribute (also add a `#[cfg]` case for both export features not listed so that the code the compiles).
 - [ ] wrap `Interval`
-  - Do not define missed_tick_behavior as it may not be possible on JavaScript
+  - Define only `tick()` and nothing else.
   - On JavaScript: interval works like this:
     - https://users.rust-lang.org/t/future-based-interval-in-the-browser/97693/3
     - Use approach 1 (**WITHOUT** `setInterval`) in the above post, using the optimal solution not using `setInterval` nor `setTimeout`
 - [ ] wrap `Timeout`
 - [x] wrap `Instant`
-- [ ] wrap `Wait`
+- [x] wrap `Wait`
 - [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise. The existing Tokio implementation needs to use conversion. Make sure each `#[cfg]` case compiles.
   - In JavaScript, instants contain the number of milliseconds elapsed since the epoch, obted from `Date.now()` most commonly. This is used for things like `wait_until`.
   - For `interval`, panic if given period is zero
