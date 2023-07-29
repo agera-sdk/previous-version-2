@@ -307,7 +307,7 @@ Working at timeouts:
 - [ ] wrap `Instant` (note that it isn't the same from the temporal API)
 - [ ] wrap `ElapsedError`
 - [ ] wrap `Wait`
-- [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise.
+- [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise. The existing Tokio implementation needs to use conversion. Make sure each feature `#[cfg]` works.
   - [`stdweb`](https://crates.io/crates/stdweb)
   - [`web-sys`](https://crates.io/crates/web-sys)
   - [`wasm-bindgen-futures`](https://crates.io/crates/wasm-bindgen-futures)

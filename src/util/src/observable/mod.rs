@@ -497,13 +497,19 @@ pub trait AbstractObserver<T, Error = ()>: Send + Sync
         Error: Send + Sync + 'static
 {
     /// Receives the next value in the sequence.
-    fn next(&self, _value: T) {}
+    fn next(&self, value: T) {
+        let _ = value;
+    }
     /// Receives the sequence error.
-    fn error(&self, _error: Error) {}
+    fn error(&self, error: Error) {
+        let _ = error;
+    }
     /// Receives a completion notification.
     fn complete(&self) {}
     /// Receives the subscription object when `subscribe` is called.
-    fn start(&self, _subscription: Arc<Subscription<T, Error>>) {}
+    fn start(&self, subscription: Arc<Subscription<T, Error>>) {
+        let _ = subscription;
+    }
 }
 
 fn cleanup_subscription<T, Error>(subscription: &Subscription<T, Error>)

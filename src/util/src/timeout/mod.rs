@@ -55,11 +55,15 @@ use std::future::Future;
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
-    #[cfg(feature(rialight_multi_threaded_export))] {
+    #[cfg(feature = "rialight_multi_threaded_export")] {
         return tokio::time::timeout(duration, future);
     }
-    #[cfg(feature(rialight_browser_export))] {
+    #[cfg(feature = "rialight_browser_export")] {
         todo!();
+    }
+    #[cfg(not(any(feature = "rialight_multi_threaded_export", feature = "rialight_browser_export")))] {
+        let _ = (duration, future);
+        panic!("Incorrectly configured Rialight runtime");
     }
 }
 
@@ -103,11 +107,15 @@ pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn timeout_at<F: Future>(deadline: Instant, future: F) -> Timeout<F> {
-    #[cfg(feature(rialight_multi_threaded_export))] {
+    #[cfg(feature = "rialight_multi_threaded_export")] {
         return tokio::time::timeout_at(deadline, future);
     }
-    #[cfg(feature(rialight_browser_export))] {
+    #[cfg(feature = "rialight_browser_export")] {
         todo!();
+    }
+    #[cfg(not(any(feature = "rialight_multi_threaded_export", feature = "rialight_browser_export")))] {
+        let _ = (deadline, future);
+        panic!("Incorrectly configured Rialight runtime");
     }
 }
 
@@ -149,11 +157,15 @@ pub async fn timeout_at<F: Future>(deadline: Instant, future: F) -> Timeout<F> {
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn wait(duration: Duration) -> Wait {
-    #[cfg(feature(rialight_multi_threaded_export))] {
+    #[cfg(feature = "rialight_multi_threaded_export")] {
         return tokio::time::sleep(duration);
     }
-    #[cfg(feature(rialight_browser_export))] {
+    #[cfg(feature = "rialight_browser_export")] {
         todo!();
+    }
+    #[cfg(not(any(feature = "rialight_multi_threaded_export", feature = "rialight_browser_export")))] {
+        let _ = duration;
+        panic!("Incorrectly configured Rialight runtime");
     }
 }
 
@@ -193,10 +205,14 @@ pub async fn wait(duration: Duration) -> Wait {
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn wait_until(deadline: Instant) -> Wait {
-    #[cfg(feature(rialight_multi_threaded_export))] {
+    #[cfg(feature = "rialight_multi_threaded_export")] {
         return tokio::time::sleep_until(deadline);
     }
-    #[cfg(feature(rialight_browser_export))] {
+    #[cfg(feature = "rialight_browser_export")] {
         todo!();
+    }
+    #[cfg(not(any(feature = "rialight_multi_threaded_export", feature = "rialight_browser_export")))] {
+        let _ = deadline;
+        panic!("Incorrectly configured Rialight runtime");
     }
 }
