@@ -11,3 +11,7 @@ description = "Rialight API prelude."
 
 [dependencies]
 rialight_util = { path = "../util" }
+
+[features]
+rialight_default_export = ["rialight_util/rialight_default_export"]
+rialight_browser_export = ["rialight_util/rialight_browser_export"]

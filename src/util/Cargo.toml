@@ -29,7 +29,7 @@ wasm-bindgen = { version = "0.2.87", optional = true }
 wasm-bindgen-futures = { version = "0.4.37", optional = true }
 
 [features]
-# multi-threaded target only dependencies
+# non-browser only dependencies
 rialight_default_export = [
     "tokio",
 ]

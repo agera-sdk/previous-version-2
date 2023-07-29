@@ -12,3 +12,7 @@ description = "Rialight file system API."
 [dependencies]
 rialight_prelude = { path = "../prelude" }
 rialight_util = { path = "../util" }
+
+[features]
+rialight_default_export = ["rialight_prelude/rialight_default_export"]
+rialight_browser_export = ["rialight_util/rialight_browser_export"]
