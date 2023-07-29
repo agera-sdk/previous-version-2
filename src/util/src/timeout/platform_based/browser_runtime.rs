@@ -56,11 +56,13 @@ impl SubAssign<Duration> for Instant {
 }
 
 #[derive(Debug)]
-pub struct Wait;
+pub struct Wait {
+    promise: wasm_bindgen_futures::JsFuture,
+}
 
 impl Future for Wait {
     type Output = ();
     fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
-        
+        std::pin::pin!(self.promise).poll(cx).map(|r| ())
     }
 }
