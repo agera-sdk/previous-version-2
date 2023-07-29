@@ -29,11 +29,8 @@ use std::future::Future;
 /// 
 /// # Cancellation
 ///
-/// Cancelling a timeout is done by dropping the future. No additional cleanup
-/// or other work is required.
-///
-/// The original future may be obtained by calling [`Timeout::into_inner`]. This
-/// consumes the `Timeout`.
+/// Canceling a timeout being awaited for via the `.await` operator is not possible.
+/// Use [`background_timeout`] for such a purpose.
 /// 
 /// # Examples
 /// 
@@ -55,13 +52,13 @@ use std::future::Future;
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
-    #[cfg(feature = "rialight_multi_threaded_export")] {
+    #[cfg(feature = "rialight_default_export")] {
         return tokio::time::timeout(duration, future);
     }
     #[cfg(feature = "rialight_browser_export")] {
         todo!();
     }
-    #[cfg(not(any(feature = "rialight_multi_threaded_export", feature = "rialight_browser_export")))] {
+    #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = (duration, future);
         panic!("Incorrectly configured Rialight runtime");
     }
@@ -95,11 +92,8 @@ pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
 ///
 /// # Cancellation
 ///
-/// Cancelling a timeout is done by dropping the future. No additional cleanup
-/// or other work is required.
-///
-/// The original future may be obtained by calling [`Timeout::into_inner`]. This
-/// consumes the `Timeout`.
+/// Canceling a timeout being awaited for via the `.await` operator is not possible.
+/// Use [`background_timeout`] for such a purpose.
 /// 
 /// # Panics
 ///
@@ -107,13 +101,13 @@ pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn timeout_at<F: Future>(deadline: Instant, future: F) -> Timeout<F> {
-    #[cfg(feature = "rialight_multi_threaded_export")] {
+    #[cfg(feature = "rialight_default_export")] {
         return tokio::time::timeout_at(deadline, future);
     }
     #[cfg(feature = "rialight_browser_export")] {
         todo!();
     }
-    #[cfg(not(any(feature = "rialight_multi_threaded_export", feature = "rialight_browser_export")))] {
+    #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = (deadline, future);
         panic!("Incorrectly configured Rialight runtime");
     }
@@ -133,8 +127,8 @@ pub async fn timeout_at<F: Future>(deadline: Instant, future: F) -> Timeout<F> {
 /// 
 /// # Cancellation
 ///
-/// Canceling a wait instance is done by dropping the returned future. No additional
-/// cleanup work is required.
+/// Canceling a wait being awaited for via the `.await` operator is not possible.
+/// Use [`background_timeout`] for such a purpose.
 /// 
 /// # Examples
 /// 
@@ -157,13 +151,13 @@ pub async fn timeout_at<F: Future>(deadline: Instant, future: F) -> Timeout<F> {
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn wait(duration: Duration) -> Wait {
-    #[cfg(feature = "rialight_multi_threaded_export")] {
+    #[cfg(feature = "rialight_default_export")] {
         return tokio::time::sleep(duration);
     }
     #[cfg(feature = "rialight_browser_export")] {
         todo!();
     }
-    #[cfg(not(any(feature = "rialight_multi_threaded_export", feature = "rialight_browser_export")))] {
+    #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = duration;
         panic!("Incorrectly configured Rialight runtime");
     }
@@ -177,12 +171,12 @@ pub async fn wait(duration: Duration) -> Wait {
 ///
 /// To run something regularly on a schedule, see [`interval`].
 ///
-/// The maximum duration for a sleep is 68719476734 milliseconds (approximately 2.2 years).
+/// The maximum duration for a wait is 68719476734 milliseconds (approximately 2.2 years).
 ///
 /// # Cancellation
 ///
-/// Canceling a sleep instance is done by dropping the returned future. No additional
-/// cleanup work is required.
+/// Canceling a wait being awaited for via the `.await` operator is not possible.
+/// Use [`background_timeout`] for such a purpose.
 /// 
 /// # Examples
 /// 
@@ -205,14 +199,134 @@ pub async fn wait(duration: Duration) -> Wait {
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn wait_until(deadline: Instant) -> Wait {
-    #[cfg(feature = "rialight_multi_threaded_export")] {
+    #[cfg(feature = "rialight_default_export")] {
         return tokio::time::sleep_until(deadline);
     }
     #[cfg(feature = "rialight_browser_export")] {
         todo!();
     }
-    #[cfg(not(any(feature = "rialight_multi_threaded_export", feature = "rialight_browser_export")))] {
+    #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = deadline;
+        panic!("Incorrectly configured Rialight runtime");
+    }
+}
+
+/// Creates a new [`Interval`] that yields with interval of `period`. The first
+/// tick completes immediately.
+///
+/// An interval will tick indefinitely. At any time, the [`Interval`] value can
+/// be dropped. This cancels the interval.
+///
+/// This function is equivalent to
+/// [`interval_at(Instant::now(), period)`](interval_at).
+/// 
+/// # Cancellation
+///
+/// An interval is disposed when its variable is dropped.
+/// Use [`background_interval`] if you need an interval that runs
+/// separately and can be cancelled dynamically.
+///
+/// # Panics
+///
+/// This function panics if `period` is zero.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use rialight_util::timeout::*;
+///
+/// async fn example_fn() {
+///     let mut interval = interval(Duration::from_millis(10));
+///     interval.tick().await; // ticks immediately
+///     interval.tick().await; // ticks after 10ms
+///     interval.tick().await; // ticks after 10ms
+///
+///     // approximately 20ms have elapsed.
+/// }
+/// ```
+/// 
+/// A simple example using `interval` to execute a task every two seconds.
+///
+/// The difference between `interval` and [`wait`] is that an [`Interval`]
+/// measures the time since the last tick, which means that [`.tick().await`]
+/// may wait for a shorter time than the duration specified for the interval
+/// if some time has passed between calls to [`.tick().await`].
+///
+/// If the tick in the example below was replaced with [`wait`], the task
+/// would only be executed once every three seconds, and not every two
+/// seconds.
+///
+/// ```
+/// use rialight_util::timeout::*;
+///
+/// async fn task_that_takes_a_second() {
+///     println!("hello");
+///     wait(Duration::from_secs(1)).await
+/// }
+///
+/// async fn example() {
+///     let mut interval = interval(Duration::from_secs(2));
+///     for _i in 0..5 {
+///         interval.tick().await;
+///         task_that_takes_a_second().await;
+///     }
+/// }
+/// ```
+/// 
+/// [`.tick().await`]: Interval::tick
+///
+pub fn interval(period: Duration) -> Interval {
+    #[cfg(feature = "rialight_default_export")] {
+        return tokio::time::interval(period);
+    }
+    #[cfg(feature = "rialight_browser_export")] {
+        todo!();
+    }
+    #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
+        let _ = period;
+        panic!("Incorrectly configured Rialight runtime");
+    }
+}
+
+/// Creates a new [`Interval`] that yields with interval of `period` with the
+/// first tick completing at `start`.
+///
+/// # Cancellation
+///
+/// An interval is disposed when its variable is dropped.
+/// Use [`background_interval`] if you need an interval that runs
+/// separately and can be cancelled dynamically.
+/// 
+/// # Panics
+///
+/// This function panics if `period` is zero.
+/// 
+/// # Examples
+///
+/// ```
+/// use rialight_util::timeout::*;
+///
+/// async fn example() {
+///     let start = Instant::now() + Duration::from_millis(50);
+///     let mut interval = interval_at(start, Duration::from_millis(10));
+///
+///     interval.tick().await; // ticks after 50ms
+///     interval.tick().await; // ticks after 10ms
+///     interval.tick().await; // ticks after 10ms
+///
+///     // approximately 70ms have elapsed.
+/// }
+/// ```
+/// 
+pub fn interval_at(start: Instant, period: Duration) -> Interval {
+    #[cfg(feature = "rialight_default_export")] {
+        return tokio::time::interval_at(start, period);
+    }
+    #[cfg(feature = "rialight_browser_export")] {
+        todo!();
+    }
+    #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
+        let _ = (start, period);
         panic!("Incorrectly configured Rialight runtime");
     }
 }

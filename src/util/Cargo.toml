@@ -25,11 +25,12 @@ tokio = { version = "1.29.1", features = ["time"], optional = true }
 # browser export only dependencies
 stdweb = { version = "0.4.20", optional = true }
 web-sys = { version = "0.3.64", optional = true }
+wasm-bindgen = { version = "0.2.87", optional = true }
 wasm-bindgen-futures = { version = "0.4.37", optional = true }
 
 [features]
 # multi-threaded target only dependencies
-rialight_multi_threaded_export = [
+rialight_default_export = [
     "tokio",
 ]
 
@@ -37,5 +38,6 @@ rialight_multi_threaded_export = [
 rialight_browser_export = [
     "stdweb",
     "web-sys",
+    "wasm-bindgen",
     "wasm-bindgen-futures",
 ]

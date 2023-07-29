@@ -15,7 +15,11 @@ Rialight experiences can be run in mobile, desktop, gaming consoles and web brow
 When using the `rialight` command, you create new projects instantly:
 
 - `rialight new my-app`
+  - Creates an empty graphical application.
 - `rialight new --game my-game`
+  - Creates an empty game.
+- `rialight new --cli my-command`
+  - Creates an empty command-line interface application.
 
 The project templates share common functionality, including translation resources which use the [Fluent syntax](https://projectfluent.org).
 
@@ -25,7 +29,7 @@ There is always a build script, `build.rs`, at the root of the project, which us
 
 Exporting a project should bundle its assets files into the installer, which can be later retrieved through the File API using an `app:` URI.
 
-Rialight uses the Rust's package manager that comes with its installation, however you mustn't use `cargo run` to debug your application as it needs passing a flag to Cargo. You can debug with `rialight run` or its alias `rialight debug`.
+Rialight uses the Rust's package manager that comes with its installation, however you mustn't use `cargo run` to debug your application as it needs passing a feature to Cargo. You can debug with `rialight run` or `rialight debug`.
 
 To export your application, use a Rialight command such as:
 
@@ -33,7 +37,7 @@ To export your application, use a Rialight command such as:
 rialight export --platform browser
 ```
 
-If you simply try using Cargo instead to export your application, you'll most likely have issues.
+If you simply try using aa Cargo command instead to export your application, the runtime will panic during initialization.
 
 ### Graphics
 
@@ -300,18 +304,29 @@ rustup default nightly
 
 Working at timeouts:
 
-- [ ] wrap `interval`
-- [ ] wrap `interval_at`
+- [x] wrap `interval`
+- [x] wrap `interval_at`
+  - In browser, `interval_at` uses a `setTimeout` internally (uses `Date.now() - instant.epochMilliseconds`).
 - [ ] Note the following types wrap yet another "private" type, which is defined according to a `#[cfg]` attribute (also add a `#[cfg]` case for both export features not listed so that the code the compiles).
+- [ ] wrap `Interval`
+  - Do not define missed_tick_behavior as it may not be possible on JavaScript
+  - On JavaScript: interval works like this:
+    - https://users.rust-lang.org/t/future-based-interval-in-the-browser/97693
 - [ ] wrap `Timeout`
 - [ ] wrap `Instant` (note that it isn't the same from the temporal API)
+  - [ ] For the browser, `Instant::now` is implemented using `Date.now()` (epoch milliseconds)
 - [ ] wrap `ElapsedError`
 - [ ] wrap `Wait`
 - [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise. The existing Tokio implementation needs to use conversion. Make sure each feature `#[cfg]` works.
+  - In JavaScript, instants contain the number of milliseconds elapsed since the epoch, obted from `Date.now()` most commonly. This is used for things like `wait_until`.
+  - For `interval`, panic if given period is zero
   - [`stdweb`](https://crates.io/crates/stdweb)
   - [`web-sys`](https://crates.io/crates/web-sys)
   - [`wasm-bindgen-futures`](https://crates.io/crates/wasm-bindgen-futures)
-- [ ] For the browser, `Instant::now` is implemented using `Date.now()`
+- [ ] Add an additional "cancellable" timeout function, `background_timeout` that returns a `BackgroundTimeout` which is not a future. This function receives a `FnOnce() + Send + 'static` callback.
+  - In browser this uses `setTimeout` (tracked timeout is assigned to -1 before polling to Rust future) + `clearTimeout` (invoked if tracked timeout is not -1)
+  - In Tokio this spawns a thread with a wait. The thread holds an `Arc` which it receives from the spawning thread, that indicates whether the timeout was cancelled. After the wait, if this `Arc` indicates the timeout was "not" cancelled, it calls the callback from the developer.
+- [ ] Add a `background_interval` function similiar to background timeout function that returns `BackgroundInterval`.
 
 Working at temporal:
 
@@ -393,13 +408,21 @@ When futurely working with the application entry point:
 When futurely working in the CLI:
 
 - `rialight debug` or `run`
-  - Pass the feature `rialight_multi_threaded_export` to `cargo run` internally as the host environment for debugging is generally not a web browser.
+  - Pass the feature `rialight_default_export` to `cargo run` internally as the host environment for debugging is generally not a web browser.
 - `rialight export`
-  - Pass the feature `rialight_multi_threaded_export` to `cargo run` internally for a non-browser export
+  - Pass the feature `rialight_default_export` to `cargo run` internally for a non-browser export
 
 When futurely working in the attribute macros `#[rialight::main]` and `#[rialight::build_main]`:
 
-- `rialight::main` expands to use either the multi-threaded Tokio runtime or a single-threaded runtime for the web browser (not sure how to construct the task context, but it mightn't be complicated; if there's an existing crate for that, use it for the browser only).
+- `rialight::main` expands to use either the multi-threaded Tokio runtime (`#[tokio::main]`) or a single-threaded one for the web browser by using [`wasm_bindgen`](https://crates.io/crates/wasm_bindgen) and `wasm_bindgen_futures` together.
+```
+#[wasm_bindgen]
+fn my_entry_point() {
+    wasm_bindgen_futures::spawn_local(async move {
+        // async code goes here
+    });
+}
+```
 
 ## Web Browser Tasks
 
