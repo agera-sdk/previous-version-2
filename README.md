@@ -340,7 +340,7 @@ Working at timeouts:
 - [ ] wrap `Timeout`
 - [x] wrap `Instant`
 - [ ] wrap `Wait`
-- [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise. The existing Tokio implementation needs to use conversion. Make sure each feature `#[cfg]` works.
+- [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise. The existing Tokio implementation needs to use conversion. Make sure each `#[cfg]` case compiles.
   - In JavaScript, instants contain the number of milliseconds elapsed since the epoch, obted from `Date.now()` most commonly. This is used for things like `wait_until`.
   - For `interval`, panic if given period is zero
   - [`web-sys`](https://crates.io/crates/web-sys)

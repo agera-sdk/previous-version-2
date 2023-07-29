@@ -54,16 +54,6 @@ impl SubAssign<Duration> for Instant {
 #[derive(Debug)]
 pub struct Wait(tokio::time::Sleep);
 
-impl Wait {
-    pub fn deadline(&self) -> Instant {
-        Instant(self.0.deadline())
-    }
-
-    pub fn is_elapsed(&self) -> bool {
-        self.0.is_elapsed()
-    }
-}
-
 impl Future for Wait {
     type Output = ();
     fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
