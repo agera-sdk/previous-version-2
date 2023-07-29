@@ -2,7 +2,7 @@
 When the Rialight runtime is targetting the browser.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant {

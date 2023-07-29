@@ -3,7 +3,7 @@ The Rialight runtime uses the asynchronous Tokio runtime internally
 for any platform other than the browser.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant(tokio::time::Instant);

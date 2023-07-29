@@ -25,6 +25,8 @@ The project templates share common functionality, including translation resource
 
 There is always a build script, `build.rs`, at the root of the project, which uses an empty function with a `#[rialight::build_main]` attribute. It is used internally by Rialight, but you don't need to touch it.
 
+The `Cargo.toml` file contains a `package.metadata.rialight` section, which contains configuration for the Rialight application.
+
 ### Debugging and Exporting
 
 Exporting a project should bundle its assets files into the installer, which can be later retrieved through the File API using an `app:` URI.
@@ -122,16 +124,14 @@ The `File` object can support the `file:`, `app:` and `app-storage:` URIs.
   - In the browser, these files are stored in the RAM.
 - `app-storage:` refers to files in the application data storage directory. They are data stored dynamically in the application with persistence.
 
-If you need to use `app-storage:` in the browser, switch to using `rialight::filesystem::webcompat::File`.
+If you need to use `app-storage:` in the browser, never use synchronous operations as they will currently panic since the browser has no support for synchronous operations.
 
-#### Web-Compatible File System
+#### Web Compatibility in the File System
 
-The `app-storage:` URI does not work when exporting the project to the browser, because of lacking API in the browser, including synchronous operations. In case you need this feature, use a specialized version of `File` that works with `app-storage:` across all platforms, `rialight::filesystem::webcompat::File`.
+Synchronous operations do not work for the `app-storage:` URI does not work when exporting the project to the browser currently. Any synchronous operation on `File` will panic. If you need to target the browser, always use asynchronous operations.
 
-For the `app-storage:` URI, this uses the origin-private file system API in the browser.
+For the browser, Rialight uses its origin-private file system API.
   - https://users.rust-lang.org/t/bindings-for-browser-origin-private-fs/97417/2?u=hydroper1
-
-Due to this, the web-compatible file system API is entirely asynchronous.
 
 ### Gaming
 
@@ -390,6 +390,9 @@ Working at file system:
 
 - Design an API that works across all platforms, including Android.
   - [ ] Provide ways of requesting permissions using asynchronous results that works across all platforms
+  - For synchronous operations:
+    - Panic for the browser
+    - For non-browser targets, use `std::fs`
   - For asynchronous operations:
     - Use Tokio runtime for non-browser targets
     - Use JavaScript promises for browser targets
@@ -398,7 +401,6 @@ Working at file system:
     - [ ] For native paths, the path prefix is either `drive:` or `\\`.  `drive` is a case-insensitive letter.
   - [ ] Android
     - [ ] On Android, `app:` and `app-storage:` do not use a static from the Rialight core internals; call the Java API function [`context.getFilesDir`](https://developer.android.com/reference/android/content/Context#getFilesDir()).
-  - [ ] Web-compatible `File` API at `rialight::filesystem::webcompat` 
   - Consult the _Additional Platform Detection_ section for how WebAssembly-based platforms are detected, including the browser.
   - [ ] Document the API
 
