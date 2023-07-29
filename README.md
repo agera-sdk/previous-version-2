@@ -273,25 +273,25 @@ All of these are described in the utilities API.
 
 When a developer wants to run a portion of Rust code for the browser only, it is recommended to detect the browser via `#[cfg(feature = "rialight_browser_export")]` and not `#[cfg(target_arch = "wasm32")]` as WebAssembly is used for unknown platforms.
 
-Rialight will initially not provide browser-specific APIs for working the browser environment, therefore if you want to communicate with JavaScript, you may want to add this to your Cargo.toml:
+Rialight provides no browser-specific APIs. If you need to communicate with JavaScript, you may want to add this to your Cargo.toml:
 
 ```
 # browser export only dependencies
-stdweb = { version = "0.4.20", optional = true }
+js-sys = { version = "0.3.64", optional = true }
 web-sys = { version = "0.3.64", optional = true }
 wasm-bindgen = { version = "0.2.87", optional = true }
 wasm-bindgen-futures = { version = "0.4.37", optional = true }
 
 # browser export only dependencies
 rialight_browser_export = [
-    "stdweb",
+    "js-sys",
     "web-sys",
     "wasm-bindgen",
     "wasm-bindgen-futures",
 ]
 ```
 
-Crates such as `stdweb` allow communicating with JavaScript.
+The [`wasm-bindgen`](https://rustwasm.github.io/wasm-bindgen/introduction.html) library allows communicating with JavaScript.
 
 ### Visual Editor
 
@@ -338,14 +338,11 @@ Working at timeouts:
     - https://users.rust-lang.org/t/future-based-interval-in-the-browser/97693/3
     - Use approach 1 (**WITHOUT** `setInterval`) in the above post, using the optimal solution not using `setInterval` nor `setTimeout`
 - [ ] wrap `Timeout`
-- [ ] wrap `Instant` (note that it isn't the same from the temporal API)
-  - [ ] For the browser, holds "epoch" milliseconds (`instant.epochMilliseconds`)
-  - [ ] For the browser, `Instant::now` is implemented using `Date.now()` (epoch milliseconds)
+- [x] wrap `Instant`
 - [ ] wrap `Wait`
 - [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise. The existing Tokio implementation needs to use conversion. Make sure each feature `#[cfg]` works.
   - In JavaScript, instants contain the number of milliseconds elapsed since the epoch, obted from `Date.now()` most commonly. This is used for things like `wait_until`.
   - For `interval`, panic if given period is zero
-  - [`stdweb`](https://crates.io/crates/stdweb)
   - [`web-sys`](https://crates.io/crates/web-sys)
   - [`wasm-bindgen-futures`](https://crates.io/crates/wasm-bindgen-futures)
 - [ ] Add an additional "cancellable" timeout function, `background_timeout` that returns a `BackgroundTimeout` which is not a future. This function receives a `FnOnce() + Send + 'static` callback.

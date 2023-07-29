@@ -7,7 +7,7 @@ This module is only meant to be used within the Rialight asynchronous runtime.
 */
 
 pub use std::time::Duration;
-use std::{future::Future, fmt::Display};
+use std::{future::Future, fmt::Display, ops::{Add, AddAssign, Sub, SubAssign}};
 
 mod platform_based;
 
@@ -55,6 +55,52 @@ impl std::error::Error for ElapsedError {}
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant {
     inner: platform_based::Instant,
+}
+
+impl Instant {
+    /// Returns the elapsed time since `other` or zero
+    /// if the `self` instant is earlier than `other`.
+    pub fn since(&self, other: Instant) -> Duration {
+        self.inner.since(other.inner)
+    }
+
+    /// Returns the current instant from the host environment.
+    pub fn now() -> Instant {
+        Self { inner: platform_based::Instant::now() }
+    }
+}
+
+impl Add<Duration> for Instant {
+    type Output = Instant;
+    fn add(self, rhs: Duration) -> Self::Output {
+        Self { inner: self.inner + rhs }
+    }
+}
+
+impl AddAssign<Duration> for Instant {
+    fn add_assign(&mut self, rhs: Duration) {
+        self.inner += rhs;
+    }
+}
+
+impl Sub<Duration> for Instant {
+    type Output = Instant;
+    fn sub(self, rhs: Duration) -> Self::Output {
+        Self { inner: self.inner - rhs }
+    }
+}
+
+impl Sub<Instant> for Instant {
+    type Output = Duration;
+    fn sub(self, rhs: Instant) -> Self::Output {
+        self.inner - rhs.inner
+    }
+}
+
+impl SubAssign<Duration> for Instant {
+    fn sub_assign(&mut self, rhs: Duration) {
+        self.inner -= rhs;
+    }
 }
 
 /// Requires for a `Future` to complete before the given
