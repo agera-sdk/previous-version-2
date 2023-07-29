@@ -48,7 +48,7 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
     - _Reference:_ A `Node` is a thread-safe reference type that uses reference counting internally. If you need a weak reference to a node, you can downgrade it to a `WeakRefNode`.
     - _Children:_ The `Node` type supports common child operations. It also supports node paths described later in this list. `node.children()` returns an iterator.
     - Meta data (optional mapping from `String` to `MetaDataValue` for attaching any data)
-      - `pub type MetaDataValue = Box<dyn Any + Send + Sync>;`
+      - `pub type MetaDataValue = Box<dyn Any + Send + Sync + Clone>;`
   - Nodes don't describe just graphics. They also emit events, accessed as `node.on_some_event().listen(listen_fn)`, such as `on_enter_frame` and `on_click` events.
     - Somes nodes may not have a certain event, which is a rare case, panicking when retrieving it. In that case, for an event that is not supported by all node kinds, the documentation can list the only supported node kinds.
   - Few events are not accessed as listeners, using a single callback instead:
@@ -69,7 +69,7 @@ impl Node {
     }
 }
 ```
-  - _Cloning:_ `Node` is cloned by reference by default, not by content. Use `node.clone_node(deep)` to clone a node by content and not by reference.
+  - _Cloning:_ `Node` is cloned by reference by default, not by content. Use `node.clone_by_content()` to clone a node by content and not by reference.
   - _UI:_ Node kinds that are user interface specific (such as `Button`) are exported at the `rialight::graphics::ui` submodule to avoid confusion. They are also exported by the user interface API.
     - [ ] Optional text selection on non text inputs (text labels)
   - _Inheritance:_ Properties such as visibility, opacity, rotation and scale are inherited by default, with an _inherited_ variant. There may be more of such properties other than these that are inherited.
@@ -407,7 +407,7 @@ When futurely working on graphical nodes:
 - Provide the types `Node` and `WeakRefNode`. Inside `Node` is stored an internal `Arc<NonRefNode>` and inside `WeakRefNode` is an internal `Weak<Gc<NonRefNode>>` to which it dereferences.
 - The parent is stored as a `WeakRefNode` internally.
 - Store a node kind in a `Node` behind an `Arc`, inside an union containing other node kinds.
-- The equality operator compares by reference and the clone method clones the reference. _Do not_ use `#[derive(Clone)]`; implement it manually to make sure no content is cloned:
+- The equality operator compares by reference (`Arc::ptr_eq`) and the clone method clones the reference (`Arc::clone`). _Do not_ use `#[derive(Clone)]`; implement it manually to make sure no content is cloned:
 ```rust
 impl Clone for Node {
     fn clone(&self) -> Self {
@@ -415,7 +415,9 @@ impl Clone for Node {
     }
 }
 ```
-- `node.clone_node(deep)` clones the node and not its reference.
+- `node.clone_by_content()` clones the node by content and not reference, including the children. This is equivalent to the next fine-tuned method.
+  - This method will clone all events and attributes
+- `node.clone_by_content_fine_tuned(flags)` is similiar to the previous method, but reserves for future flags.
 
 When futurely working with internationalization:
 

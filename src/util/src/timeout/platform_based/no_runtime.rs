@@ -49,3 +49,6 @@ impl SubAssign<Duration> for Instant {
         panic!("Incorrect Rialight runtime configuration");
     }
 }
+
+#[derive()]
+pub struct Wait;
