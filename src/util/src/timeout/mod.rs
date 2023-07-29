@@ -38,8 +38,8 @@ impl std::error::Error for ElapsedError {}
 ///
 /// # Mix with the temporal API
 /// 
-/// This `Instant` type is not the same as the one from the temporal API, however
-/// the `Instant` type from the temporal API can convert to the `Instant` type from the timeout API,
+/// This `Instant` type is not the same as the one from the temporal API, however, in a future version,
+/// the `Instant` type from the temporal API will be able to convert to the `Instant` type from the timeout API,
 /// usually by just calling `.into()`.
 /// 
 /// ```
@@ -50,10 +50,9 @@ impl std::error::Error for ElapsedError {}
 /// 
 /// # Mix with the Rust standard library
 /// 
-/// This `Instant` type is not the same as the one from the Rust standard library, however
-/// the `Instant` type from the Rust standard library can convert to the `Instant` type from the timeout API,
-/// usually by just calling `.into()`.
+/// This `Instant` type is not the same as the one from the Rust standard library.
 /// 
+#[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant {
     inner: platform_based::Instant,
 }

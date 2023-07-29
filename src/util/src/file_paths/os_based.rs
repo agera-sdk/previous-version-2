@@ -21,7 +21,7 @@ handled.
 /// 
 /// - `Default`
 /// - `Windows`
-#[derive(Clone, Copy, PartialEq, Debug)]
+#[derive(Clone, Copy, Eq, PartialEq, Debug)]
 pub enum OsPathManipulation {
     /// Indicates that the path is manipulated in a generic way,
     /// that is, the same behavior from the [`rialight_util::file_paths`] module.

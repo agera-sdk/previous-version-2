@@ -1,5 +1,5 @@
 /*!
-When the Rialight runtime is incorrectly configured.
+When the Rialight runtime is targetting the browser.
 */
 
 use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};

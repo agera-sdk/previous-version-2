@@ -316,7 +316,6 @@ Working at timeouts:
 - [ ] wrap `Timeout`
 - [ ] wrap `Instant` (note that it isn't the same from the temporal API)
   - [ ] For the browser, holds "epoch" milliseconds (`instant.epochMilliseconds`)
-  - [ ] Implement from `From<std::time::Instant>`
   - [ ] For the browser, `Instant::now` is implemented using `Date.now()` (epoch milliseconds)
 - [ ] wrap `Wait`
 - [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise. The existing Tokio implementation needs to use conversion. Make sure each feature `#[cfg]` works.
@@ -351,8 +350,8 @@ Working at temporal:
   - [ ] `plain_time_iso`
   - [ ] `plain_date_time`
   - [ ] `plain_date_time_iso`
+- [ ] Types with addition and subtraction also implement `(Add|Sub)Assign` (`+=` and `-=`)
 - [ ] `temporal::Instant`
-  - [ ] Add an `Into<crate::timeout::Instant>` implementation (converts the instant into a timeout API's instant)
 - [ ] `temporal::ZonedDateTime`
 - [ ] `temporal::PlainDate`
 - [ ] `temporal::PlainTime`
@@ -360,7 +359,9 @@ Working at temporal:
 - [ ] `temporal::PlainYearMonth`
 - [ ] `temporal::PlainMonthDay`
 - [ ] `temporal::Duration`
-  - Wraps a `std::time::Duration`. Can be constructed in various ways through `from_years` and `add_months`.
+  - Add `From<std::time::Duration>`
+  - Add `Into<std::time::Duration>`
+  - Wraps a `std::time::Duration` and uses `chrono::Duration` for access. It is constructed as `Duration::new()` and chained in various ways like `years(n)` and `months(n)` and things can be accessed like `num_years()`.
 - [ ] `temporal::TimeZone`
 - [ ] `temporal::Calendar`
 
@@ -427,6 +428,7 @@ fn my_entry_point() {
     });
 }
 ```
+  - If none of the features `rialight_default_export` and `rialight_browser_export` are passed, then `rialight::main` will panic telling the runtime was incorrectly configured. They are passed by the Rialight CLI automatically.
 
 ## Web Browser Tasks
 
