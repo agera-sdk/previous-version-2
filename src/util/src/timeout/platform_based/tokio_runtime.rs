@@ -6,7 +6,7 @@ for any platform other than the browser.
 use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub struct Instant(tokio::time::Instant);
+pub struct Instant(pub tokio::time::Instant);
 
 impl Instant {
     pub fn since(&self, other: Instant) -> Duration {
@@ -52,7 +52,7 @@ impl SubAssign<Duration> for Instant {
 }
 
 #[derive(Debug)]
-pub struct Wait(tokio::time::Sleep);
+pub struct Wait(pub tokio::time::Sleep);
 
 impl Future for Wait {
     type Output = ();
@@ -62,7 +62,7 @@ impl Future for Wait {
 }
 
 #[derive(Debug)]
-pub struct Timeout<T: Future>(tokio::time::Timeout<T>);
+pub struct Timeout<T: Future>(pub tokio::time::Timeout<T>);
 
 impl<T: Future> Future for Timeout<T> {
     type Output = Result<(), super::ElapsedError>;
@@ -72,7 +72,7 @@ impl<T: Future> Future for Timeout<T> {
 }
 
 #[derive(Debug)]
-pub struct Interval(tokio::time::Interval);
+pub struct Interval(pub tokio::time::Interval);
 
 impl Interval {
     pub async fn tick(&mut self) -> Duration {

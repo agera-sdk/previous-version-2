@@ -2,7 +2,7 @@
 When the Rialight runtime is targetting the browser.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData, fmt::Debug};
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData, fmt::Debug, sync::{RwLock, Arc}};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -47,7 +47,7 @@ impl Ticker {
 
 pub async fn wait(duration: Duration) {
     let ms: u32 = duration.as_millis().try_into().expect("Developer has given too large period for wait duration");
-    wasm_bindgen_futures::JsFuture::from(wait_in_js_promise(ms.into())).await;
+    wasm_bindgen_futures::JsFuture::from(wait_in_js_promise(ms.into())).await.unwrap();
 }
 
 pub async fn wait_until(instant: super::SuperInstant) {
@@ -67,7 +67,7 @@ impl Instant {
     pub fn now() -> Self {
         let epoch_ms: u64 = unsafe { js_sys::Date::now().to_int_unchecked() };
         Self {
-            epoch_ms: epoch_ms.try_into().unwrap_or(u64::MAX.into()),
+            epoch_ms: epoch_ms.into(),
         }
     }
 }
@@ -122,12 +122,29 @@ impl Future for Wait {
 }
 
 #[derive(Debug)]
-pub struct Timeout<T: Future>(wasm_bindgen_futures::JsFuture, PhantomData<T>);
+pub struct Timeout<T: Future>(pub wasm_bindgen_futures::JsFuture, pub PhantomData<T>);
 
 impl<T: Future> Future for Timeout<T> {
     type Output = Result<(), super::ElapsedError>;
     fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
         std::pin::pin!(self.0).poll(cx).map(|r| r.map(|r| ()).map_err(|_| super::ElapsedError))
+    }
+}
+
+pub async fn timeout<F: Future + Send + 'static>(duration: Duration, future: F) -> Result<(), super::ElapsedError> {
+    let mut completed = Arc::new(RwLock::new(false));
+    super::exec_future({
+        let completed = Arc::clone(&mut completed);
+        async move {
+            future.await;
+            *completed.write().unwrap() = true;
+        }
+    });
+    wait(duration);
+    if *completed.read().unwrap() {
+        Ok(())
+    } else {
+        Err(super::ElapsedError)
     }
 }
 

@@ -13,7 +13,7 @@ use super::futures::exec_future;
 
 mod platform_based;
 
-/// Error returned by [`Timeout`].
+/// Error returned by [`timeout`] and [`timeout_at`].
 /// 
 /// This error is returned when a timeout expires before the function
 /// was able to finish.
@@ -105,32 +105,7 @@ impl SubAssign<Duration> for Instant {
     }
 }
 
-/// Future returned by [`wait`] and [`wait_until`].
-#[derive(Debug)]
-pub struct Wait {
-    inner: platform_based::Wait,
-}
-
-impl Future for Wait {
-    type Output = ();
-    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
-        std::pin::pin!(self.inner).poll(cx)
-    }
-}
-
-/// Future returned by [`timeout`] and [`timeout_at`].
-#[derive(Debug)]
-pub struct Timeout<T> {
-    inner: platform_based::Timeout<T>,
-}
-
-impl<T: Future> Future for Timeout<T> {
-    type Output = Result<(), ElapsedError>;
-    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
-        std::pin::pin!(self.inner).poll(cx)
-    }
-}
-
+/// Interval returned by [`interval`] and [`interval_at`].
 #[derive(Debug)]
 pub struct Interval {
     inner: platform_based::Interval,
@@ -181,12 +156,15 @@ impl Interval {
 /// For non Rialight users, if you're not calling this function
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
-pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
+pub async fn timeout<F>(duration: Duration, future: F) -> Result<(), ElapsedError>
+where
+    F: Future<Output = ()> + Send + 'static,
+{
     #[cfg(feature = "rialight_default_export")] {
-        match tokio::time::timeout(duration, future).await {
-            Err(error) => ElapsedError,
-            Ok(ret) => dontknowyet(),
-        }
+        return match tokio::time::timeout(duration, future).await {
+            Err(_) => Err(ElapsedError),
+            Ok(_) => Ok(()),
+        };
     }
     #[cfg(feature = "rialight_browser_export")] {
         todo!();
@@ -232,12 +210,15 @@ pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
 /// For non Rialight users, if you're not calling this function
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
-pub async fn timeout_at<F: Future>(deadline: Instant, future: F) -> Timeout<F> {
+pub async fn timeout_at<F>(deadline: Instant, future: F) -> Result<(), ElapsedError>
+where
+    F: Future<Output = ()> + Send + 'static,
+{
     #[cfg(feature = "rialight_default_export")] {
-        match tokio::time::timeout_at(deadline, future).await {
-            Err(error) => ElapsedError,
-            Ok(ret) => dontknowyet(),
-        }
+        return match tokio::time::timeout_at(deadline.inner.0, future).await {
+            Err(_) => Err(ElapsedError),
+            Ok(_) => Ok(()),
+        };
     }
     #[cfg(feature = "rialight_browser_export")] {
         todo!();
@@ -252,7 +233,7 @@ pub async fn timeout_at<F: Future>(deadline: Instant, future: F) -> Timeout<F> {
 ///
 /// Equivalent to `wait_until(Instant::now() + duration)`.
 /// 
-/// No work is performed while awaiting on the wait future to complete. `Wait`
+/// No work is performed while awaiting on the wait future to complete. This
 /// operates at millisecond granularity and should not be used for tasks that
 /// require high-resolution timers.
 /// 
@@ -277,17 +258,15 @@ pub async fn timeout_at<F: Future>(deadline: Instant, future: F) -> Timeout<F> {
 ///     println!("100 ms have elapsed");
 /// }
 /// ```
-/// 
-/// See the documentation for the [`Wait`] type for more examples.
 ///
 /// # Panics
 /// 
 /// For non Rialight users, if you're not calling this function
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
-pub async fn wait(duration: Duration) -> Wait {
+pub async fn wait(duration: Duration) {
     #[cfg(feature = "rialight_default_export")] {
-        return tokio::time::sleep(duration);
+        tokio::time::sleep(duration).await;
     }
     #[cfg(feature = "rialight_browser_export")] {
         todo!();
@@ -300,7 +279,7 @@ pub async fn wait(duration: Duration) -> Wait {
 
 /// Asynchronously waits until `deadline` is reached.
 ///
-/// No work is performed while awaiting on the wait future to complete. `Wait`
+/// No work is performed while awaiting on the wait future to complete. This
 /// operates at millisecond granularity and should not be used for tasks that
 /// require high-resolution timers.
 ///
@@ -326,16 +305,14 @@ pub async fn wait(duration: Duration) -> Wait {
 /// }
 /// ```
 /// 
-/// See the documentation for the [`Wait`] type for more examples.
-/// 
 /// # Panics
 /// 
 /// For non Rialight users, if you're not calling this function
 /// within the Rialight asynchronous runtime, it might panic.
 /// 
-pub async fn wait_until(deadline: Instant) -> Wait {
+pub async fn wait_until(deadline: Instant) {
     #[cfg(feature = "rialight_default_export")] {
-        return tokio::time::sleep_until(deadline);
+        tokio::time::sleep_until(deadline.inner.0).await;
     }
     #[cfg(feature = "rialight_browser_export")] {
         todo!();
