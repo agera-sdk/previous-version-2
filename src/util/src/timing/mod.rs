@@ -1,9 +1,5 @@
 /*!
 Work with common timing and animation intervals.
-
-# Non Rialight users
-
-This module is only meant to be used within the Rialight asynchronous runtime.
 */
 
 pub use std::time::Duration;
@@ -117,6 +113,7 @@ impl Interval {
     }
 }
 
+/*
 /// Requires for a `Future` to complete before the given
 /// `duration` has elapsed.
 /// 
@@ -149,11 +146,6 @@ impl Interval {
 /// async fn f() -> u64 { 10 }
 /// ```
 /// 
-/// # Panics
-///
-/// For non Rialight users, if you're not calling this function
-/// within the Rialight asynchronous runtime, it might panic.
-/// 
 pub async fn timeout<F>(duration: Duration, future: F) -> Result<(), ElapsedError>
 where
     F: Future<Output = ()> + Send + 'static,
@@ -165,14 +157,16 @@ where
         };
     }
     #[cfg(feature = "rialight_browser_export")] {
-        todo!();
+        return platform::browser_runtime::timeout(duration, future).await;
     }
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = (duration, future);
         panic!("Incorrectly configured Rialight runtime");
     }
 }
+*/
 
+/*
 /// Requires a `Future` to complete before the specified instant in time.
 ///
 /// If the future completes before the instant is reached, then `Ok(())`
@@ -203,11 +197,6 @@ where
 /// Canceling a timeout being awaited for via the `.await` operator is not possible.
 /// Use [`background_timeout`] for such a purpose.
 /// 
-/// # Panics
-///
-/// For non Rialight users, if you're not calling this function
-/// within the Rialight asynchronous runtime, it might panic.
-/// 
 pub async fn timeout_at<F>(deadline: Instant, future: F) -> Result<(), ElapsedError>
 where
     F: Future<Output = ()> + Send + 'static,
@@ -219,13 +208,14 @@ where
         };
     }
     #[cfg(feature = "rialight_browser_export")] {
-        todo!();
+        return platform::browser_runtime::timeout(deadline.since(Instant::now()), future).await;
     }
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = (deadline, future);
         panic!("Incorrectly configured Rialight runtime");
     }
 }
+*/
 
 /// Asynchronously waits until `duration` has elapsed.
 ///
@@ -256,18 +246,13 @@ where
 ///     println!("100 ms have elapsed");
 /// }
 /// ```
-///
-/// # Panics
-/// 
-/// For non Rialight users, if you're not calling this function
-/// within the Rialight asynchronous runtime, it might panic.
 /// 
 pub async fn wait(duration: Duration) {
     #[cfg(feature = "rialight_default_export")] {
         tokio::time::sleep(duration).await;
     }
     #[cfg(feature = "rialight_browser_export")] {
-        todo!();
+        platform::browser_runtime::wait(duration).await;
     }
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = duration;
@@ -303,17 +288,12 @@ pub async fn wait(duration: Duration) {
 /// }
 /// ```
 /// 
-/// # Panics
-/// 
-/// For non Rialight users, if you're not calling this function
-/// within the Rialight asynchronous runtime, it might panic.
-/// 
 pub async fn wait_until(deadline: Instant) {
     #[cfg(feature = "rialight_default_export")] {
         tokio::time::sleep_until(deadline.inner.0).await;
     }
     #[cfg(feature = "rialight_browser_export")] {
-        todo!();
+        platform::browser_runtime::wait(deadline.since(Instant::now())).await;
     }
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = deadline;

@@ -349,7 +349,7 @@ rustup default nightly
 
 ## Tasks
 
-Working at timeouts:
+Working at timing API:
 
 - [x] wrap `interval`
 - [x] wrap `interval_at`

@@ -62,7 +62,7 @@ pub struct Instant {
 
 impl Instant {
     pub fn since(&self, other: Instant) -> Duration {
-        Duration::from_millis(if self.epoch_ms < other.epoch_ms { 0 } else { (self.epoch_ms - other.epoch_ms).try_into().unwrap_or(u64::MAX) })
+        *self - other
     }
 
     pub fn now() -> Self {
@@ -100,7 +100,7 @@ impl Sub<Duration> for Instant {
 impl Sub<Instant> for Instant {
     type Output = Duration;
     fn sub(self, rhs: Instant) -> Self::Output {
-        Duration::from_millis((self.epoch_ms - rhs.epoch_ms).try_into().unwrap_or(u64::MAX))
+        Duration::from_millis(if self.epoch_ms < rhs.epoch_ms { 0 } else { (self.epoch_ms - rhs.epoch_ms).try_into().unwrap_or(u64::MAX) })
     }
 }
 
@@ -122,10 +122,11 @@ impl Future for Wait {
     }
 }
 
+/*
 pub async fn timeout<F: Future<Output = ()> + Send + 'static>(duration: Duration, future: F) -> Result<(), super::ElapsedError> {
     let (_, i) = future_race([
-        async { future.await; },
-        async { wait(duration).await; },
+        future,
+        wait(duration),
     ]).await;
 
     match i {
@@ -133,6 +134,7 @@ pub async fn timeout<F: Future<Output = ()> + Send + 'static>(duration: Duration
         1 => Err(super::ElapsedError),
     }
 }
+*/
 
 #[derive(Debug)]
 pub struct Interval {
