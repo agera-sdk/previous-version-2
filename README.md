@@ -87,7 +87,15 @@ impl Node {
   - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
   - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
   - Skins are described in Rust code.
-  - Rialight may use either raw Rust or a markup macro for writing components.
+  - _RenderingTarget:_ The `RenderingTarget` can be constructed manually, however the application comes with its own.
+    - The `Rende`
+    - The `RenderingTarget` can only render Rialight nodes, a RGB pixel rectangle and a RGBA (transparent) pixel rectangle. This includes 3D nodes. Separate methods are used: `render_2d`, `render_3d`, `render_rgb_grid`, `render_rgba_grid`.
+    - Support rendering a 3D world from different viewpoints at the same rendering target at different rectangles inside a `RenderingTarget`, useful for multiple cameras.
+      - I think this might involve generating triangles from the 3D nodes and subtracting parts of these triangles that overflow the viewpoint rectangle.
+      - See if there is a way to implement an efficient method for that which doesn't need another `RenderingTarget` as a screenshot. (To start with, I don't even think another `RenderingTarget` is possible to construct as a native form of rendering is used.)
+    - A `RenderingTarget` can be converted into pixels without the alpha channel, which can be useful for screenshots.
+  - _Canvas:_
+    - The `Canvas` node, although normally rendered automatically, can also be rendered separately to a RGBA (transparent) channel through a method. Useful for drawing tools.
 
 Accessibility:
 
@@ -109,9 +117,10 @@ The 3D graphics API, `rialight::graphics_3d`.
 The UI API, `rialight::ui`.
 
 - The UI API exports all the node kinds related to user interface (such as `Button`) from the submodule `rialight::graphics::ui` of the graphics API. Such node kinds are not exported directly by the graphics API to avoid confusion.
-- The UI API defines interfaces for reactive UI component which are defined by the developer.
+- The UI API defines interfaces for reactive UI componentss which are defined by the developer.
   - An UI component may use graphics nodes from the graphics API, `rialight::graphics`.
   - _Reactive_ data can be shared across all UI components. There may be a proper API for that. In that case, when a state changes, it causes parts of a component that use that state to render again.
+  - Rialight may use either raw Rust or a markup macro for writing components.
 
 ### File System
 
@@ -247,6 +256,8 @@ The core API, `rialight::core`, basically defines the application interfaces. It
 - Command Line Interface
   - Allows a graphical application to also be used as a command in a terminal. An application can be configured to be launched graphically manually, allowing to only launch it according to the given command line arguments.
   - Help should be included by default, not launching the graphical application if `--help` or `-h` is specified.
+- Open link function (useful for authentication, so there might be variatns of that function that return a `Future`, allowing to receive data from the browser)
+  - This should work at all platforms. In the browser, it simply uses the Web API for opening links.
 
 The core internals, `rialight::core_internals`, should not be used anywhere. They are used by the APIs, including file system, for instance, to determine the application's installation directory.
 
