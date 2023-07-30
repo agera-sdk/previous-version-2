@@ -283,6 +283,7 @@ The `rialight::prelude` crate can be used to include commonly used things in sco
 - Temporal API (`temporal` as a global module)
 - Futures
   - `exec_future`
+  - Other methods, like `future_race`
 - Big Integer
 
 All of these are described in the utilities API.

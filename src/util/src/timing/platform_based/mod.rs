@@ -7,7 +7,6 @@ timeout API.
 use super::{
     ElapsedError,
     Instant as SuperInstant,
-    exec_future,
 };
 
 #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))]

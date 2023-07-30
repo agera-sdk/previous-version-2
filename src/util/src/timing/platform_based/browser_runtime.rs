@@ -4,6 +4,7 @@ When the Rialight runtime is targetting the browser.
 
 use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData, fmt::Debug, sync::{RwLock, Arc}};
 use wasm_bindgen::prelude::*;
+use crate::futures::*;
 
 #[wasm_bindgen]
 extern "C" {
@@ -121,19 +122,9 @@ impl Future for Wait {
     }
 }
 
-#[derive(Debug)]
-pub struct Timeout<T: Future>(pub wasm_bindgen_futures::JsFuture, pub PhantomData<T>);
-
-impl<T: Future> Future for Timeout<T> {
-    type Output = Result<(), super::ElapsedError>;
-    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
-        std::pin::pin!(self.0).poll(cx).map(|r| r.map(|r| ()).map_err(|_| super::ElapsedError))
-    }
-}
-
 pub async fn timeout<F: Future + Send + 'static>(duration: Duration, future: F) -> Result<(), super::ElapsedError> {
     let mut completed = Arc::new(RwLock::new(false));
-    super::exec_future({
+    exec_future({
         let completed = Arc::clone(&mut completed);
         async move {
             future.await;
@@ -143,8 +134,12 @@ pub async fn timeout<F: Future + Send + 'static>(duration: Duration, future: F) 
     if *completed.read().unwrap() {
         return Ok(());
     }
-    todo!();
+
+    // use a Future race with wait() and given future
+    zxczxczxczczxczcxczxczx();
+
     wait(duration).await;
+
     Err(super::ElapsedError)
 }
 
