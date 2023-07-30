@@ -11,6 +11,7 @@ members = [
     "src/graphics",
     "src/graphics_3d",
     "src/intl",
+    "src/javascript",
     "src/math",
     "src/media",
     "src/net",

@@ -284,7 +284,9 @@ All of these are described in the utilities API.
 
 When a developer wants to run a portion of Rust code for the browser only, it is recommended to detect the browser via `#[cfg(feature = "rialight_browser_export")]` and not `#[cfg(target_arch = "wasm32")]` as WebAssembly is used for unknown platforms.
 
-Rialight provides no browser-specific APIs. If you need to communicate with JavaScript, you may want to add this to your Cargo.toml:
+Rialight provides an alias API for communicating with the browser and JavaScript, `rialight::javascript`, which is only available for the browser export.
+
+This crate provides aliases looking like this, so you can gather documentation from there:
 
 ```
 # browser export only dependencies
@@ -302,7 +304,9 @@ rialight_browser_export = [
 ]
 ```
 
-The [`wasm-bindgen`](https://rustwasm.github.io/wasm-bindgen/introduction.html) library allows communicating with JavaScript.
+[`wasm-bindgen`](https://rustwasm.github.io/wasm-bindgen/introduction.html) is the main aliased part that allows communicating with JavaScript. Rialight will provide proper aliases. `web-sys` provides definitions for the web APIs under feature gates and Rialight will pass most of such features to that crate by default.
+
+Rialight will provide aliases with more friendly names.
 
 ### Visual Editor
 
@@ -348,7 +352,7 @@ Working at timeouts:
   - On JavaScript: interval works like this:
     - https://users.rust-lang.org/t/future-based-interval-in-the-browser/97693/3
     - Use approach 1 (**WITHOUT** `setInterval`) in the above post, using the optimal solution not using `setInterval` nor `setTimeout`
-- [ ] wrap `Timeout`
+- [x] wrap `Timeout`
 - [x] wrap `Instant`
 - [x] wrap `Wait`
 - [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise. The existing Tokio implementation needs to use conversion. Make sure each `#[cfg]` case compiles.

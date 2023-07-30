@@ -3,7 +3,7 @@ The Rialight runtime uses the asynchronous Tokio runtime internally
 for any platform other than the browser.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future};
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant(tokio::time::Instant);
@@ -58,5 +58,29 @@ impl Future for Wait {
     type Output = ();
     fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
         std::pin::pin!(self.0).poll(cx)
+    }
+}
+
+#[derive(Debug)]
+pub struct Timeout<T: Future>(tokio::time::Timeout<T>);
+
+impl<T: Future> Future for Timeout<T> {
+    type Output = Result<(), super::ElapsedError>;
+    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
+        std::pin::pin!(self.0).poll(cx).map(|r| r.map(|r| ()).map_err(|_| super::ElapsedError))
+    }
+}
+
+#[derive(Debug)]
+pub struct Interval(tokio::time::Interval);
+
+impl Interval {
+    pub async fn tick(&mut self) -> super::SuperInstant {
+        self.0.tick().await
+    }
+}
+
+impl Drop for Interval {
+    fn drop(&mut self) {
     }
 }

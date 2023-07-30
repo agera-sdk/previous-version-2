@@ -2,7 +2,7 @@
 When the Rialight runtime is targetting the browser.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future};
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant {
@@ -64,5 +64,15 @@ impl Future for Wait {
     type Output = ();
     fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
         std::pin::pin!(self.promise).poll(cx).map(|r| ())
+    }
+}
+
+#[derive(Debug)]
+pub struct Timeout<T: Future>(wasm_bindgen_futures::JsFuture, PhantomData<T>);
+
+impl<T: Future> Future for Timeout<T> {
+    type Output = Result<(), super::ElapsedError>;
+    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
+        std::pin::pin!(self.0).poll(cx).map(|r| r.map(|r| ()).map_err(|_| super::ElapsedError))
     }
 }

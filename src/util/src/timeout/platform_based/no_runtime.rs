@@ -2,7 +2,7 @@
 When the Rialight runtime is incorrectly configured.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future};
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant;
@@ -56,6 +56,31 @@ pub struct Wait;
 impl Future for Wait {
     type Output = ();
     fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
+        panic!("Incorrect Rialight runtime configuration");
+    }
+}
+
+#[derive(Debug)]
+pub struct Timeout<T>(PhantomData<T>);
+
+impl<T: Future> Future for Timeout<T> {
+    type Output = Result<(), super::ElapsedError>;
+    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
+        panic!("Incorrect Rialight runtime configuration");
+    }
+}
+
+#[derive(Debug)]
+pub struct Interval;
+
+impl Interval {
+    pub async fn tick(&mut self) -> super::SuperInstant {
+        panic!("Incorrect Rialight runtime configuration");
+    }
+}
+
+impl Drop for Interval {
+    fn drop(&mut self) {
         panic!("Incorrect Rialight runtime configuration");
     }
 }

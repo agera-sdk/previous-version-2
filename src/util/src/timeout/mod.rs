@@ -116,19 +116,27 @@ impl Future for Wait {
     }
 }
 
+/// Future returned by [`timeout`] and [`timeout_at`].
+#[derive(Debug)]
+pub struct Timeout<T> {
+    inner: platform_based::Timeout<T>,
+}
+
+impl<T> Future for Timeout<T> {
+    type Output = ();
+    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
+        std::pin::pin!(self.inner).poll(cx)
+    }
+}
+
 /// Requires for a `Future` to complete before the given
 /// `duration` has elapsed.
 /// 
 /// If the future completes before the duration has elapsed,
-/// then the completed value is returned.
+/// then `Ok(())` is returned.
 /// Otherwise, an error is returned and the future is canceled.
 /// 
-/// Note that the timeout is checked before polling the future, so if the future
-/// does not yield during execution then it is possible for the future to complete
-/// and exceed the timeout _without_ returning an error.
-/// 
-/// This function returns a future whose return type is [`Result`]`<T,`[`ElapsedError`]`>`, where `T` is the
-/// return type of the provided future.
+/// This function returns a future whose return type is [`Result`]`<(),`[`ElapsedError`]`>`.
 /// 
 /// If the provided future completes immediately, then the future returned from
 /// this function is guaranteed to complete immediately with an [`Ok`] variant
@@ -176,11 +184,10 @@ pub async fn timeout<F: Future>(duration: Duration, future: F) -> Timeout<F> {
 
 /// Requires a `Future` to complete before the specified instant in time.
 ///
-/// If the future completes before the instant is reached, then the completed
-/// value is returned. Otherwise, an error is returned.
+/// If the future completes before the instant is reached, then `Ok(())`
+/// is returned. Otherwise, an error is returned.
 ///
-/// This function returns a future whose return type is [`Result`]`<T,`[`ElapsedError`]`>`, where `T` is the
-/// return type of the provided future.
+/// This function returns a future whose return type is [`Result`]`<(),`[`ElapsedError`]`>`.
 ///
 /// If the provided future completes immediately, then the future returned from
 /// this function is guaranteed to complete immediately with an [`Ok`] variant
