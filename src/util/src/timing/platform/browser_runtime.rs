@@ -52,7 +52,7 @@ pub async fn wait(duration: Duration) {
 }
 
 pub async fn wait_until(instant: super::SuperInstant) {
-    wait(instant - super::SuperInstant::now());
+    wait(instant.since(super::SuperInstant::now()));
 }
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -156,10 +156,5 @@ impl Interval {
                 return Duration::from_millis(0);
             },
         }
-    }
-}
-
-impl Drop for Interval {
-    fn drop(&mut self) {
     }
 }

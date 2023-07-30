@@ -355,12 +355,7 @@ Working at timing API:
 - [x] wrap `interval_at`
 - [x] wrap `Interval`
 - [x] wrap `Instant`
-- [ ] For each function of the timeout module, provide two `#[cfg]`-based implementations: one that uses Tokio and one that uses a browser's JavaScript promise. The existing Tokio implementation needs to use conversion. Make sure each `#[cfg]` case compiles.
-  - In JavaScript, instants contain the number of milliseconds elapsed since the epoch, obted from `Date.now()` most commonly. This is used for things like `wait_until`.
-  - For `interval`, panic if given period is zero
-  - [`web-sys`](https://crates.io/crates/web-sys)
-  - [`wasm-bindgen-futures`](https://crates.io/crates/wasm-bindgen-futures)
-- [ ] Add "animation" interval functions separately and, for default intervals, use `setInterval` and `clearInterval` internally and rename `interval` and `interval_at` to `non_animation_interval` and `non_animation_interval_at`.
+- [ ] Add "animation" interval functions separately and rename `interval` and `interval_at` to `non_animation_interval` and `non_animation_interval_at`.
 - [ ] Add an additional "cancellable" timeout function, `background_timeout` that returns a `BackgroundTimeout` which is not a future. This function receives a `FnOnce() + Send + 'static` callback.
   - In browser this uses `setTimeout` (tracked timeout is assigned to -1 before polling to Rust future) + `clearTimeout` (invoked if tracked timeout is not -1)
   - In Tokio this spawns a thread with a wait. The thread holds an `Arc` which it receives from the spawning thread, that indicates whether the timeout was cancelled. After the wait, if this `Arc` indicates the timeout was "not" cancelled, it calls the callback from the developer.

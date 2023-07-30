@@ -61,9 +61,10 @@ assert_eq!("../c", file_paths::relative("/a/b", "/a/c"));
 ```
 */
 pub fn relative(from_path: &str, to_path: &str) -> String {
-    if ![from_path.to_owned(), to_path.to_owned()].iter().all(|path| STARTS_WITH_PATH_SEPARATOR.is_match(path)) {
-        panic!("file_paths::relative() requires absolute paths as arguments");
-    }
+    assert!(
+        [from_path.to_owned(), to_path.to_owned()].iter().all(|path| STARTS_WITH_PATH_SEPARATOR.is_match(path)),
+        "file_paths::relative() requires absolute paths as arguments"
+    );
 
     let mut r = Vec::<String>::new();
 
@@ -234,9 +235,11 @@ pub fn change_extension(path: &str, extension: &str) -> String {
 ///
 pub fn change_last_extension(path: &str, extension: &str) -> String {
     let extension = (if extension.starts_with(".") { "" } else { "." }).to_owned() + extension;
-    if extension[1..].find('.').is_some() {
-        panic!("The argument to file_paths::change_last_extension() must only contain one extension; got {}", extension);
-    }
+    assert!(
+        extension[1..].find('.').is_none(),
+        "The argument to file_paths::change_last_extension() must only contain one extension; got {}",
+        extension
+    );
     if reg_exp_find!(r"(\..+)$", path).is_none() {
         return path.to_owned() + &extension;
     }

@@ -367,10 +367,20 @@ pub async fn wait_until(deadline: Instant) {
 ///
 pub fn interval(period: Duration) -> Interval {
     #[cfg(feature = "rialight_default_export")] {
-        return tokio::time::interval(period);
+        return Interval {
+            inner: platform::tokio_runtime::Interval(tokio::time::interval(period)),
+        };
     }
     #[cfg(feature = "rialight_browser_export")] {
-        todo!();
+        assert!(period.as_millis() != 0, "rialight::util::timing::interval() must be called with non-zero period");
+        return Interval {
+            inner: platform::browser_runtime::Interval {
+                for_animation: true,
+                period,
+                start: Instant::now(),
+                ticker: None,
+            },
+        };
     }
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = period;
@@ -410,10 +420,20 @@ pub fn interval(period: Duration) -> Interval {
 /// 
 pub fn interval_at(start: Instant, period: Duration) -> Interval {
     #[cfg(feature = "rialight_default_export")] {
-        return tokio::time::interval_at(start, period);
+        return Interval {
+            inner: platform::tokio_runtime::Interval(tokio::time::interval_at(start.inner.0, period)),
+        };
     }
     #[cfg(feature = "rialight_browser_export")] {
-        todo!();
+        assert!(period.as_millis() != 0, "rialight::util::timing::interval_at() must be called with non-zero period");
+        return Interval {
+            inner: platform::browser_runtime::Interval {
+                for_animation: true,
+                period,
+                start: start,
+                ticker: None,
+            },
+        };
     }
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = (start, period);
