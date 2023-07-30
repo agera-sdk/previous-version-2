@@ -1,5 +1,5 @@
 /*!
-Work with timeouts and intervals.
+Work with common timing and animation intervals.
 
 # Non Rialight users
 

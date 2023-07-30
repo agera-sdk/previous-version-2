@@ -140,12 +140,12 @@ pub async fn timeout<F: Future + Send + 'static>(duration: Duration, future: F) 
             *completed.write().unwrap() = true;
         }
     });
-    wait(duration);
     if *completed.read().unwrap() {
-        Ok(())
-    } else {
-        Err(super::ElapsedError)
+        return Ok(());
     }
+    todo!();
+    wait(duration);
+    Err(super::ElapsedError)
 }
 
 #[derive(Debug)]
