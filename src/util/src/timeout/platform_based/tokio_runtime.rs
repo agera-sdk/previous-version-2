@@ -72,22 +72,13 @@ impl<T: Future> Future for Timeout<T> {
 }
 
 #[derive(Debug)]
-pub struct Interval {
-    interval: tokio::time::Interval,
-    last_tick_instant: Option<tokio::time::Instant>,
-}
+pub struct Interval(tokio::time::Interval);
 
 impl Interval {
     pub async fn tick(&mut self) -> Duration {
-        // first tick may occur indirectly, thus `last_tick_instant`
-        // is lazy-initialized.
-        self.last_tick_instant = self.last_tick_instant.or(Some(tokio::time::Instant::now()));
-
-        self.interval.tick().await;
-        let now = tokio::time::Instant::now();
-        let delta = now - self.last_tick_instant.unwrap();
-        self.last_tick_instant = Some(now);
-        delta
+        let last_tick_instant = tokio::time::Instant::now();
+        self.0.tick().await;
+        tokio::time::Instant::now() - last_tick_instant
     }
 }
 
