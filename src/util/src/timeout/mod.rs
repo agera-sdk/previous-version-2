@@ -124,8 +124,8 @@ pub struct Timeout<T> {
     inner: platform_based::Timeout<T>,
 }
 
-impl<T> Future for Timeout<T> {
-    type Output = ();
+impl<T: Future> Future for Timeout<T> {
+    type Output = Result<(), ElapsedError>;
     fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
         std::pin::pin!(self.inner).poll(cx)
     }
