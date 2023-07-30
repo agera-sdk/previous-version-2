@@ -24,7 +24,7 @@ tokio = { version = "1.29.1", features = ["time"], optional = true }
 
 # browser export only dependencies
 js-sys = { version = "0.3.64", optional = true }
-web-sys = { version = "0.3.64", optional = true }
+web-sys = { version = "0.3.64", optional = true, features = ["AbortController", "Window"] }
 wasm-bindgen = { version = "0.2.87", optional = true }
 wasm-bindgen-futures = { version = "0.4.37", optional = true }
 

@@ -96,6 +96,8 @@ impl Node {
     - A `RenderingTarget` can be converted into pixels without the alpha channel, which can be useful for screenshots.
   - _Canvas:_
     - The `Canvas` node, although normally rendered automatically, can also be rendered separately to a RGBA (transparent) channel through a method. Useful for drawing tools.
+  - _WebView:_
+    - A simple `WebView` node should be supported. It's not meant as a building block for browsers.
 
 Accessibility:
 
@@ -352,6 +354,7 @@ Working at timeouts:
   - On JavaScript: interval works like this:
     - https://users.rust-lang.org/t/future-based-interval-in-the-browser/97693/3
     - Use approach 1 (**WITHOUT** `setInterval`) in the above post, using the optimal solution not using `setInterval` nor `setTimeout`
+      - As outlined in the next parts of this list, there will be non-animation interval functions too.
 - [x] wrap `Timeout`
 - [x] wrap `Instant`
 - [x] wrap `Wait`
@@ -360,11 +363,12 @@ Working at timeouts:
   - For `interval`, panic if given period is zero
   - [`web-sys`](https://crates.io/crates/web-sys)
   - [`wasm-bindgen-futures`](https://crates.io/crates/wasm-bindgen-futures)
+- [ ] Add "animation" interval functions separately and, for default intervals, use `setInterval` and `clearInterval` internally and rename `interval` and `interval_at` to `non_animation_interval` and `non_animation_interval_at`.
 - [ ] Add an additional "cancellable" timeout function, `background_timeout` that returns a `BackgroundTimeout` which is not a future. This function receives a `FnOnce() + Send + 'static` callback.
   - In browser this uses `setTimeout` (tracked timeout is assigned to -1 before polling to Rust future) + `clearTimeout` (invoked if tracked timeout is not -1)
   - In Tokio this spawns a thread with a wait. The thread holds an `Arc` which it receives from the spawning thread, that indicates whether the timeout was cancelled. After the wait, if this `Arc` indicates the timeout was "not" cancelled, it calls the callback from the developer.
-- [ ] Add a `background_interval` function similiar to background timeout function that returns `BackgroundInterval`.
-  - On JavaScript, **NEVER** use `clearInterval`! Just use the solution at https://users.rust-lang.org/t/future-based-interval-in-the-browser/97693/3
+- [ ] Add `animation_background_interval` and `non_animation_background_interval` functions that return `BackgroundInterval`.
+  - Animation interval callbacks takes a delta duration indicating the time elapsed since the previous frame.
 
 Working at temporal:
 

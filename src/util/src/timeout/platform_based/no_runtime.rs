@@ -74,7 +74,7 @@ impl<T: Future> Future for Timeout<T> {
 pub struct Interval;
 
 impl Interval {
-    pub async fn tick(&mut self) -> super::SuperInstant {
+    pub async fn tick(&mut self) -> Duration {
         panic!("Incorrect Rialight runtime configuration");
     }
 }

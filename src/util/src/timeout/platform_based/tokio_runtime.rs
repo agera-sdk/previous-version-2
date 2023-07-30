@@ -3,7 +3,7 @@ The Rialight runtime uses the asynchronous Tokio runtime internally
 for any platform other than the browser.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData};
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant(tokio::time::Instant);
@@ -72,11 +72,22 @@ impl<T: Future> Future for Timeout<T> {
 }
 
 #[derive(Debug)]
-pub struct Interval(tokio::time::Interval);
+pub struct Interval {
+    interval: tokio::time::Interval,
+    last_tick_instant: Option<tokio::time::Instant>,
+}
 
 impl Interval {
-    pub async fn tick(&mut self) -> super::SuperInstant {
-        self.0.tick().await
+    pub async fn tick(&mut self) -> Duration {
+        // first tick may occur indirectly, thus `last_tick_instant`
+        // is lazy-initialized.
+        self.last_tick_instant = self.last_tick_instant.or(Some(tokio::time::Instant::now()));
+
+        self.interval.tick().await;
+        let now = tokio::time::Instant::now();
+        let delta = now - self.last_tick_instant.unwrap();
+        self.last_tick_instant = Some(now);
+        delta
     }
 }
 
