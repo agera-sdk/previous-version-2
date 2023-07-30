@@ -9,7 +9,7 @@ This module is only meant to be used within the Rialight asynchronous runtime.
 pub use std::time::Duration;
 use std::{future::Future, fmt::Display, ops::{Add, AddAssign, Sub, SubAssign}};
 
-mod platform_based;
+mod platform;
 
 /// Error returned by [`timeout`] and [`timeout_at`].
 /// 
@@ -54,7 +54,7 @@ impl std::error::Error for ElapsedError {}
 /// 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant {
-    inner: platform_based::Instant,
+    inner: platform::Instant,
 }
 
 impl Instant {
@@ -66,7 +66,7 @@ impl Instant {
 
     /// Returns the current instant from the host environment.
     pub fn now() -> Instant {
-        Self { inner: platform_based::Instant::now() }
+        Self { inner: platform::Instant::now() }
     }
 }
 
@@ -106,7 +106,7 @@ impl SubAssign<Duration> for Instant {
 /// Interval returned by [`interval`] and [`interval_at`].
 #[derive(Debug)]
 pub struct Interval {
-    inner: platform_based::Interval,
+    inner: platform::Interval,
 }
 
 impl Interval {
