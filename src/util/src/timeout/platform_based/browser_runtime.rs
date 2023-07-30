@@ -98,9 +98,7 @@ impl Interval {
         if self.at_first_tick {
             // initial timeout
         }
-        else {
-            await_promise_here()
-        }
+        await_promise_here()
     }
 }
 
