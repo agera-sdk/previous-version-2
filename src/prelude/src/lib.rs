@@ -52,3 +52,4 @@ pub use rialight_util::observable::{
 };
 pub use rialight_util::string::StringIncognitoFormat;
 pub use rialight_util::temporal;
+pub use rialight_util::futures::exec_future;

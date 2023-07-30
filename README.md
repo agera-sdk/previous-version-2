@@ -269,6 +269,7 @@ The `rialight::prelude` crate can be used to include commonly used things in sco
 
 - Some of the Rust standard library, including:
   - `Any`
+  - `Future`
   - `Map` and `Set` as aliases to `HashMap` an `HashSet`
   - Types for concurrency and reference counted boxes
 - Map and Set Collections that use a hash algorithm (same from the standard library, `std::collections`)
@@ -279,6 +280,8 @@ The `rialight::prelude` crate can be used to include commonly used things in sco
 - JSON Serialization
 - Observables
 - Temporal API (`temporal` as a global module)
+- Futures
+  - `exec_future`
 
 All of these are described in the utilities API.
 

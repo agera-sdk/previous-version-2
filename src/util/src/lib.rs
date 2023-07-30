@@ -18,6 +18,7 @@ pub mod observable;
 pub mod string;
 pub mod timeout;
 pub mod temporal;
+pub mod futures;
 
 // not initiated or designed:
 // pub mod gc;
