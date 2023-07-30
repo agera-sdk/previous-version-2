@@ -5,8 +5,6 @@ When the Rialight runtime is targetting the browser.
 use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData, fmt::Debug};
 use wasm_bindgen::prelude::*;
 
-use super::cross_platform_wait_until;
-
 #[wasm_bindgen]
 extern "C" {
     fn setTimeout(closure: &Closure<dyn FnMut()>, millis: u32) -> f64;
@@ -15,20 +13,20 @@ extern "C" {
 
 #[wasm_bindgen(module = "browser.js")]
 extern "C" {
+    #[wasm_bindgen(js_name = waitInJSPromise)]
+    fn wait_in_js_promise(ms: f64) -> js_sys::Promise;
+
     #[wasm_bindgen(js_name = nonAnimationInterval)]
-    fn non_animation_interval(closure: &Closure<dyn FnMut(f64)>, ms: u32) -> web_sys::AbortController;
+    fn non_animation_interval(closure: &Closure<dyn FnMut(f64)>, ms: f64) -> web_sys::AbortController;
     #[wasm_bindgen(js_name = animationInterval)]
-    fn animation_interval(closure: &Closure<dyn FnMut(f64)>, ms: u32) -> web_sys::AbortController;
+    fn animation_interval(closure: &Closure<dyn FnMut(f64)>, ms: f64) -> web_sys::AbortController;
 
     // Ticker
 
     type Ticker;
 
     #[wasm_bindgen(constructor)]
-    fn new(for_animation: bool, ms: u32) -> Ticker;
-
-    #[wasm_bindgen(method)]
-    fn tick(this: &Ticker, callback: &Closure<dyn FnMut(f64)>);
+    fn new(for_animation: bool, ms: f64) -> Ticker;
 
     #[wasm_bindgen(method, js_name = tickInJSPromise)]
     fn tick_in_js_promise(this: &Ticker) -> js_sys::Promise;
@@ -45,6 +43,15 @@ impl Ticker {
         let delta = wasm_bindgen_futures::JsFuture::from(self.tick_in_js_promise()).await;
         Duration::from_millis(unsafe { delta.unwrap().as_f64().unwrap().to_int_unchecked::<u64>() })
     }
+}
+
+pub async fn wait(duration: Duration) {
+    let ms: u32 = duration.as_millis().try_into().expect("Developer has given too large period for wait duration");
+    wasm_bindgen_futures::JsFuture::from(wait_in_js_promise(ms.into())).await;
+}
+
+pub async fn wait_until(instant: super::SuperInstant) {
+    wait(instant - super::SuperInstant::now());
 }
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -81,7 +88,11 @@ impl AddAssign<Duration> for Instant {
 impl Sub<Duration> for Instant {
     type Output = Instant;
     fn sub(self, rhs: Duration) -> Self::Output {
-        Self { epoch_ms: self.epoch_ms - rhs.as_millis() }
+        if self.epoch_ms < rhs.as_millis() {
+            Self { epoch_ms: 0 }
+        } else {
+            Self { epoch_ms: self.epoch_ms - rhs.as_millis() }
+        }
     }
 }
 
@@ -134,8 +145,9 @@ impl Interval {
             Some(ticker) => ticker.tick_in_future().await,
             None => {
                 // initial tick
-                cross_platform_wait_until(self.start).await;
-                self.ticker = Some(Ticker::new(self.for_animation, self.period.as_millis().try_into().expect("Developer has given too large period for interval")));
+                wait_until(self.start).await;
+                let ms: u32 = self.period.as_millis().try_into().expect("Developer has given too large period for interval");
+                self.ticker = Some(Ticker::new(self.for_animation, ms.into()));
                 return Duration::from_millis(0);
             },
         }

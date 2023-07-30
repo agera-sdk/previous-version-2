@@ -351,8 +351,6 @@ Working at timeouts:
 
 - [x] wrap `interval`
 - [x] wrap `interval_at`
-  - In browser, `interval_at` uses a `setTimeout` internally (uses `Date.now() - instant.epochMilliseconds`).
-- [ ] Note the following types wrap yet another "private" type, which is defined according to a `#[cfg]` attribute (also add a `#[cfg]` case for both export features not listed so that the code the compiles).
 - [x] wrap `Interval`
 - [x] wrap `Timeout`
 - [x] wrap `Instant`

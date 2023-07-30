@@ -1,3 +1,11 @@
+export function waitInJSPromise(ms) {
+    return new Promise((resolve, _) => {
+        setTimeout(() => {
+            resolve(undefined);
+        }, ms);
+    });
+}
+
 export function nonAnimationInterval(callback, ms) {
     const controller = new AbortController();
     const {signal} = controller;
