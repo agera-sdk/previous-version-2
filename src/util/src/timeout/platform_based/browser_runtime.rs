@@ -2,18 +2,49 @@
 When the Rialight runtime is targetting the browser.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData};
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData, fmt::Debug};
 use wasm_bindgen::prelude::*;
 
-use super::{
-    exec_future,
-    cross_platform_wait_until,
-};
+use super::cross_platform_wait_until;
 
 #[wasm_bindgen]
 extern "C" {
     fn setTimeout(closure: &Closure<dyn FnMut()>, millis: u32) -> f64;
     fn clearTimeout(token: i32);
+}
+
+#[wasm_bindgen(module = "browser.js")]
+extern "C" {
+    #[wasm_bindgen(js_name = nonAnimationInterval)]
+    fn non_animation_interval(closure: &Closure<dyn FnMut(f64)>, ms: u32) -> web_sys::AbortController;
+    #[wasm_bindgen(js_name = animationInterval)]
+    fn animation_interval(closure: &Closure<dyn FnMut(f64)>, ms: u32) -> web_sys::AbortController;
+
+    // Ticker
+
+    type Ticker;
+
+    #[wasm_bindgen(constructor)]
+    fn new(for_animation: bool, ms: u32) -> Ticker;
+
+    #[wasm_bindgen(method)]
+    fn tick(this: &Ticker, callback: &Closure<dyn FnMut(f64)>);
+
+    #[wasm_bindgen(method, js_name = tickInJSPromise)]
+    fn tick_in_js_promise(this: &Ticker) -> js_sys::Promise;
+}
+
+impl Debug for Ticker {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str("Ticker()")
+    }
+}
+
+impl Ticker {
+    async fn tick_in_future(&self) -> Duration {
+        let delta = wasm_bindgen_futures::JsFuture::from(self.tick_in_js_promise()).await;
+        Duration::from_millis(unsafe { delta.unwrap().as_f64().unwrap().to_int_unchecked::<u64>() })
+    }
 }
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -91,26 +122,27 @@ impl<T: Future> Future for Timeout<T> {
 
 #[derive(Debug)]
 pub struct Interval {
-    pub at_first_tick: bool,
+    pub for_animation: bool,
+    pub period: Duration,
     pub start: super::SuperInstant,
-    pub interval_abort_controller: Option<web_sys::AbortController>,
+    pub ticker: Option<Ticker>,
 }
 
 impl Interval {
     pub async fn tick(&mut self) -> Duration {
-        if self.at_first_tick {
-            // initial timeout
-            self.at_first_tick = false;
-            cross_platform_wait_until(self.start).await;
+        match self.ticker.as_ref() {
+            Some(ticker) => ticker.tick_in_future().await,
+            None => {
+                // initial tick
+                cross_platform_wait_until(self.start).await;
+                self.ticker = Some(Ticker::new(self.for_animation, self.period.as_millis().try_into().expect("Developer has given too large period for interval")));
+                return Duration::from_millis(0);
+            },
         }
-        await_promise_here()
     }
 }
 
 impl Drop for Interval {
     fn drop(&mut self) {
-        if let Some(c) = self.interval_abort_controller {
-            c.abort();
-        }
     }
 }

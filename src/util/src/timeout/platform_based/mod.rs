@@ -7,7 +7,6 @@ timeout API.
 use super::{
     ElapsedError,
     Instant as SuperInstant,
-    exec_future,
     wait_until as cross_platform_wait_until,
 };
 

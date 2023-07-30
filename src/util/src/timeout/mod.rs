@@ -131,6 +131,19 @@ impl<T: Future> Future for Timeout<T> {
     }
 }
 
+#[derive(Debug)]
+pub struct Interval {
+    inner: platform_based::Interval,
+}
+
+impl Interval {
+    /// Completes when the next instant in the interval has been reached,
+    /// yielding the time elapsed since the last tick.
+    pub async fn tick(&mut self) -> Duration {
+        self.inner.tick().await
+    }
+}
+
 /// Requires for a `Future` to complete before the given
 /// `duration` has elapsed.
 /// 

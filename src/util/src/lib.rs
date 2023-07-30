@@ -19,6 +19,7 @@ pub mod string;
 pub mod timeout;
 pub mod temporal;
 pub mod futures;
+pub mod number;
 
 // not initiated or designed:
 // pub mod gc;

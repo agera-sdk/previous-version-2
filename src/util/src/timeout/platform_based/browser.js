@@ -8,8 +8,9 @@ export function nonAnimationInterval(callback, ms) {
             clearInterval(handle);
             return;
         }
-        callback(Date.now() - lastInstant);
+        let prevLastInstant = lastInstant;
         lastInstant = Date.now();
+        callback(lastInstant - prevLastInstant);
     }, ms);
     return controller;
 }
@@ -26,8 +27,9 @@ export function animationInterval(callback, ms) {
 
     function frame(time) {
       if (signal.aborted) return;
-      callback(time - lastInstant);
+      let prevLastInstant = lastInstant;
       lastInstant = time;
+      callback(time - prevLastInstant);
       scheduleFrame(time);
     }
   
@@ -41,4 +43,48 @@ export function animationInterval(callback, ms) {
   
     scheduleFrame(start);
     return controller;
+}
+
+export class Ticker {
+    constructor(forAnimation, ms) {
+        this.start = forAnimation
+            ? (document.timeline ? document.timeline.currentTime : performance.now())
+            : Date.now();
+        this.ms = ms;
+        this.lastInstant = this.start;
+        this._tickMethod = forAnimation ? this._animationTick.bind(this) : this._nonAnimationTick.bind(this);
+    }
+
+    tick(callback) {
+        this._tickMethod(callback);
+    }
+
+    tickInJSPromise() {
+        return new Promise((resolve, _) => {
+            this.tick(delta => {
+                resolve(delta);
+            });
+        });
+    }
+
+    _animationTick(callback) {
+        const elapsed = this.lastInstant - this.start;
+        const roundedElapsed = Math.round(elapsed / this.ms) * this.ms;
+        const targetNext = this.start + roundedElapsed + this.ms;
+        const delay = targetNext - performance.now();
+        const frame = time => {
+            let prevLastInstant = this.lastInstant;
+            this.lastInstant = time;
+            callback(time - prevLastInstant);
+        };
+        setTimeout(() => requestAnimationFrame(frame), delay);
+    }
+
+    _nonAnimationTick(callback) {
+        setTimeout(() => {
+            let prevLastInstant = this.lastInstant;
+            this.lastInstant = Date.now();
+            callback(this.lastInstant - prevLastInstant);
+        }, this.ms);
+    }
 }

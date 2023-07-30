@@ -282,6 +282,7 @@ The `rialight::prelude` crate can be used to include commonly used things in sco
 - Temporal API (`temporal` as a global module)
 - Futures
   - `exec_future`
+- Big Integer
 
 All of these are described in the utilities API.
 
@@ -352,12 +353,7 @@ Working at timeouts:
 - [x] wrap `interval_at`
   - In browser, `interval_at` uses a `setTimeout` internally (uses `Date.now() - instant.epochMilliseconds`).
 - [ ] Note the following types wrap yet another "private" type, which is defined according to a `#[cfg]` attribute (also add a `#[cfg]` case for both export features not listed so that the code the compiles).
-- [ ] wrap `Interval`
-  - Define only `tick()` and nothing else.
-  - On JavaScript: interval works like this:
-    - https://users.rust-lang.org/t/future-based-interval-in-the-browser/97693/3
-    - Use approach 1 (**WITHOUT** `setInterval`) in the above post, using the optimal solution not using `setInterval` nor `setTimeout`
-      - As outlined in the next parts of this list, there will be non-animation interval functions too.
+- [x] wrap `Interval`
 - [x] wrap `Timeout`
 - [x] wrap `Instant`
 - [x] wrap `Wait`
