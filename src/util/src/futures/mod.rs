@@ -57,10 +57,10 @@ where
 
 pub use futures::future::ready as ready_future;
 
-/// The `future_race` takes an iterable of futures as input and returns
+/// The `future_race` function takes an iterable of futures as input and returns
 /// a single [`Future`]. The returned future completes with
 /// a group (_v_, _i_), where _v_ is the output from the first
-/// future resolved and _i_ is the index of the first future resolved
+/// completed future and _i_ is the index of the first completed future
 /// from the given iterator.
 /// 
 /// # Exceptions

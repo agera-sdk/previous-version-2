@@ -122,25 +122,16 @@ impl Future for Wait {
     }
 }
 
-pub async fn timeout<F: Future + Send + 'static>(duration: Duration, future: F) -> Result<(), super::ElapsedError> {
-    let mut completed = Arc::new(RwLock::new(false));
-    exec_future({
-        let completed = Arc::clone(&mut completed);
-        async move {
-            future.await;
-            *completed.write().unwrap() = true;
-        }
-    });
-    if *completed.read().unwrap() {
-        return Ok(());
+pub async fn timeout<F: Future<Output = ()> + Send + 'static>(duration: Duration, future: F) -> Result<(), super::ElapsedError> {
+    let (_, i) = future_race([
+        async { future.await; },
+        async { wait(duration).await; },
+    ]).await;
+
+    match i {
+        0 => Ok(()),
+        1 => Err(super::ElapsedError),
     }
-
-    // use a Future race with wait() and given future
-    zxczxczxczczxczcxczxczx();
-
-    wait(duration).await;
-
-    Err(super::ElapsedError)
 }
 
 #[derive(Debug)]
