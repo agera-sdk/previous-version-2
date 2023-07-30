@@ -144,7 +144,7 @@ pub async fn timeout<F: Future + Send + 'static>(duration: Duration, future: F) 
         return Ok(());
     }
     todo!();
-    wait(duration);
+    wait(duration).await;
     Err(super::ElapsedError)
 }
 
