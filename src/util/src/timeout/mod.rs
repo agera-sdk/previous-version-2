@@ -9,6 +9,8 @@ This module is only meant to be used within the Rialight asynchronous runtime.
 pub use std::time::Duration;
 use std::{future::Future, fmt::Display, ops::{Add, AddAssign, Sub, SubAssign}};
 
+use super::futures::exec_future;
+
 mod platform_based;
 
 /// Error returned by [`Timeout`].

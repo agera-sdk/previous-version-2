@@ -5,6 +5,11 @@ When the Rialight runtime is targetting the browser.
 use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData};
 use wasm_bindgen::prelude::*;
 
+use super::{
+    exec_future,
+    cross_platform_wait_until,
+};
+
 #[wasm_bindgen]
 extern "C" {
     fn setTimeout(closure: &Closure<dyn FnMut()>, millis: u32) -> f64;
@@ -84,12 +89,10 @@ impl<T: Future> Future for Timeout<T> {
     }
 }
 
-#[wasm_bindgen]
 #[derive(Debug)]
 pub struct Interval {
     pub at_first_tick: bool,
-    pub start: Instant,
-    pub start_timeout_id: i32,
+    pub start: super::SuperInstant,
     pub interval_abort_controller: Option<web_sys::AbortController>,
 }
 
@@ -97,6 +100,8 @@ impl Interval {
     pub async fn tick(&mut self) -> Duration {
         if self.at_first_tick {
             // initial timeout
+            self.at_first_tick = false;
+            cross_platform_wait_until(self.start).await;
         }
         await_promise_here()
     }
@@ -104,9 +109,6 @@ impl Interval {
 
 impl Drop for Interval {
     fn drop(&mut self) {
-        if self.start_timeout_id != -1 {
-            web_sys::window().unwrap().clear_timeout_with_handle(self.start_timeout_id);
-        }
         if let Some(c) = self.interval_abort_controller {
             c.abort();
         }
