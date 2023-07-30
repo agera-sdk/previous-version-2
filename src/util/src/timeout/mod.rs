@@ -140,7 +140,7 @@ impl Interval {
 /// # Examples
 /// 
 /// ```
-/// use rialight_util::timeout::*;
+/// use rialight_util::timing::*;
 /// 
 /// async fn example_fn() {
 ///     if let Err(_) = timeout(Duration::from_millis(10), f()).await {
@@ -189,7 +189,7 @@ where
 /// # Examples
 /// 
 /// ```
-/// use rialight_util::timeout::*;
+/// use rialight_util::timing::*;
 /// 
 /// async fn example_fn() {
 ///     if let Err(_) = timeout_at(Instant::now() + Duration::from_millis(10), f()).await {
@@ -251,7 +251,7 @@ where
 /// Wait 100ms and print "100 ms have elapsed".
 /// 
 /// ```
-/// use rialight_util::timeout::*;
+/// use rialight_util::timing::*;
 ///
 /// async fn example_fn() {
 ///     wait(Duration::from_millis(100)).await;
@@ -297,7 +297,7 @@ pub async fn wait(duration: Duration) {
 /// Wait 100ms and print "100 ms have elapsed".
 /// 
 /// ```
-/// use rialight_util::timeout::*;
+/// use rialight_util::timing::*;
 ///
 /// async fn example_fn() {
 ///     wait(Instant::now() + Duration::from_millis(100)).await;
@@ -345,7 +345,7 @@ pub async fn wait_until(deadline: Instant) {
 /// # Examples
 /// 
 /// ```
-/// use rialight_util::timeout::*;
+/// use rialight_util::timing::*;
 ///
 /// async fn example_fn() {
 ///     let mut interval = interval(Duration::from_millis(10));
@@ -369,7 +369,7 @@ pub async fn wait_until(deadline: Instant) {
 /// seconds.
 ///
 /// ```
-/// use rialight_util::timeout::*;
+/// use rialight_util::timing::*;
 ///
 /// async fn task_that_takes_a_second() {
 ///     println!("hello");
@@ -416,7 +416,7 @@ pub fn interval(period: Duration) -> Interval {
 /// # Examples
 ///
 /// ```
-/// use rialight_util::timeout::*;
+/// use rialight_util::timing::*;
 ///
 /// async fn example() {
 ///     let start = Instant::now() + Duration::from_millis(50);

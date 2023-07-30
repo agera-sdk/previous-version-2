@@ -190,6 +190,7 @@ Ideas for the utilities API, `rialight::util`. The utilities API is standalone a
 - `Observable`
   - Based on [this TC39 proposal](https://github.com/tc39/proposal-observable).
 - URI and URI Component Encoding
+- Timing API, including handy animation frame functions
 
 ### Network
 
