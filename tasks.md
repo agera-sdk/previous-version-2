@@ -91,18 +91,41 @@ When futurely working in the CLI:
 - `rialight export`
   - Pass the feature `rialight_default_export` to `cargo run` internally for a non-browser export
 
-When futurely working in the attribute macros `#[rialight::main]` and `#[rialight::build_main]`:
+## When futurely working in the attribute macros `rialight::main` and `rialight::build_main`
 
-- `rialight::main` expands to use either the multi-threaded Tokio runtime (`#[tokio::main]`) or a single-threaded one for the web browser by using [`wasm_bindgen`](https://crates.io/crates/wasm_bindgen) and `wasm_bindgen_futures` together.
+The asynchronous runtime looks like this in `feature = "rialight_default_export"`:
+
+```rust
+#[tokio::main]
+async fn main() {
+    let local_task_set = tokio::task::LocalSet::new();
+    local_task_set.run_until(async move {
+        // async code goes here
+    }).await;
+}
 ```
+
+The asynchronous runtime looks like this in `feature = "rialight_browser_export"`:
+
+```rust
 #[wasm_bindgen]
-fn my_entry_point() {
+fn main() {
     wasm_bindgen_futures::spawn_local(async move {
         // async code goes here
     });
 }
 ```
-  - If none of the features `rialight_default_export` and `rialight_browser_export` are passed, then `rialight::main` will panic telling the runtime was incorrectly configured. They are passed by the Rialight CLI automatically.
+
+The asynchronous runtime looks like this when `not(any(feature = "rialight_default_export", feature = "rialight_browser_export"))`:
+
+```rust
+fn main() {
+    panic!("Incorrect Rialight runtime configuration. \
+            If you are running a Cargo command to build
+            your application, you must always instead use \
+            a Rialight command.");
+}
+```
 
 ## Web Browser Tasks
 

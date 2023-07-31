@@ -48,8 +48,6 @@ where
         panic!("Incorrect Rialight runtime configuration");
     }
     #[cfg(feature = "rialight_default_export")] {
-        // spawn_local() not working!
-        zxczxczxc();
         tokio::task::spawn_local(future);
     }
     #[cfg(feature = "rialight_browser_export")] {
