@@ -110,7 +110,7 @@ impl SubAssign<Duration> for Instant {
 }
 
 /*
-pub async fn timeout<F: Future<Output = ()> + Send + 'static>(duration: Duration, future: F) -> Result<(), super::ElapsedError> {
+pub async fn timeout<F: Future<Output = ()> + Send + 'static>(duration: Duration, future: F) -> Result<(), crate::timing::ElapsedError> {
     let (_, i) = future_race([
         future,
         wait(duration),
@@ -118,7 +118,7 @@ pub async fn timeout<F: Future<Output = ()> + Send + 'static>(duration: Duration
 
     match i {
         0 => Ok(()),
-        1 => Err(super::ElapsedError),
+        1 => Err(crate::timing::ElapsedError),
     }
 }
 */
