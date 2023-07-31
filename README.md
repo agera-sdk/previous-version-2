@@ -263,8 +263,8 @@ The concurrency API, `rialight::concurrent`.
 - Workers
   - What is a worker script expressed as?
     - Rialight will choose one of these languages:
+    - [Rune language](https://rune-rs.github.io/book)
       - [Rhai language](https://rhai.rs/book)
-      - [Rune language](https://rune-rs.github.io/book)
   - Allows exchanging bytes and primitives such as strings between workers and sharing byte arrays.
   - It uses `SharedArrayBuffer` internally in the browser. The `SharedArrayBuffer` HTTP header should be set properly.
   - For the browser, here's research on how the JavaScript worker will load the worker scripting language and call developer functions:
