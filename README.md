@@ -147,10 +147,12 @@ If you need to use `app-storage:` in the browser, never use synchronous operatio
 
 #### Web Compatibility in the File System
 
-Synchronous operations do not work for the `app-storage:` URI does not work when exporting the project to the browser currently. Any synchronous operation on `File` will panic. If you need to target the browser, always use asynchronous operations.
+Synchronous operations do not work for the `app-storage:` URI when exporting the project to the browser currently. Any synchronous operation on `File` will panic. If you need to target the browser, always use asynchronous operations.
 
-For the browser, Rialight uses its origin-private file system API.
+For the browser, Rialight uses its origin-private file system API for the `app-storage:` URI.
   - https://users.rust-lang.org/t/bindings-for-browser-origin-private-fs/97417/2?u=hydroper1
+
+For the browser, Rialight uses the RAM for the `app:` URI; that is, the files all load together with the runtime; therefore, both synchronous and asynchronous operations work.
 
 ### Gaming
 
