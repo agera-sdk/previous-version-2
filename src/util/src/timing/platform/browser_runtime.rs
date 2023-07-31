@@ -2,7 +2,7 @@
 When the Rialight runtime is targetting the browser.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, fmt::Debug};
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, fmt::Debug};
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
@@ -23,7 +23,7 @@ extern "C" {
 
     // Ticker
 
-    type Ticker;
+    pub type Ticker;
 
     #[wasm_bindgen(constructor)]
     fn new(for_animation: bool, ms: f64) -> Ticker;
@@ -40,18 +40,18 @@ impl Debug for Ticker {
 
 impl Ticker {
     async fn tick_in_future(&self) -> Duration {
-        let delta = crate::futures::browser::SendableJsFuture::from(self.tick_in_js_promise()).await;
+        let delta = wasm_bindgen_futures::JsFuture::from(self.tick_in_js_promise()).await;
         Duration::from_millis(unsafe { delta.unwrap().as_f64().unwrap().to_int_unchecked::<u64>() })
     }
 }
 
 pub async fn wait(duration: Duration) {
     let ms: u32 = duration.as_millis().try_into().expect("Developer has given too large period for wait duration");
-    crate::futures::browser::SendableJsFuture::from(wait_in_js_promise(ms.into())).await.unwrap();
+    wasm_bindgen_futures::JsFuture::from(wait_in_js_promise(ms.into())).await.unwrap();
 }
 
-pub async fn wait_until(instant: super::SuperInstant) {
-    wait(instant.since(super::SuperInstant::now()));
+pub async fn wait_until(instant: crate::timing::Instant) {
+    wait(instant.since(crate::timing::Instant::now())).await;
 }
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -109,18 +109,6 @@ impl SubAssign<Duration> for Instant {
     }
 }
 
-#[derive(Debug)]
-pub struct Wait {
-    promise: wasm_bindgen_futures::JsFuture,
-}
-
-impl Future for Wait {
-    type Output = ();
-    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
-        std::pin::pin!(self.promise).poll(cx).map(|r| ())
-    }
-}
-
 /*
 pub async fn timeout<F: Future<Output = ()> + Send + 'static>(duration: Duration, future: F) -> Result<(), super::ElapsedError> {
     let (_, i) = future_race([
@@ -139,7 +127,7 @@ pub async fn timeout<F: Future<Output = ()> + Send + 'static>(duration: Duration
 pub struct Interval {
     pub for_animation: bool,
     pub period: Duration,
-    pub start: super::SuperInstant,
+    pub start: crate::timing::Instant,
     pub ticker: Option<Ticker>,
 }
 

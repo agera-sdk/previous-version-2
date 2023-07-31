@@ -4,10 +4,8 @@ It defines browser and non-browser versions for types and functions in the
 timeout API.
 */
 
-use super::{
-    ElapsedError,
-    Instant as SuperInstant,
-};
+#[allow(unused_imports)]
+use super::ElapsedError;
 
 #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))]
 pub mod no_runtime;

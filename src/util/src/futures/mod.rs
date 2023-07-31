@@ -45,6 +45,7 @@ where
     F: Future<Output = ()> + 'static,
 {
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
+        let _ = future;
         panic!("Incorrect Rialight runtime configuration");
     }
     #[cfg(feature = "rialight_default_export")] {
@@ -92,6 +93,3 @@ where
 {
     futures::future::join_all(iterable).await
 }
-
-#[cfg(feature = "rialight_browser_export")]
-pub(crate) mod browser;

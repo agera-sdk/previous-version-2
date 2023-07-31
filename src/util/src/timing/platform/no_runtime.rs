@@ -8,7 +8,7 @@ use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future,
 pub struct Instant;
 
 impl Instant {
-    pub fn since(&self, other: Instant) -> Duration {
+    pub fn since(&self, _other: Instant) -> Duration {
         panic!("Incorrect Rialight runtime configuration");
     }
 
@@ -19,33 +19,33 @@ impl Instant {
 
 impl Add<Duration> for Instant {
     type Output = Instant;
-    fn add(self, rhs: Duration) -> Self::Output {
+    fn add(self, _rhs: Duration) -> Self::Output {
         panic!("Incorrect Rialight runtime configuration");
     }
 }
 
 impl AddAssign<Duration> for Instant {
-    fn add_assign(&mut self, rhs: Duration) {
+    fn add_assign(&mut self, _rhs: Duration) {
         panic!("Incorrect Rialight runtime configuration");
     }
 }
 
 impl Sub<Duration> for Instant {
     type Output = Instant;
-    fn sub(self, rhs: Duration) -> Self::Output {
+    fn sub(self, _rhs: Duration) -> Self::Output {
         panic!("Incorrect Rialight runtime configuration");
     }
 }
 
 impl Sub<Instant> for Instant {
     type Output = Duration;
-    fn sub(self, rhs: Instant) -> Self::Output {
+    fn sub(self, _rhs: Instant) -> Self::Output {
         panic!("Incorrect Rialight runtime configuration");
     }
 }
 
 impl SubAssign<Duration> for Instant {
-    fn sub_assign(&mut self, rhs: Duration) {
+    fn sub_assign(&mut self, _rhs: Duration) {
         panic!("Incorrect Rialight runtime configuration");
     }
 }
@@ -55,7 +55,7 @@ pub struct Wait;
 
 impl Future for Wait {
     type Output = ();
-    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
+    fn poll(self: std::pin::Pin<&mut Self>, _cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
         panic!("Incorrect Rialight runtime configuration");
     }
 }
@@ -65,7 +65,7 @@ pub struct Timeout<T>(PhantomData<T>);
 
 impl<T: Future> Future for Timeout<T> {
     type Output = Result<(), super::ElapsedError>;
-    fn poll(self: std::pin::Pin<&mut Self>, cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
+    fn poll(self: std::pin::Pin<&mut Self>, _cx: &mut std::task::Context<'_>) -> std::task::Poll<Self::Output> {
         panic!("Incorrect Rialight runtime configuration");
     }
 }

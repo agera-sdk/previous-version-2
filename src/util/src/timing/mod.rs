@@ -562,7 +562,7 @@ pub fn animation_interval_at(start: Instant, period: Duration) -> Interval {
 /// Executes a given function after some elapsed time. This function
 /// returns a `BackgroundTimeout` object with a `stop()` method that can
 /// be used to stop the execution of the function.
-pub fn background_timeout(callback: &(dyn Fn() + Send + Sync + 'static), duration: Duration) -> BackgroundTimeout {
+pub fn background_timeout(callback: Box<(dyn Fn() + Send + Sync + 'static)>, duration: Duration) -> BackgroundTimeout {
     let mut stopped = Arc::new(RwLock::new(false));
     exec_future({
         let stopped = Arc::clone(&mut stopped);
@@ -599,7 +599,7 @@ impl BackgroundTimeout {
 /// 
 /// The callback function receives the elapsed time since the last time
 /// it was called by this function.
-pub fn background_animation_interval(callback: &(dyn Fn(Duration) + Send + Sync + 'static), period: Duration) -> BackgroundInterval {
+pub fn background_animation_interval(callback: Box<(dyn Fn(Duration) + Send + Sync + 'static)>, period: Duration) -> BackgroundInterval {
     let mut stopped = Arc::new(RwLock::new(false));
     exec_future({
         let stopped = Arc::clone(&mut stopped);
@@ -628,7 +628,7 @@ pub fn background_animation_interval(callback: &(dyn Fn(Duration) + Send + Sync 
 /// it was called by this function.
 /// 
 /// For animations, consider using [`background_animation_interval`] instead.
-pub fn background_default_interval(callback: &(dyn Fn(Duration) + Send + Sync + 'static), period: Duration) -> BackgroundInterval {
+pub fn background_default_interval(callback: Box<(dyn Fn(Duration) + Send + Sync + 'static)>, period: Duration) -> BackgroundInterval {
     let mut stopped = Arc::new(RwLock::new(false));
     exec_future({
         let stopped = Arc::clone(&mut stopped);
