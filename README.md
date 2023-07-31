@@ -2,7 +2,7 @@
 
 > **Note:** Rialight is not yet done. [Here are the current tasks.](tasks.md)
 
-Rialight aims to be a multi-purpose gaming and graphical application framework combining reactivity and nodes and shipping various fundamental APIs, requiring you to just know the Rust standard library and the Rialight API.
+Rialight aims to be a multi-purpose gaming and graphical application framework combining reactivity and nodes and shipping various fundamental APIs, requiring you to just know the Rust standard library and the Rialight API. Rialight is designed for the Rust language.
 
 Rialight can be used for creating graphical applications, both two-dimensional (2D) and three-dimensional (3D), but **cannot be** used for creating websites. Rialight applications can be embedded in websites.
 
