@@ -189,16 +189,16 @@ Ideas for the utilities API, `rialight::util`. The utilities API is standalone a
   - Based on [this TC39 Temporal API](https://github.com/tc39/proposal-temporal).
 - Lazy Statics
 - Collection Literals (map and set)
+- Big Integer
+- Futures
 - Flags
 - Bytes for working with binaries
 - Serialization
-- Regular Expression pattern
-  - Support for comments and whitespace using the `x` flag.
-  - API strives to be as flexible as the JavaScript's one.
-  - `regex.replace(str, replacement)` accepts either a string or callback as argument and is the same as JavaScript's `str.replace(regex, replacement)`.
-  - `regex.replace_all(str, replacement)`
+- Regular Expression
 - `Observable`
   - Based on [this TC39 proposal](https://github.com/tc39/proposal-observable).
+- Generic File Paths
+- String Incognito
 - URI and URI Component Encoding
 - Timing API, including handy animation frame functions
 
