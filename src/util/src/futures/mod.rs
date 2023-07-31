@@ -42,13 +42,15 @@ pub use std::future::Future;
 /// 
 pub fn exec_future<F>(future: F)
 where
-    F: Future<Output = ()> + Send + 'static,
+    F: Future<Output = ()> + 'static,
 {
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         panic!("Incorrect Rialight runtime configuration");
     }
     #[cfg(feature = "rialight_default_export")] {
-        tokio::task::spawn(future);
+        // spawn_local() not working!
+        zxczxczxc();
+        tokio::task::spawn_local(future);
     }
     #[cfg(feature = "rialight_browser_export")] {
         wasm_bindgen_futures::spawn_local(future);

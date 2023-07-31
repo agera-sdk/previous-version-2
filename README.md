@@ -62,6 +62,13 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
   - _Node paths:_ Node paths are paths using the slash (`/`) separator and `..` and `.` portions. A `..` portion resolves to the parent and a `.` portion resolves to the current node. If a node path is absolute, that is, it starts with a path separator, it resolves a node relative to the topmost parent.
     - `node.get_path()` returns the absolute node path.
   - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind (it uses a private trait `NodeIs` that only the supported node kinds implement). Note that the set of node kinds cannot be extended. Node kinds have dedicated types for consulting their API documentation, such as `Button`. Calling `Button::new` returns a `Node`; however `Button` itself is not the `Node` type. The home API documentation for `rialight::graphics` has a list of supported node kinds, referencing the dedicated types.
+    - _Bitmap:_ The `Bitmap` node kind identifies a pixel grid including transparency. It is optimized and uses different representations inside (like RGB, RGBA and maybe more targetting the GPU).
+    - _Svg:_ The `Svg` node kind represents scalable vector graphics, specifically the SVG file format. It can be configured to use RGBA bitmap caching (`use_bitmap_cache`) at any size.
+      - Bitmap caching is clever and will generate a limited amount of bitmap caches.
+        - The limit of caches could be something like 7.
+        - If the size isn't near the size of any of the existing bitmap caches and the limit of caches is reached, no new bitmap cache is created and the nearest-size cache is used, yielding a blinear resized bitmap.
+        - If the size is near to any of the existing bitmap caches, that cache is used, yielding a blinear resized bitmap.
+        - If the size is not near to any of the existing bitmap caches and the limit of caches has not been reached yet, create a new bitmap cache by rendering the SVG again.
   - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and an union of node kinds (stored in an `Arc`).
   - _Chaining:_ Most of the `Node` methods, such as `set_visibility`, are chainable, returning a clone of the node's reference. These methods are defined similiarly to:
 ```rust
