@@ -271,6 +271,7 @@ The concurrency API, `rialight::concurrent`.
   - It uses `SharedArrayBuffer` internally in the browser. The `SharedArrayBuffer` HTTP header should be set properly.
   - For the browser, here's research on how the JavaScript worker will load the worker scripting language and call developer functions:
     - https://rustwasm.github.io/wasm-bindgen/examples/wasm-in-web-worker.html
+    - Pass all as much of the API as possible to the private JavaScript worker in WebAssembly
 
 ### Core
 
