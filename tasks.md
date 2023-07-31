@@ -121,9 +121,9 @@ The asynchronous runtime looks like this when `not(any(feature = "rialight_defau
 ```rust
 fn main() {
     panic!("Incorrect Rialight runtime configuration. \
-            If you are running a Cargo command to build
+            If you are running a Cargo command to build \
             your application, you must always instead use \
-            a Rialight command.");
+            a Rialight command to build it.");
 }
 ```
 
