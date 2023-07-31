@@ -41,14 +41,14 @@ impl Debug for Ticker {
 
 impl Ticker {
     async fn tick_in_future(&self) -> Duration {
-        let delta = wasm_bindgen_futures::JsFuture::from(self.tick_in_js_promise()).await;
+        let delta = crate::futures::browser::SendableJsFuture::from(self.tick_in_js_promise()).await;
         Duration::from_millis(unsafe { delta.unwrap().as_f64().unwrap().to_int_unchecked::<u64>() })
     }
 }
 
 pub async fn wait(duration: Duration) {
     let ms: u32 = duration.as_millis().try_into().expect("Developer has given too large period for wait duration");
-    wasm_bindgen_futures::JsFuture::from(wait_in_js_promise(ms.into())).await.unwrap();
+    crate::futures::browser::SendableJsFuture::from(wait_in_js_promise(ms.into())).await.unwrap();
 }
 
 pub async fn wait_until(instant: super::SuperInstant) {

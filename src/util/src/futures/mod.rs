@@ -92,3 +92,6 @@ where
 {
     futures::future::join_all(iterable).await
 }
+
+#[cfg(feature = "rialight_browser_export")]
+pub(crate) mod browser;

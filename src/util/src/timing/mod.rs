@@ -559,7 +559,7 @@ pub fn animation_interval_at(start: Instant, period: Duration) -> Interval {
     }
 }
 
-pub fn background_timeout(callback: &(dyn Fn() + Send + 'static), duration: Duration) -> BackgroundTimeout {
+pub fn background_timeout(callback: &(dyn Fn() + Send + Sync + 'static), duration: Duration) -> BackgroundTimeout {
     let mut stopped = Arc::new(RwLock::new(false));
     exec_future({
         let stopped = Arc::clone(&mut stopped);
