@@ -81,7 +81,7 @@ impl Node {
 ```
   - _Cloning:_ `Node` is cloned by reference by default, not by content. Use `node.clone_by_content()` to clone a node by content and not by reference.
   - _UI:_ Node kinds that are user interface specific (such as `Button`) are exported at the `rialight::graphics::ui` submodule to avoid confusion. They are also exported by the user interface API.
-    - [ ] Optional text selection on non text inputs (text labels)
+    - _Text selection:_ Optional text selection on non text inputs (text labels)
   - _Inheritance:_ Properties such as visibility, opacity, rotation and scale are inherited by default, with an _inherited_ variant. There may be more of such properties other than these that are inherited.
   - _Responsivity:_ Node measures are device-oriented. They use the mathematical API.
   - _Positioning:_ A node's position can be either derived, absolute or relative.
@@ -294,7 +294,7 @@ The `rialight::prelude` crate can be used to include commonly used things in sco
   - Other methods, like `future_race`
 - Big Integer
 
-All of these are described in the utilities API.
+These other than the Rust standard library come from the utilities API.
 
 ### Working With the Browser
 
