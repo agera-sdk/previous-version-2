@@ -262,7 +262,7 @@ The internationalization API, `rialight::intl`.
 The concurrency API, `rialight::concurrent`.
 
 - Workers
-  - What is a worker script expressed as?
+  - A worker is created by evaluating a given [Rune script](https://rune-rs.github.io/book) (written in the Rune scripting language) as a string (usually given by an `include_str!` macro).
     - Rialight will choose one of these languages:
       - Try asking the community what would work well for a cross-platform worker.
       - [Rune language](https://rune-rs.github.io/book)
