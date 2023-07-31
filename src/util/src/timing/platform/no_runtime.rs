@@ -84,3 +84,16 @@ impl Drop for Interval {
         panic!("Incorrect Rialight runtime configuration");
     }
 }
+
+/*
+#[derive(Hash)]
+pub struct BackgroundTimeout<'a> {
+    _callback: &'a (dyn Fn() + Send + 'static),
+}
+
+impl BackgroundTimeout {
+    pub fn stop(&self) {
+        panic!("Incorrect Rialight runtime configuration");
+    }
+}
+*/

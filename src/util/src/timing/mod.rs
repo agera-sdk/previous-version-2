@@ -3,7 +3,9 @@ Work with common timing and animation intervals.
 */
 
 pub use std::time::Duration;
-use std::{future::Future, fmt::Display, ops::{Add, AddAssign, Sub, SubAssign}};
+use std::{future::Future, fmt::Display, ops::{Add, AddAssign, Sub, SubAssign}, sync::{Arc, RwLock}};
+
+use crate::futures::exec_future;
 
 mod platform;
 
@@ -99,7 +101,9 @@ impl SubAssign<Duration> for Instant {
     }
 }
 
-/// Interval returned by [`interval`] and [`interval_at`].
+/// Interval returned by [`default_interval`],
+/// [`default_interval_at`], [`animation_interval`] and
+/// [`animation_interval_at`].
 #[derive(Debug)]
 pub struct Interval {
     inner: platform::Interval,
@@ -225,7 +229,7 @@ where
 /// operates at millisecond granularity and should not be used for tasks that
 /// require high-resolution timers.
 /// 
-/// To run something regularly on a schedule, see [`interval`].
+/// To run something regularly on a schedule, see interval functions in this module.
 /// 
 /// The maximum duration for a wait is 68719476734 milliseconds (approximately 2.2 years).
 /// 
@@ -266,7 +270,7 @@ pub async fn wait(duration: Duration) {
 /// operates at millisecond granularity and should not be used for tasks that
 /// require high-resolution timers.
 ///
-/// To run something regularly on a schedule, see [`interval`].
+/// To run something regularly on a schedule, see interval functions in this module.
 ///
 /// The maximum duration for a wait is 68719476734 milliseconds (approximately 2.2 years).
 ///
@@ -304,16 +308,17 @@ pub async fn wait_until(deadline: Instant) {
 /// Creates a new [`Interval`] that yields with interval of `period`. The first
 /// tick completes immediately.
 ///
-/// An interval will tick indefinitely. At any time, the [`Interval`] value can
-/// be dropped. This cancels the interval.
-///
-/// This function is equivalent to
-/// [`interval_at(Instant::now(), period)`](interval_at).
+/// An interval will tick indefinitely.
+/// 
+/// # Animations
+/// 
+/// For animations, you might want to use [`animation_interval`]
+/// instead of `default_interval`.
 /// 
 /// # Cancellation
 ///
 /// An interval is disposed when its variable is dropped.
-/// Use [`background_interval`] if you need an interval that runs
+/// Use [`background_default_interval`] if you need an interval that runs
 /// separately and can be cancelled dynamically.
 ///
 /// # Panics
@@ -326,7 +331,7 @@ pub async fn wait_until(deadline: Instant) {
 /// use rialight_util::timing::*;
 ///
 /// async fn example_fn() {
-///     let mut interval = interval(Duration::from_millis(10));
+///     let mut interval = default_interval(Duration::from_millis(10));
 ///     interval.tick().await; // ticks immediately
 ///     interval.tick().await; // ticks after 10ms
 ///     interval.tick().await; // ticks after 10ms
@@ -335,9 +340,9 @@ pub async fn wait_until(deadline: Instant) {
 /// }
 /// ```
 /// 
-/// A simple example using `interval` to execute a task every two seconds.
+/// A simple example using `default_interval` to execute a task every two seconds.
 ///
-/// The difference between `interval` and [`wait`] is that an [`Interval`]
+/// The difference between `default_interval` and [`wait`] is that an [`Interval`]
 /// measures the time since the last tick, which means that [`.tick().await`]
 /// may wait for a shorter time than the duration specified for the interval
 /// if some time has passed between calls to [`.tick().await`].
@@ -355,7 +360,7 @@ pub async fn wait_until(deadline: Instant) {
 /// }
 ///
 /// async fn example() {
-///     let mut interval = interval(Duration::from_secs(2));
+///     let mut interval = default_interval(Duration::from_secs(2));
 ///     for _i in 0..5 {
 ///         interval.tick().await;
 ///         task_that_takes_a_second().await;
@@ -365,7 +370,120 @@ pub async fn wait_until(deadline: Instant) {
 /// 
 /// [`.tick().await`]: Interval::tick
 ///
-pub fn interval(period: Duration) -> Interval {
+pub fn default_interval(period: Duration) -> Interval {
+    #[cfg(feature = "rialight_default_export")] {
+        return Interval {
+            inner: platform::tokio_runtime::Interval(tokio::time::interval(period)),
+        };
+    }
+    #[cfg(feature = "rialight_browser_export")] {
+        assert!(period.as_millis() != 0, "rialight::util::timing::interval() must be called with non-zero period");
+        return Interval {
+            inner: platform::browser_runtime::Interval {
+                for_animation: false,
+                period,
+                start: Instant::now(),
+                ticker: None,
+            },
+        };
+    }
+    #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
+        let _ = period;
+        panic!("Incorrectly configured Rialight runtime");
+    }
+}
+
+/// Creates a new [`Interval`] that yields with interval of `period` with the
+/// first tick completing at `start`.
+///
+/// # Animations
+/// 
+/// For animations, you might want to use [`animation_interval_at`]
+/// instead of `default_interval_at`.
+/// 
+/// # Cancellation
+///
+/// An interval is disposed when its variable is dropped.
+/// Use [`background_default_interval`] if you need an interval that runs
+/// separately and can be cancelled dynamically.
+/// 
+/// # Panics
+///
+/// This function panics if `period` is zero.
+/// 
+/// # Examples
+///
+/// ```
+/// use rialight_util::timing::*;
+///
+/// async fn example() {
+///     let start = Instant::now() + Duration::from_millis(50);
+///     let mut interval = default_interval_at(start, Duration::from_millis(10));
+///
+///     interval.tick().await; // ticks after 50ms
+///     interval.tick().await; // ticks after 10ms
+///     interval.tick().await; // ticks after 10ms
+///
+///     // approximately 70ms have elapsed.
+/// }
+/// ```
+/// 
+pub fn default_interval_at(start: Instant, period: Duration) -> Interval {
+    #[cfg(feature = "rialight_default_export")] {
+        return Interval {
+            inner: platform::tokio_runtime::Interval(tokio::time::interval_at(start.inner.0, period)),
+        };
+    }
+    #[cfg(feature = "rialight_browser_export")] {
+        assert!(period.as_millis() != 0, "rialight::util::timing::interval_at() must be called with non-zero period");
+        return Interval {
+            inner: platform::browser_runtime::Interval {
+                for_animation: false,
+                period,
+                start: start,
+                ticker: None,
+            },
+        };
+    }
+    #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
+        let _ = (start, period);
+        panic!("Incorrectly configured Rialight runtime");
+    }
+}
+
+/// Creates a new [`Interval`] that yields with interval of `period`. The first
+/// tick completes immediately, meant for animations.
+///
+/// An interval will tick indefinitely.
+/// 
+/// # Cancellation
+///
+/// An interval is disposed when its variable is dropped.
+/// Use [`background_animation_interval`] if you need an interval that runs
+/// separately and can be cancelled dynamically.
+///
+/// # Panics
+///
+/// This function panics if `period` is zero.
+/// 
+/// # Examples
+/// 
+/// ```
+/// use rialight_util::timing::*;
+///
+/// async fn example_fn() {
+///     let mut interval = animation_interval(Duration::from_millis(10));
+///     interval.tick().await; // ticks immediately
+///     interval.tick().await; // ticks after 10ms
+///     interval.tick().await; // ticks after 10ms
+///
+///     // approximately 20ms have elapsed.
+/// }
+/// ```
+/// 
+/// [`.tick().await`]: Interval::tick
+///
+pub fn animation_interval(period: Duration) -> Interval {
     #[cfg(feature = "rialight_default_export")] {
         return Interval {
             inner: platform::tokio_runtime::Interval(tokio::time::interval(period)),
@@ -389,12 +507,12 @@ pub fn interval(period: Duration) -> Interval {
 }
 
 /// Creates a new [`Interval`] that yields with interval of `period` with the
-/// first tick completing at `start`.
+/// first tick completing at `start`, meant for animations.
 ///
 /// # Cancellation
 ///
 /// An interval is disposed when its variable is dropped.
-/// Use [`background_interval`] if you need an interval that runs
+/// Use [`background_animation_interval`] if you need an interval that runs
 /// separately and can be cancelled dynamically.
 /// 
 /// # Panics
@@ -408,7 +526,7 @@ pub fn interval(period: Duration) -> Interval {
 ///
 /// async fn example() {
 ///     let start = Instant::now() + Duration::from_millis(50);
-///     let mut interval = interval_at(start, Duration::from_millis(10));
+///     let mut interval = animation_interval_at(start, Duration::from_millis(10));
 ///
 ///     interval.tick().await; // ticks after 50ms
 ///     interval.tick().await; // ticks after 10ms
@@ -418,7 +536,7 @@ pub fn interval(period: Duration) -> Interval {
 /// }
 /// ```
 /// 
-pub fn interval_at(start: Instant, period: Duration) -> Interval {
+pub fn animation_interval_at(start: Instant, period: Duration) -> Interval {
     #[cfg(feature = "rialight_default_export")] {
         return Interval {
             inner: platform::tokio_runtime::Interval(tokio::time::interval_at(start.inner.0, period)),
@@ -438,5 +556,34 @@ pub fn interval_at(start: Instant, period: Duration) -> Interval {
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = (start, period);
         panic!("Incorrectly configured Rialight runtime");
+    }
+}
+
+pub fn background_timeout(callback: &(dyn Fn() + Send + 'static), duration: Duration) -> BackgroundTimeout {
+    let mut stopped = Arc::new(RwLock::new(false));
+    exec_future({
+        let stopped = Arc::clone(&mut stopped);
+        async move {
+            wait(duration).await;
+            if !*stopped.read().unwrap() {
+                callback();
+            }
+        }
+    });
+    BackgroundTimeout {
+        stopped,
+    }
+}
+
+/// A timeout that can be stopped at anytime, returned
+/// from the [`background_timeout`] function.
+pub struct BackgroundTimeout {
+    // inner: platform::BackgroundTimeout,
+    stopped: Arc<RwLock<bool>>,
+}
+
+impl BackgroundTimeout {
+    pub fn stop(&self) {
+        *self.stopped.write().unwrap() = true;
     }
 }

@@ -51,12 +51,13 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
     - _Children:_ The `Node` type supports common child operations. It also supports node paths described later in this list. `node.children()` returns an iterator.
     - Meta data (optional mapping from `String` to `MetaDataValue` for attaching any data)
       - `pub type MetaDataValue = Box<dyn Any + Send + Sync + Clone>;`
-  - Nodes don't describe just graphics. They also emit events, accessed as `node.on_some_event().listen(listen_fn)`, such as `on_enter_frame` and `on_click` events.
+  - _Events_: _They also emit events, accessed as `node.on_some_event().listen(listen_fn)`, such as `on_enter_frame` and `on_click` events.
     - Somes nodes may not have a certain event, which is a rare case, panicking when retrieving it. In that case, for an event that is not supported by all node kinds, the documentation can list the only supported node kinds.
-  - Few events are not accessed as listeners, using a single callback instead:
-    - `node.on_enter_frame(enter_frame_fn)` sets listener for the enter frame event
-    - `node.on_user_input(user_input_fn)` sets listener for an user input event
-  - A node has an identifier. `node.id()` and `node.set_id(id)`
+    - Few events are not accessed as listeners, using a single callback instead:
+      - `node.on_enter_frame(enter_frame_fn)` sets listener for the enter frame event
+      - `node.on_user_input(user_input_fn)` sets listener for an user input event
+    - The enter frame event receives the delta (the time elapsed since the last frame).
+  - _Identifier:_ A node has an identifier. `node.id()` and `node.set_id(id)`
   - _Finding nodes_: The most common method for finding nodes by identifier is `by_path`, which accepts a node path.
   - _Node paths:_ Node paths are paths using the slash (`/`) separator and `..` and `.` portions. A `..` portion resolves to the parent and a `.` portion resolves to the current node. If a node path is absolute, that is, it starts with a path separator, it resolves a node relative to the topmost parent.
     - `node.get_path()` returns the absolute node path.
@@ -316,6 +317,10 @@ rialight_browser_export = [
 
 Rialight will provide aliases with more friendly names.
 
+### Frame Control
+
+For gaming, some might want control on how the game frames loop. In that case, either an animation interval or a default interval from the timing API is used inside the node renderer, according to developer configuration.
+
 ### Visual Editor
 
 Once Rialight develops, it can have a visual editor for the following use-cases:
@@ -355,11 +360,10 @@ Working at timing API:
 - [x] wrap `interval_at`
 - [x] wrap `Interval`
 - [x] wrap `Instant`
-- [ ] Add "animation" interval functions separately and rename `interval` and `interval_at` to `non_animation_interval` and `non_animation_interval_at`.
-- [ ] Add an additional "cancellable" timeout function, `background_timeout` that returns a `BackgroundTimeout` which is not a future. This function receives a `FnOnce() + Send + 'static` callback.
+- [ ] Add an additional "cancellable" timeout function, `background_timeout` that returns a `BackgroundTimeout` which is not a future. This function receives a `FnMut() + Send + 'static` callback.
   - In browser this uses `setTimeout` (tracked timeout is assigned to -1 before polling to Rust future) + `clearTimeout` (invoked if tracked timeout is not -1)
   - In Tokio this spawns a thread with a wait. The thread holds an `Arc` which it receives from the spawning thread, that indicates whether the timeout was cancelled. After the wait, if this `Arc` indicates the timeout was "not" cancelled, it calls the callback from the developer.
-- [ ] Add `animation_background_interval` and `non_animation_background_interval` functions that return `BackgroundInterval`.
+- [ ] Add `background_animation_interval` and `background_default_interval` functions that return `BackgroundInterval`.
   - Animation interval callbacks takes a delta duration indicating the time elapsed since the previous frame.
 
 Working at temporal:

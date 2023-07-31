@@ -86,3 +86,17 @@ impl Drop for Interval {
     fn drop(&mut self) {
     }
 }
+
+/*
+#[derive(Hash)]
+pub struct BackgroundTimeout<'a> {
+    stopped: Arc<RwLock<bool>>,
+    callback: &'a (dyn Fn() + Send + 'static),
+}
+
+impl<'a> BackgroundTimeout<'a> {
+    pub fn stop(&self) {
+        *self.stopped.write().unwrap() = true;
+    }
+}
+*/
