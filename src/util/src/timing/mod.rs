@@ -3,9 +3,9 @@ Work with common timing and animation intervals.
 */
 
 pub use std::time::Duration;
-use std::{future::Future, fmt::Display, ops::{Add, AddAssign, Sub, SubAssign}, sync::{Arc, RwLock}};
+use std::{fmt::Display, ops::{Add, AddAssign, Sub, SubAssign}, sync::{Arc, RwLock}};
 
-use crate::futures::exec_future;
+use crate::futures::*;
 
 mod platform;
 
@@ -559,6 +559,9 @@ pub fn animation_interval_at(start: Instant, period: Duration) -> Interval {
     }
 }
 
+/// Executes a given function after some elapsed time. This function
+/// returns a `BackgroundTimeout` object with a `stop()` method that can
+/// be used to stop the execution of the function.
 pub fn background_timeout(callback: &(dyn Fn() + Send + Sync + 'static), duration: Duration) -> BackgroundTimeout {
     let mut stopped = Arc::new(RwLock::new(false));
     exec_future({
@@ -577,12 +580,85 @@ pub fn background_timeout(callback: &(dyn Fn() + Send + Sync + 'static), duratio
 
 /// A timeout that can be stopped at anytime, returned
 /// from the [`background_timeout`] function.
+/// 
+/// To stop the timeout, call `timeout.stop`.
 pub struct BackgroundTimeout {
     // inner: platform::BackgroundTimeout,
     stopped: Arc<RwLock<bool>>,
 }
 
 impl BackgroundTimeout {
+    pub fn stop(&self) {
+        *self.stopped.write().unwrap() = true;
+    }
+}
+
+/// Executes a given function after each period. This function
+/// returns a `BackgroundInterval` object with a `stop()` method that can
+/// be used to stop the execution of the function and dispose of the interval.
+/// 
+/// The callback function receives the elapsed time since the last time
+/// it was called by this function.
+pub fn background_animation_interval(callback: &(dyn Fn(Duration) + Send + Sync + 'static), period: Duration) -> BackgroundInterval {
+    let mut stopped = Arc::new(RwLock::new(false));
+    exec_future({
+        let stopped = Arc::clone(&mut stopped);
+        async move {
+            let mut interval = animation_interval(period);
+            interval.tick().await;
+            loop {
+                let delta = interval.tick().await;
+                if *stopped.read().unwrap() {
+                    break;
+                }
+                callback(delta);
+            }
+        }
+    });
+    BackgroundInterval {
+        stopped,
+    }
+}
+
+/// Executes a given function after each period. This function
+/// returns a `BackgroundInterval` object with a `stop()` method that can
+/// be used to stop the execution of the function and dispose of the interval.
+/// 
+/// The callback function receives the elapsed time since the last time
+/// it was called by this function.
+/// 
+/// For animations, consider using [`background_animation_interval`] instead.
+pub fn background_default_interval(callback: &(dyn Fn(Duration) + Send + Sync + 'static), period: Duration) -> BackgroundInterval {
+    let mut stopped = Arc::new(RwLock::new(false));
+    exec_future({
+        let stopped = Arc::clone(&mut stopped);
+        async move {
+            let mut interval = default_interval(period);
+            interval.tick().await;
+            loop {
+                let delta = interval.tick().await;
+                if *stopped.read().unwrap() {
+                    break;
+                }
+                callback(delta);
+            }
+        }
+    });
+    BackgroundInterval {
+        stopped,
+    }
+}
+
+/// An interval that can be stopped at anytime, returned
+/// from the [`background_animation_interval`] and [`background_default_interval`] functions.
+/// 
+/// To stop the interval, call `interval.stop`.
+pub struct BackgroundInterval {
+    // inner: platform::BackgroundTimeout,
+    stopped: Arc<RwLock<bool>>,
+}
+
+impl BackgroundInterval {
     pub fn stop(&self) {
         *self.stopped.write().unwrap() = true;
     }

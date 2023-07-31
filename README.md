@@ -354,18 +354,6 @@ rustup default nightly
 
 ## Tasks
 
-Working at timing API:
-
-- [x] wrap `interval`
-- [x] wrap `interval_at`
-- [x] wrap `Interval`
-- [x] wrap `Instant`
-- [ ] Add an additional "cancellable" timeout function, `background_timeout` that returns a `BackgroundTimeout` which is not a future. This function receives a `FnMut() + Send + 'static` callback.
-  - In browser this uses `setTimeout` (tracked timeout is assigned to -1 before polling to Rust future) + `clearTimeout` (invoked if tracked timeout is not -1)
-  - In Tokio this spawns a thread with a wait. The thread holds an `Arc` which it receives from the spawning thread, that indicates whether the timeout was cancelled. After the wait, if this `Arc` indicates the timeout was "not" cancelled, it calls the callback from the developer.
-- [ ] Add `background_animation_interval` and `background_default_interval` functions that return `BackgroundInterval`.
-  - Animation interval callbacks takes a delta duration indicating the time elapsed since the previous frame.
-
 Working at temporal:
 
 - References

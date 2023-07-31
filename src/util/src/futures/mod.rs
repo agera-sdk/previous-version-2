@@ -1,5 +1,5 @@
 /*!
-Additional functions for futures.
+Work with futures.
 
 # Executing future without awaiting it
 
@@ -20,7 +20,7 @@ exec_future(async {
 ```
 */
 
-use std::future::Future;
+pub use std::future::Future;
 
 /// Executes a future without awaiting for its completion. Its result
 /// is ignored.

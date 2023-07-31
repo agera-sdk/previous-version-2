@@ -2,9 +2,8 @@
 When the Rialight runtime is targetting the browser.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, marker::PhantomData, fmt::Debug, sync::{RwLock, Arc}};
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}, future::Future, fmt::Debug};
 use wasm_bindgen::prelude::*;
-use crate::futures::*;
 
 #[wasm_bindgen]
 extern "C" {

@@ -6,7 +6,6 @@ pub use std::{
     any::Any,
     borrow::Borrow,
     cell::{Cell, RefCell},
-    future::Future,
     rc::Rc,
     sync::{
         Arc,
@@ -53,6 +52,7 @@ pub use rialight_util::observable::{
 pub use rialight_util::string::StringIncognitoFormat;
 pub use rialight_util::temporal;
 pub use rialight_util::futures::{
+    Future,
     exec_future,
     future_all,
     future_race,
