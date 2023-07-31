@@ -1,0 +1,16 @@
+[package]
+name = "rialight_concurrent"
+version = "0.1.0"
+edition = "2021"
+authors = ["hydroper <matheusdiasdesouzads@gmail.com>"]
+repository = "https://github.com/rialight/api"
+license = "ISC"
+description = "Rialight concurrency API."
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+
+[features]
+rialight_default_export = []
+rialight_browser_export = []

@@ -256,6 +256,20 @@ The internationalization API, `rialight::intl`.
 - Translations
   - This API can use the network API for downloading translations if the developer desires; however, most developers will simply use the `app:` file URI from the file system API.
 
+### Concurrency
+
+The concurrency API, `rialight::concurrent`.
+
+- Workers
+  - What is a worker script expressed as?
+    - Rialight will choose one of these languages:
+      - [Rhai language](https://rhai.rs/book)
+      - [Rune language](https://rune-rs.github.io/book)
+  - Allows exchanging bytes and primitives such as strings between workers and sharing byte arrays.
+  - It uses `SharedArrayBuffer` internally in the browser. The `SharedArrayBuffer` HTTP header should be set properly.
+  - For the browser, here's research on how the JavaScript worker will load the worker scripting language and call developer functions:
+    - https://rustwasm.github.io/wasm-bindgen/examples/wasm-in-web-worker.html
+
 ### Core
 
 The core API, `rialight::core`, basically defines the application interfaces. It can cover:
@@ -298,33 +312,18 @@ The `rialight::prelude` crate can be used to include commonly used things in sco
 
 These other than the Rust standard library come from the utilities API.
 
-### Working With the Browser
+### JavaScript
 
 When a developer wants to run a portion of Rust code for the browser only, it is recommended to detect the browser via `#[cfg(feature = "rialight_browser_export")]` and not `#[cfg(target_arch = "wasm32")]` as WebAssembly is used for unknown platforms.
 
 Rialight provides an alias API for communicating with the browser and JavaScript, `rialight::javascript`, which is only available for the browser export.
 
-This crate provides aliases looking like this, so you can gather documentation from there:
+This crate provides aliases for these crates with basic documentation, so no worries:
 
-```
-# browser export only dependencies
-js-sys = { version = "0.3.64", optional = true }
-web-sys = { version = "0.3.64", optional = true }
-wasm-bindgen = { version = "0.2.87", optional = true }
-wasm-bindgen-futures = { version = "0.4.37", optional = true }
-
-# browser export only dependencies
-rialight_browser_export = [
-    "js-sys",
-    "web-sys",
-    "wasm-bindgen",
-    "wasm-bindgen-futures",
-]
-```
-
-[`wasm-bindgen`](https://rustwasm.github.io/wasm-bindgen/introduction.html) is the main aliased part that allows communicating with JavaScript. Rialight will provide proper aliases. `web-sys` provides definitions for the web APIs under feature gates and Rialight will pass most of such features to that crate by default.
-
-Rialight will provide aliases with more friendly names.
+- `js_sys`
+- `web-sys`
+- `wasm-bindgen`
+- `wasm-bindgen-futures`
 
 ### Frame Control
 
