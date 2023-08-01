@@ -65,10 +65,15 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
     - _Composition:_ Any node contain another node. For instance, a button can contain further content inside, whether label, SVG or anything.
     - _Focus:_ Any node that supports focus can be focused by default. This can be disabled for a specific node through `set_focusable()`.
     - _Building nodes:_ All node kinds are constructed given a callback that takes the node kind itself as `Arc<K>`. This allows writing `K::new(|k| k.set_something(v).set_some_other(v))` instead of `K::new().to::<K>().set_something(v).set_some_other(v)`, not to count that the latter will discard the returned `Node`, being useless. Also, since the kind constructors return a `Node`, you're also able to chain base `Node` methods.
+    - _Markup:_ building nodes is normally possible via `::new`, however it'd be nice to have a macro like follows for use in reactive components:
+      - https://users.rust-lang.org/t/generic-markup-macro/97830
+      - `<Svg src="path"/>` would work like `Svg::from_file`.
     - _Button:_ The `Button` node kind has variants, such as `primary()`, `secondary()` and `warning()`.
       - Highly-customized buttons are often created as user UI components.
     - _Bitmap:_ The `Bitmap` node kind identifies a pixel grid including transparency. It is optimized and uses different representations inside (like RGB, RGBA and maybe more targetting the GPU).
     - _Svg:_ The `Svg` node kind represents scalable vector graphics, specifically the SVG file format. It can be configured to use RGBA bitmap caching (`use_bitmap_cache`) at any size.
+      - `Svg::from_file`
+        - This method constructs a `Svg` directly from a file (as if by using `File::new(path).read_utf8_sync().unwrap()`). This is often used for loading `app:` SVG resources. It panics if loading fails for any reason.
       - Bitmap caching is clever and will generate a limited amount of bitmap caches.
         - The limit of caches could be something like 7.
         - If the size isn't near the size of any of the existing bitmap caches and the limit of caches is reached, no new bitmap cache is created and the nearest-size cache is used, yielding a blinear resized bitmap.
@@ -149,7 +154,7 @@ The `File` object can support the `file:`, `app:` and `app-storage:` URIs.
   - In the browser, these files are stored in the RAM.
 - `app-storage:` refers to files in the application data storage directory. They are data stored dynamically in the application with persistence.
 
-If you need to use `app-storage:` in the browser, never use synchronous operations as they will currently panic since the browser has no support for synchronous operations.
+If you need to use `app-storage:` in the browser, never use synchronous operations (these with the `_sync` suffix) as they will currently panic since the browser has no support for synchronous operations.
 
 #### Web Compatibility in the File System
 

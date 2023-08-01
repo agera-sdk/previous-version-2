@@ -39,6 +39,7 @@ Working at file system:
 
 - Design an API that works across all platforms, including Android.
   - [ ] Provide ways of requesting permissions using asynchronous results that works across all platforms
+  - [ ] All `File` operations are asynchronous, except these with the `_sync` suffix.
   - [ ] File stores another inner, which is platform-specific. For instance, it can hold a handle obtained from a file picker from the browser.
   - For synchronous operations:
     - Panic for the browser
@@ -46,9 +47,7 @@ Working at file system:
   - For asynchronous operations:
     - Use Tokio runtime for non-browser targets
     - Use JavaScript promises for browser targets
-  - Always use `rialight_util::file_paths::os_based` instead of `rialight_util::file_paths` internally in path manipulations.
-  - [ ] Windows
-    - [ ] For native paths, the path prefix is either `drive:` or `\\`.  `drive` is a case-insensitive letter.
+  - Always use `rialight_util::file_paths::os_based` instead of `rialight_util::file_paths` internally in path manipulations, passing the Windows variant where appropriate.
   - [ ] Android
     - [ ] On Android, `app:` and `app-storage:` do not use a static from the Rialight core internals; call the Java API function [`context.getFilesDir`](https://developer.android.com/reference/android/content/Context#getFilesDir()).
   - Consult the _Additional Platform Detection_ section for how WebAssembly-based platforms are detected, including the browser.
@@ -72,6 +71,8 @@ impl Clone for Node {
 - `node.clone_by_content()` clones the node by content and not reference, including the children. This is equivalent to the next fine-tuned method.
   - This method will clone all events and attributes
 - `node.clone_by_content_fine_tuned(flags)` is similiar to the previous method, but reserves for future flags.
+- Rendering
+  - `lyon` might be used for rendering vector graphics for the GPU. How to anti-alias though, it'll have to be learnt.
 
 When futurely working with internationalization:
 
