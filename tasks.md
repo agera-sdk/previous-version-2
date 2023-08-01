@@ -39,6 +39,7 @@ Working at file system:
 
 - Design an API that works across all platforms, including Android.
   - [ ] Provide ways of requesting permissions using asynchronous results that works across all platforms
+  - [ ] File stores another inner, which is platform-specific. For instance, it can hold a handle obtained from a file picker from the browser.
   - For synchronous operations:
     - Panic for the browser
     - For non-browser targets, use `std::fs`
