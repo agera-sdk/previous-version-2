@@ -9,6 +9,8 @@ use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};
 pub struct Instant(std::time::SystemTime);
 
 impl Instant {
+    pub const EPOCH: Instant = Instant(std::time::SystemTime::UNIX_EPOCH);
+
     pub fn since(&self, other: Instant) -> Duration {
         self.0.duration_since(other.0).unwrap_or(Duration::from_nanos(0))
     }

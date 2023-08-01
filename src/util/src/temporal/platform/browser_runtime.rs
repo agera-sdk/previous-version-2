@@ -6,6 +6,8 @@ pub struct Instant {
 }
 
 impl Instant {
+    pub const EPOCH: Instant = Instant(0);
+
     pub fn since(&self, other: Instant) -> Duration {
         if self.epoch_ms < other.epoch_ms { Duration::from_nanos(0) } else { Duration::from_millis((self.epoch_ms - other.epoch_ms).try_into().unwrap_or(u64::MAX)) }
     }

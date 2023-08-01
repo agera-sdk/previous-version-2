@@ -19,3 +19,9 @@ mod platform;
 
 mod instant;
 pub use instant::Instant;
+
+mod duration;
+pub use duration::Duration;
+
+mod error;
+pub use error::RangeError;

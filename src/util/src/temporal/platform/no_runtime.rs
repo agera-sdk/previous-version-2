@@ -9,6 +9,8 @@ use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};
 pub struct Instant;
 
 impl Instant {
+    pub const EPOCH: Instant = Instant;
+
     pub fn since(&self, _other: Instant) -> Duration {
         incorrect_runtime_panic!();
     }
