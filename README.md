@@ -57,7 +57,7 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
       - `node.on_enter_frame(enter_frame_fn)` sets listener for the enter frame event
       - `node.on_user_input(user_input_fn)` sets listener for an user input event
     - The enter frame event receives the delta (the time elapsed since the last frame).
-  - _Identifier:_ A node has an identifier. `node.id()` and `node.set_id(id)`
+  - _Identifier:_ A node has an identifier. `node.id()` and `node.set_id(id)` (optional, so `id` is `Option<String>`). If an identifier is none, node paths take it as if it were the zero-based index of the node in the children collection as a string.
   - _Finding nodes_: The most common method for finding nodes by identifier is `by_path`, which accepts a node path.
   - _Node paths:_ Node paths are paths using the slash (`/`) separator and `..` and `.` portions. A `..` portion resolves to the parent and a `.` portion resolves to the current node. If a node path is absolute, that is, it starts with a path separator, it resolves a node relative to the topmost parent.
     - `node.get_path()` returns the absolute node path.
