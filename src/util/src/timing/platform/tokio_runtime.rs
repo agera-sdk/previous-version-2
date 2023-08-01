@@ -56,6 +56,7 @@ pub struct Interval(pub tokio::time::Interval);
 
 impl Interval {
     pub async fn tick(&mut self) -> Duration {
+        crate::futures::not_sendable_future().await;
         let last_tick_instant = tokio::time::Instant::now();
         self.0.tick().await;
         tokio::time::Instant::now() - last_tick_instant

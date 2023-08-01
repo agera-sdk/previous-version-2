@@ -64,7 +64,7 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
   - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind and `node.to::<NodeKind>` performs a conversion for accessing very specific properties. `node.to()` returns an `Arc<SpecificNodeKind>`. `node.try_into::<K>()` can be used to convert optionally. Note that the set of node kinds cannot be extended. Example node kinds: `Button`, `Canvas`, `Modal` and much more. Calling `Button::new` returns a `Node`, not `Button`; `Button` is part of `Node`. The home API documentation for `rialight::graphics` has a list of supported node kinds, referencing the dedicated types.
     - _Composition:_ Any node contain another node. For instance, a button can contain further content inside, whether label, SVG or anything.
     - _Focus:_ Any node that supports focus can be focused by default. This can be disabled for a specific node through `set_focusable()`.
-    - _Building nodes:_ All node kinds are constructed given a callback that takes the node kind itself as `Arc<K>`. This allows writing `K::new(|k| k.set_something(v).set_some_other(v))` instead of `K::new().to::<K>().set_something(v).set_some_other(v)`, not to count that the latter will discard the returned `Node`, being useless.
+    - _Building nodes:_ All node kinds are constructed given a callback that takes the node kind itself as `Arc<K>`. This allows writing `K::new(|k| k.set_something(v).set_some_other(v))` instead of `K::new().to::<K>().set_something(v).set_some_other(v)`, not to count that the latter will discard the returned `Node`, being useless. Also, since the kind constructors return a `Node`, you're also able to chain base `Node` methods.
     - _Button:_ The `Button` node kind has variants, such as `primary()`, `secondary()` and `warning()`.
       - Highly-customized buttons are often created as user UI components.
     - _Bitmap:_ The `Bitmap` node kind identifies a pixel grid including transparency. It is optimized and uses different representations inside (like RGB, RGBA and maybe more targetting the GPU).
@@ -75,7 +75,7 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
         - If the size is near to any of the existing bitmap caches, that cache is used, yielding a blinear resized bitmap.
         - If the size is not near to any of the existing bitmap caches and the limit of caches has not been reached yet, create a new bitmap cache by rendering the SVG again.
   - _Very specific properties:_ Very specific properties from node kinds are often manipulated after a `.to::<SpecificNodeKind>` conversion.
-  - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and an union of node kinds (stored in an `Arc`).
+  - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and an union of node kinds (each kind is stored in an `Arc`).
   - _Chaining:_ Most of the `Node` methods, such as `set_visibility`, are chainable, returning a clone of the node's reference. Node kinds also have chainable methods. These methods are defined similiarly to:
 ```rust
 impl Node {
@@ -162,7 +162,7 @@ For the browser, Rialight uses the RAM for the `app:` URI; that is, the files al
 
 ### Gaming
 
-Rialight supports a gaming API based on the Entity-Component-System pattern, which is essential for game developers, with support for physics. This API runs concurrent systems, however platforms without multi-threading support (browser) do not run systems concurrently.
+Rialight supports a gaming API based on the Entity-Component-System pattern, which is essential for game developers, with support for physics. This API runs concurrent systems, however platforms without multi-threading support (browser) do not run systems concurrently. Since the nodes from the graphics API use atomic reference counting, they are used successfully the gaming systems.
 
 The Gaming API is an optional feature that can be turned on or off.
 
