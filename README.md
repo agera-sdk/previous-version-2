@@ -103,7 +103,7 @@ impl Node {
   - _Sizing:_ A node can have a size variant: none, full and specific (given measurement units). Nodes whose position is not _derived_ often need to specify a size variant, otherwise they may not be displayed.
   - _Not covered here yet:_ Alignment, minimum sizing and maybe more.
 - Skins
-  - Nodes share skins. Skins are inherited by default if a node's skin is `None`. Every application has a default skin that applies to the root node. Skins describe styles, style transitions and some behaviors.
+  - Nodes share skins. Skins are inherited by default if a node's skin is `None`. Every application has a default skin that applies to the root node. Skins describe styles and style transitions.
 ```rust
 // get_skin() and set_skin() work across all nodes,
 // even if a specific node kind doesn't need a skin,
@@ -130,9 +130,25 @@ Accessibility:
 - Focus
   - Focus neighbors
     - Automatic focus neighbors on containers
+    - The focus neighbors are set as node paths
   - Focus configuration
     - You can optionally allow user inputs other than touch or pointer to switch control focus.
 - Touch
+
+Common skin pratices:
+
+- Static skins are conventionally created as lazily-evaluated statics:
+```rust
+use rialight::graphics::*;
+
+lazy_static! {
+    static ref SOME_SKIN: Skin = {
+        // initialize skin here.
+    };
+}
+
+// use `SOME_SKIN` where desired!
+```
 
 ### 3D Graphics
 
@@ -357,6 +373,10 @@ Once Rialight develops, it can have a visual editor for the following use-cases:
 - Gaming
 
 This visual editor will require an external IDE for logical programming, such as Visual Studio Code.
+
+Features:
+
+- Construct runtime styles and nodes from visually-edited styles and nodes. Visually-edited UI components? Might be possible.
 
 ## Additional Platform Detection
 
