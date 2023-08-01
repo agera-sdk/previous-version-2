@@ -29,9 +29,7 @@ Working at temporal:
 - [ ] `temporal::PlainYearMonth`
 - [ ] `temporal::PlainMonthDay`
 - [ ] `temporal::Duration`
-  - Add `From<std::time::Duration>`
-  - Add `Into<std::time::Duration>`
-  - Wraps a `std::time::Duration` and uses `chrono::Duration` for access. It is constructed as `Duration::new()` and chained in various ways like `years(n)` and `months(n)` and things can be accessed like `num_years()`.
+  - Constructed via methods such as `Duration::from_milliseconds()` and things can be accessed like `years()`.
 - [ ] `temporal::TimeZone`
 - [ ] `temporal::Calendar`
 

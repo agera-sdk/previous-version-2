@@ -20,6 +20,8 @@ exec_future(async {
 ```
 */
 
+use crate::incorrect_runtime_panic;
+
 pub use std::future::Future;
 
 /// Executes a future without awaiting for its completion. Its result
