@@ -70,29 +70,33 @@ impl Instant {
             epoch_ms: epoch_ms.into(),
         }
     }
+
+    pub fn try_add(&self, duration: Duration) -> Option<Instant> {
+        Some(Instant { epoch_ms: self.epoch_ms.checked_add(duration.as_millis())? })
+    }
+
+    pub fn try_subtract(&self, duration: Duration) -> Option<Instant> {
+        Some(Instant { epoch_ms: self.epoch_ms.checked_sub(duration.as_millis())? })
+    }
 }
 
 impl Add<Duration> for Instant {
     type Output = Instant;
     fn add(self, rhs: Duration) -> Self::Output {
-        Self { epoch_ms: self.epoch_ms + rhs.as_millis() }
+        Instant { epoch_ms: self.epoch_ms.checked_add(rhs.as_millis()).expect("Overflow when adding duration to instant") }
     }
 }
 
 impl AddAssign<Duration> for Instant {
     fn add_assign(&mut self, rhs: Duration) {
-        self.epoch_ms += rhs.as_millis();
+        self.epoch_ms = self.epoch_ms.checked_add(rhs.as_millis()).expect("Overflow when adding duration to instant");
     }
 }
 
 impl Sub<Duration> for Instant {
     type Output = Instant;
     fn sub(self, rhs: Duration) -> Self::Output {
-        if self.epoch_ms < rhs.as_millis() {
-            Self { epoch_ms: 0 }
-        } else {
-            Self { epoch_ms: self.epoch_ms - rhs.as_millis() }
-        }
+        Instant { epoch_ms: self.epoch_ms.checked_sub(rhs.as_millis()).expect("Overflow when subtracting duration from instant") }
     }
 }
 
@@ -105,7 +109,7 @@ impl Sub<Instant> for Instant {
 
 impl SubAssign<Duration> for Instant {
     fn sub_assign(&mut self, rhs: Duration) {
-        self.epoch_ms -= rhs.as_millis();
+        self.epoch_ms = self.epoch_ms.checked_sub(rhs.as_millis()).expect("Overflow when subtracting duration from instant");
     }
 }
 

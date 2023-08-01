@@ -66,6 +66,20 @@ impl Instant {
     pub fn now() -> Instant {
         Self { inner: platform::Instant::now() }
     }
+
+    /// Adds a duration to the instant, returning a new instant.
+    /// `None` is returned if the resulting instant cannot be
+    /// represented in the host implementation.
+    pub fn try_add(&self, duration: Duration) -> Option<Instant> {
+        Some(Self { inner: self.inner.try_add(duration)? })
+    }
+
+    /// Subtracts a duration from the instant, returning a new instant.
+    /// `None` is returned if the resulting instant cannot be
+    /// represented in the host implementation.
+    pub fn try_subtract(&self, duration: Duration) -> Option<Instant> {
+        Some(Self { inner: self.inner.try_subtract(duration)? })
+    }
 }
 
 impl Add<Duration> for Instant {

@@ -1,20 +1,24 @@
 /*!
-The Rialight runtime uses the asynchronous Tokio runtime internally
-for any platform other than the browser.
+This module targets the Tokio runtime, but there is
+currently no rely on the Tokio runtime.
 */
 
 use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub struct Instant(pub tokio::time::Instant);
+pub struct Instant(std::time::SystemTime);
 
 impl Instant {
     pub fn since(&self, other: Instant) -> Duration {
-        self.0.duration_since(other.0)
+        self.0.duration_since(other.0).unwrap_or(Duration::from_nanos(0))
     }
 
     pub fn now() -> Instant {
-        Self(tokio::time::Instant::now())
+        Instant(std::time::SystemTime::now())
+    }
+
+    pub fn epoch(&self) -> Duration {
+        self.0.duration_since(std::time::SystemTime::UNIX_EPOCH).unwrap_or(Duration::from_nanos(0))
     }
 
     pub fn try_add(&self, duration: Duration) -> Option<Instant> {
@@ -29,49 +33,25 @@ impl Instant {
 impl Add<Duration> for Instant {
     type Output = Instant;
     fn add(self, rhs: Duration) -> Self::Output {
-        Self(self.0 + rhs)
+        Instant(self.0 + rhs)
     }
 }
 
 impl AddAssign<Duration> for Instant {
     fn add_assign(&mut self, rhs: Duration) {
-        self.0 = self.0 + rhs;
+        self.0 += rhs;
     }
 }
 
 impl Sub<Duration> for Instant {
     type Output = Instant;
     fn sub(self, rhs: Duration) -> Self::Output {
-        Self(self.0 - rhs)
-    }
-}
-
-impl Sub<Instant> for Instant {
-    type Output = Duration;
-    fn sub(self, rhs: Instant) -> Self::Output {
-        self.0 - rhs.0
+        Instant(self.0 - rhs)
     }
 }
 
 impl SubAssign<Duration> for Instant {
     fn sub_assign(&mut self, rhs: Duration) {
-        self.0 = self.0 - rhs;
-    }
-}
-
-#[derive(Debug)]
-pub struct Interval(pub tokio::time::Interval);
-
-impl Interval {
-    pub async fn tick(&mut self) -> Duration {
-        crate::futures::not_sendable_async!();
-        let last_tick_instant = tokio::time::Instant::now();
-        self.0.tick().await;
-        tokio::time::Instant::now() - last_tick_instant
-    }
-}
-
-impl Drop for Interval {
-    fn drop(&mut self) {
+        self.0 -= rhs;
     }
 }

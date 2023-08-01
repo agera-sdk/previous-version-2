@@ -2,8 +2,8 @@
 When the Rialight runtime is incorrectly configured.
 */
 
-use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};
 use crate::incorrect_runtime_panic;
+use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant;
@@ -14,6 +14,10 @@ impl Instant {
     }
 
     pub fn now() -> Instant {
+        incorrect_runtime_panic!();
+    }
+
+    pub fn epoch(&self) -> Duration {
         incorrect_runtime_panic!();
     }
 
@@ -46,31 +50,8 @@ impl Sub<Duration> for Instant {
     }
 }
 
-impl Sub<Instant> for Instant {
-    type Output = Duration;
-    fn sub(self, _rhs: Instant) -> Self::Output {
-        incorrect_runtime_panic!();
-    }
-}
-
 impl SubAssign<Duration> for Instant {
     fn sub_assign(&mut self, _rhs: Duration) {
-        incorrect_runtime_panic!();
-    }
-}
-
-#[derive(Debug)]
-pub struct Interval;
-
-impl Interval {
-    pub async fn tick(&mut self) -> Duration {
-        crate::futures::not_sendable_async!();
-        incorrect_runtime_panic!();
-    }
-}
-
-impl Drop for Interval {
-    fn drop(&mut self) {
         incorrect_runtime_panic!();
     }
 }

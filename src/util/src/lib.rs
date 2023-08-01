@@ -23,3 +23,9 @@ pub mod number;
 
 // not initiated or designed:
 // pub mod gc;
+
+pub(crate) macro incorrect_runtime_panic {
+    () => {
+        panic!("Incorrect Rialight runtime configuration");
+    }
+}

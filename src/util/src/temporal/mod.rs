@@ -14,3 +14,8 @@ Several important concepts are explained elsewhere:
 */
 
 pub mod docs;
+
+mod platform;
+
+mod instant;
+pub use instant::Instant;

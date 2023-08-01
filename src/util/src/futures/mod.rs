@@ -46,7 +46,7 @@ where
 {
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
         let _ = future;
-        panic!("Incorrect Rialight runtime configuration");
+        incorrect_runtime_panic!();
     }
     #[cfg(feature = "rialight_default_export")] {
         tokio::task::spawn_local(future);
