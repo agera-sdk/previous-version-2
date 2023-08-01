@@ -48,7 +48,7 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
 - Nodes, the primary way to construct a visual application.
   - The `Node` object is the primary item of the graphics API, which has a limited set of various variants, such as `Rectangle`, `Canvas`, `Button`, `TabBar` and `Modal`. All of them share full customisation and common properties like visibility and transform (including 3D matrix) which are inherited by default from their parent.
     - _Reference:_ A `Node` is a thread-safe reference type that uses reference counting internally. If you need a weak reference to a node, you can downgrade it to a `WeakRefNode`.
-    - _Children:_ The `Node` type supports common child operations. It also supports node paths described later in this list. `node.children()` returns an iterator.
+    - _Children:_ The `Node` type supports common child operations. It also supports node paths described later in this list. `node.children()` returns an iterator. Methods like `append_children` are chainable and accept an iterable.
     - Meta data (optional mapping from `String` to `MetaDataValue` for attaching any data)
       - `pub type MetaDataValue = Box<dyn Any + Send + Sync + Clone>;`
   - _Events_: _They also emit events, accessed as `node.on_some_event().listen(listen_fn)`, such as `on_enter_frame` and `on_click` events.
