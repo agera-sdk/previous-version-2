@@ -95,6 +95,8 @@ where
 }
 
 /// Marks a future as `!Send + !Sync`.
-pub(crate) async fn not_sendable_future() {
-    futures::future::ready(std::marker::PhantomData::<*const ()>::default()).await;
+pub(crate) macro not_sendable_async {
+    () => {
+        futures::future::ready(std::marker::PhantomData::<*const ()>::default()).await;
+    },
 }

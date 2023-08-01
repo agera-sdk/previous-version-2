@@ -55,7 +55,7 @@ pub struct Interval;
 
 impl Interval {
     pub async fn tick(&mut self) -> Duration {
-        crate::futures::not_sendable_future().await;
+        crate::futures::not_sendable_async!();
         panic!("Incorrect Rialight runtime configuration");
     }
 }

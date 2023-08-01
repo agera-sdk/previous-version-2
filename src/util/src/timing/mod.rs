@@ -155,7 +155,7 @@ where
     F: Future<Output = ()> + Send + 'static,
 {
     #[cfg(feature = "rialight_default_export")] {
-        crate::futures::not_sendable_future().await;
+        crate::futures::not_sendable_async!();
         return match tokio::time::timeout(duration, future).await {
             Err(_) => Err(ElapsedError),
             Ok(_) => Ok(()),
@@ -165,7 +165,7 @@ where
         return platform::browser_runtime::timeout(duration, future).await;
     }
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
-        crate::futures::not_sendable_future().await;
+        crate::futures::not_sendable_async!();
         let _ = (duration, future);
         panic!("Incorrectly configured Rialight runtime");
     }
@@ -208,7 +208,7 @@ where
     F: Future<Output = ()> + Send + 'static,
 {
     #[cfg(feature = "rialight_default_export")] {
-        crate::futures::not_sendable_future().await;
+        crate::futures::not_sendable_async!();
         return match tokio::time::timeout_at(deadline.inner.0, future).await {
             Err(_) => Err(ElapsedError),
             Ok(_) => Ok(()),
@@ -218,7 +218,7 @@ where
         return platform::browser_runtime::timeout(deadline.since(Instant::now()), future).await;
     }
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
-        crate::futures::not_sendable_future().await;
+        crate::futures::not_sendable_async!();
         let _ = (deadline, future);
         panic!("Incorrectly configured Rialight runtime");
     }
@@ -257,14 +257,14 @@ where
 /// 
 pub async fn wait(duration: Duration) {
     #[cfg(feature = "rialight_default_export")] {
-        crate::futures::not_sendable_future().await;
+        crate::futures::not_sendable_async!();
         tokio::time::sleep(duration).await;
     }
     #[cfg(feature = "rialight_browser_export")] {
         platform::browser_runtime::wait(duration).await;
     }
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
-        crate::futures::not_sendable_future().await;
+        crate::futures::not_sendable_async!();
         let _ = duration;
         panic!("Incorrectly configured Rialight runtime");
     }
@@ -300,14 +300,14 @@ pub async fn wait(duration: Duration) {
 /// 
 pub async fn wait_until(deadline: Instant) {
     #[cfg(feature = "rialight_default_export")] {
-        crate::futures::not_sendable_future().await;
+        crate::futures::not_sendable_async!();
         tokio::time::sleep_until(deadline.inner.0).await;
     }
     #[cfg(feature = "rialight_browser_export")] {
         platform::browser_runtime::wait(deadline.since(Instant::now())).await;
     }
     #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))] {
-        crate::futures::not_sendable_future().await;
+        crate::futures::not_sendable_async!();
         let _ = deadline;
         panic!("Incorrectly configured Rialight runtime");
     }
