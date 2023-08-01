@@ -103,7 +103,14 @@ impl Node {
   - _Sizing:_ A node can have a size variant: none, full and specific (given measurement units). Nodes whose position is not _derived_ often need to specify a size variant, otherwise they may not be displayed.
   - _Not covered here yet:_ Alignment, minimum sizing and maybe more.
 - Skins
-  - Nodes share skins. Skins are inherited by default. Skins describe styles, style transitions and some behaviors.
+  - Nodes share skins. Skins are inherited by default if a node's skin is `None`. Every application has a default skin that applies to the root node. Skins describe styles, style transitions and some behaviors.
+```rust
+// get_skin() and set_skin() work across all nodes,
+// even if a specific node kind doesn't need a skin,
+// such as `Column` and `Row`. the specified skin
+// is **inherited** by children.
+node.set_skin(Some(custom_skin));
+```
   - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
   - Skins are described in Rust code.
   - _RenderingTarget:_ The `RenderingTarget` can be constructed manually, however the application comes with its own.
