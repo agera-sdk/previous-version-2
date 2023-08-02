@@ -23,6 +23,7 @@ Working at temporal:
 - [ ] Types with addition and subtraction also implement `(Add|Sub)Assign` (`+=` and `-=`)
 - [ ] `temporal::Instant`
 - [ ] `temporal::ZonedDateTime`
+  - Can be constructed with an options object. Implement `Default` for it.
 - [ ] `temporal::PlainDate`
 - [ ] `temporal::PlainTime`
 - [ ] `temporal::PlainDateTime`
@@ -31,6 +32,7 @@ Working at temporal:
 - [ ] `temporal::Duration`
   - Constructed via methods such as `Duration::from_milliseconds()` and things can be accessed like `years()`.
 - [ ] `temporal::TimeZone`
+  - For string conversion (`ToString`), consider using the `Display` trait which `Chrono` implements.
 - [ ] `temporal::Calendar`
 
 Working at file system:

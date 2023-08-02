@@ -6,7 +6,7 @@ pub struct Instant {
 }
 
 impl Instant {
-    pub const EPOCH: Instant = Instant(0);
+    pub const EPOCH: Instant = Instant { epoch_ms: 0 };
 
     pub fn since(&self, other: Instant) -> Duration {
         if self.epoch_ms < other.epoch_ms { Duration::from_nanos(0) } else { Duration::from_millis((self.epoch_ms - other.epoch_ms).try_into().unwrap_or(u64::MAX)) }
@@ -54,5 +54,17 @@ impl Sub<Duration> for Instant {
 impl SubAssign<Duration> for Instant {
     fn sub_assign(&mut self, rhs: Duration) {
         self.epoch_ms = self.epoch_ms.checked_sub(rhs.as_millis()).expect("Overflow when subtracting duration from instant");
+    }
+}
+
+#[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub struct ZonedDateTimeInner {
+    m_epoch: crate::temporal::Duration,
+    m_tz_offset_minutes: i32,
+}
+
+impl ZonedDateTimeInner {
+    pub fn epoch(&self) -> crate::temporal::Duration {
+        self.m_epoch - crate::temporal::Duration::from_minutes(self.m_tz_offset_minutes.into())
     }
 }

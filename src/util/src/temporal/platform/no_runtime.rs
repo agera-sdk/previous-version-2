@@ -57,3 +57,12 @@ impl SubAssign<Duration> for Instant {
         incorrect_runtime_panic!();
     }
 }
+
+#[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub struct ZonedDateTimeInner;
+
+impl ZonedDateTimeInner {
+    pub fn epoch(&self) -> crate::temporal::Duration {
+        incorrect_runtime_panic!();
+    }
+}

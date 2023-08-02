@@ -1,4 +1,4 @@
-use super::{platform, Duration};
+use super::{platform, Duration, ZonedDateTime};
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -29,6 +29,12 @@ impl Instant {
             return self.try_add(duration.abs());
         }
         Some(Self { inner: self.inner.try_subtract(duration.try_into().ok()?)? })
+    }
+}
+
+impl From<ZonedDateTime> for Instant {
+    fn from(value: ZonedDateTime) -> Self {
+        Self::from_epoch(value.epoch())
     }
 }
 

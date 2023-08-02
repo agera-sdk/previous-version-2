@@ -57,3 +57,16 @@ impl SubAssign<Duration> for Instant {
         self.0 -= rhs;
     }
 }
+
+#[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
+pub enum ZonedDateTimeInner {
+    UtcTz(chrono::DateTime<chrono::Utc>),
+}
+
+impl ZonedDateTimeInner {
+    pub fn epoch(&self) -> crate::temporal::Duration {
+        match self {
+            ZonedDateTimeInner::UtcTz(dt) => crate::temporal::Duration::from_milliseconds(dt.timestamp_millis()),
+        }
+    }
+}
