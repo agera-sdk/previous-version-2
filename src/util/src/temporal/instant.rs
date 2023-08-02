@@ -1,4 +1,4 @@
-use super::{platform, Duration, ZonedDateTime, RangeError, TimeZone, Calendar, ZonedDateTimeOptions};
+use super::{platform, Duration, ZonedDateTime, RangeError, TimeZone, Calendar, ZonedDateTimeOptions, zoned_date_time::ZonedDateTimeInner};
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -15,15 +15,15 @@ impl Instant {
         self.inner.epoch().try_into().expect("Overflow on taking instant epoch duration")
     }
 
-    pub fn to_zoned_date_time_iso(&self, timezone: TimeZone) -> ZonedDateTime {
+    pub fn to_zoned_date_time_iso(&self, timezone: TimeZone) -> Result<ZonedDateTime, RangeError> {
         self.to_zoned_date_time(timezone, Calendar::Iso8601)
     }
 
-    pub fn to_zoned_date_time(&self, timezone: TimeZone, calendar: Calendar) -> ZonedDateTime {
+    pub fn to_zoned_date_time(&self, timezone: TimeZone, calendar: Calendar) -> Result<ZonedDateTime, RangeError> {
         match calendar {
-            Calendar::Iso8601 => ZonedDateTime::from(ZonedDateTimeOptions {
+            Calendar::Iso8601 => Ok(ZonedDateTime {
                 calendar,
-                Some(timezone),
+                inner: ZonedDateTimeInner::UtcTz(chrono::DateTime::<chrono::Utc>::from_utc(chrono::naive::NaiveDateTime::from_timestamp_millis(self.epoch().milliseconds()).ok_or(RangeError)?, offset)),
             }),
         }
     }

@@ -1,6 +1,6 @@
 [package]
 name = "rialight_filesystem"
-version = "2.0.0"
+version = "1.5.0"
 edition = "2021"
 authors = ["hydroper <matheusdiasdesouzads@gmail.com>"]
 repository = "https://github.com/rialight/api"
@@ -14,5 +14,11 @@ rialight_prelude = { path = "../prelude" }
 rialight_util = { path = "../util" }
 
 [features]
-rialight_default_export = ["rialight_prelude/rialight_default_export"]
-rialight_browser_export = ["rialight_util/rialight_browser_export"]
+rialight_default_export = [
+    "rialight_util/rialight_default_export",
+    "rialight_prelude/rialight_default_export",
+]
+rialight_browser_export = [
+    "rialight_util/rialight_browser_export",
+    "rialight_prelude/rialight_browser_export",
+]

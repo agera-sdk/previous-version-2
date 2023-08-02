@@ -10,12 +10,15 @@ description = "Rialight API."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+rialight_prelude = { path = "../prelude" }
 rialight_util = { path = "../util" }
 
 [features]
 rialight_default_export = [
+    "rialight_prelude/rialight_default_export",
     "rialight_util/rialight_default_export",
 ]
 rialight_browser_export = [
+    "rialight_prelude/rialight_browser_export",
     "rialight_util/rialight_browser_export",
 ]

@@ -338,6 +338,7 @@ The `rialight::prelude` crate can be used to include commonly used things in sco
   - `Map` and `Set` as aliases to `HashMap` an `HashSet`
   - Types for concurrency and reference counted boxes
 - Map and Set Collections that use a hash algorithm (same from the standard library, `std::collections`)
+  - Some more
 - Collection Literals
 - Regular expressions
 - Bitwise Flags

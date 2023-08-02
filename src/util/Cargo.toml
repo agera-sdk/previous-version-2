@@ -1,6 +1,6 @@
 [package]
 name = "rialight_util"
-version = "2.0.0"
+version = "1.7.0"
 edition = "2021"
 authors = ["hydroper <matheusdiasdesouzads@gmail.com>"]
 repository = "https://github.com/rialight/api"

@@ -96,41 +96,9 @@ When futurely working in the CLI:
 - `rialight export`
   - Pass the feature `rialight_default_export` to `cargo run` internally for a non-browser export
 
-## When futurely working in the attribute macros `rialight::main` and `rialight::build_main`
+## When futurely working in the macros `rialight::main` and `rialight::build_script`
 
-The asynchronous runtime looks like this in `feature = "rialight_default_export"`:
-
-```rust
-#[tokio::main]
-async fn main() {
-    let local_task_set = tokio::task::LocalSet::new();
-    local_task_set.run_until(async move {
-        // async code goes here
-    }).await;
-}
-```
-
-The asynchronous runtime looks like this in `feature = "rialight_browser_export"`:
-
-```rust
-#[wasm_bindgen]
-fn main() {
-    wasm_bindgen_futures::spawn_local(async move {
-        // async code goes here
-    });
-}
-```
-
-The asynchronous runtime looks like this when `not(any(feature = "rialight_default_export", feature = "rialight_browser_export"))`:
-
-```rust
-fn main() {
-    panic!("Incorrect Rialight runtime configuration. \
-            If you are running a Cargo command to build \
-            your application, you must always instead use \
-            a Rialight command to build it.");
-}
-```
+The base `rialight::main` method is already implemented at `rialight::util::runtime::main`.
 
 ## Web Browser Tasks
 

@@ -75,7 +75,7 @@ impl Default for ZonedDateTimeOptions {
 }
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
-pub enum ZonedDateTimeInner {
+pub(crate) enum ZonedDateTimeInner {
     UtcTz(chrono::DateTime<chrono::Utc>),
 }
 
