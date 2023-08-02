@@ -17,6 +17,7 @@ members = [
     "src/media",
     "src/net",
     "src/prelude",
+    "src/rialight",
     "src/security",
     "src/sound",
     "src/ui",

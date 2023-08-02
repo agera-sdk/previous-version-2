@@ -1,3 +1,7 @@
+/*!
+Code used for the Rialight runtime.
+*/
+
 /// Initialises the Rialight runtime, executing
 /// the application entry point.
 /// 
