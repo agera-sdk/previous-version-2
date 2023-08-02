@@ -14,7 +14,7 @@ impl Instant {
     pub const EPOCH: Instant = Instant(std::time::SystemTime::UNIX_EPOCH);
 
     pub fn since(&self, other: Instant) -> Duration {
-        self.0.duration_since(other.0).unwrap_or(Duration::from_nanos(0))
+        self.0.duration_since(other.0).unwrap_or(Duration::from_millis(0))
     }
 
     pub fn now() -> Instant {
@@ -22,7 +22,7 @@ impl Instant {
     }
 
     pub fn epoch(&self) -> Duration {
-        self.0.duration_since(std::time::SystemTime::UNIX_EPOCH).unwrap_or(Duration::from_nanos(0))
+        self.0.duration_since(std::time::SystemTime::UNIX_EPOCH).unwrap_or(Duration::from_millis(0))
     }
 
     pub fn try_add(&self, duration: Duration) -> Option<Instant> {

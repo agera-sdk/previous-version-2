@@ -32,7 +32,7 @@ Working at temporal:
 - [ ] `temporal::Duration`
   - Constructed via methods such as `Duration::from_milliseconds()` and things can be accessed like `years()`.
 - [ ] `temporal::TimeZone`
-  - For string conversion (`ToString`), consider using the `Display` trait which `Chrono` implements.
+  - Consider implementing the `Display` trait which `Chrono` implements.
 - [ ] `temporal::Calendar`
 - [ ] Implement `Display` for every type
 

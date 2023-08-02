@@ -1,4 +1,4 @@
-use super::{platform, Duration, ZonedDateTime, RangeError, TimeZone, Calendar, ZonedDateTimeOptions, zoned_date_time::ZonedDateTimeInner};
+use super::{platform, Duration, ZonedDateTime, RangeError, TimeZone, Calendar, ZonedDateTimeOptions};
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -23,9 +23,17 @@ impl Instant {
         match calendar {
             Calendar::Iso8601 => Ok(ZonedDateTime {
                 calendar,
-                inner: ZonedDateTimeInner::UtcTz(chrono::DateTime::<chrono::Utc>::from_utc(chrono::naive::NaiveDateTime::from_timestamp_millis(self.epoch().milliseconds()).ok_or(RangeError)?, offset)),
+                inner: chrono::DateTime::<chrono_tz::Tz>::from_utc(chrono::naive::NaiveDateTime::from_timestamp_millis(self.epoch().milliseconds()).ok_or(RangeError)?, timezone.0),
             }),
         }
+    }
+
+    pub fn since(&self, other: Instant) -> Duration {
+        self.inner.since(other.inner).try_into().unwrap()
+    }
+
+    pub fn until(&self, other: Instant) -> Duration {
+        other.inner.since(self.inner).try_into().unwrap()
     }
 
     /// Adds a duration to the instant, returning a new instant.
