@@ -5,6 +5,8 @@ currently no rely on the Tokio runtime.
 
 use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};
 
+use crate::temporal::RangeError;
+
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct Instant(std::time::SystemTime);
 
@@ -58,6 +60,7 @@ impl SubAssign<Duration> for Instant {
     }
 }
 
+/*
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub enum ZonedDateTimeInner {
     UtcTz(chrono::DateTime<chrono::Utc>),
@@ -70,3 +73,11 @@ impl ZonedDateTimeInner {
         }
     }
 }
+
+impl TryFrom<&str> for ZonedDateTimeInner {
+    type Error = RangeError;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        Ok(ZonedDateTimeInner::UtcTz(<chrono::DateTime::<chrono::Utc> as std::str::FromStr>::from_str(value).or(Err(RangeError))?))
+    }
+}
+*/

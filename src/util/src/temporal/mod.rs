@@ -13,9 +13,9 @@ Several important concepts are explained elsewhere:
 [exact time, wall-clock time, time zones, DST, handling ambiguity, and more][docs::ambiguity].
 */
 
-pub mod docs;
-
 mod platform;
+
+pub mod docs;
 
 mod instant;
 pub use instant::Instant;

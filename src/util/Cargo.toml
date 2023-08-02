@@ -38,6 +38,7 @@ rialight_default_export = [
 
 # browser export only dependencies
 rialight_browser_export = [
+    "chrono/wasmbind",
     "js-sys",
     "web-sys",
     "wasm-bindgen",

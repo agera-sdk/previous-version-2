@@ -1,4 +1,4 @@
-use super::{platform, Duration, ZonedDateTime};
+use super::{platform, Duration, ZonedDateTime, RangeError};
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -35,6 +35,13 @@ impl Instant {
 impl From<ZonedDateTime> for Instant {
     fn from(value: ZonedDateTime) -> Self {
         Self::from_epoch(value.epoch())
+    }
+}
+
+impl TryFrom<&str> for Instant {
+    type Error = RangeError;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        Ok(Self::from(ZonedDateTime::try_from(value)?))
     }
 }
 

@@ -15,7 +15,7 @@ pub use code_points_reader::CodePointsReader;
 /// The `StringIncognitoFormat` trait allows formatting string parameters
 /// of arbitrary name that is computed at runtime.
 ///
-/// `StringIncognitoFormat` is implemented for the `String` type by default.
+/// `StringIncognitoFormat` is implemented for the `String` and `&str` types by default.
 ///
 /// The formatting syntax accepts curly brackets forms:
 /// 
@@ -54,7 +54,7 @@ pub trait StringIncognitoFormat {
     fn incognito_format(&self, arguments: Map<String, String>) -> String;
 }
 
-impl StringIncognitoFormat for String {
+impl StringIncognitoFormat for &str {
     fn incognito_format(&self, arguments: Map<String, String>) -> String {
         reg_exp_replace_all!(
             r#"(?x)
@@ -63,7 +63,7 @@ impl StringIncognitoFormat for String {
                 ("([^\u{22}])*")          # escaped
             )\s*\}
             "#,
-            self.as_ref(),
+            self,
             |_, s: &str, _, _, _| {
                 if s.starts_with('"') {
                     return s[1..s.len() - 1].to_owned().clone();
@@ -71,6 +71,12 @@ impl StringIncognitoFormat for String {
                 arguments.get(s).map_or("None".to_owned(), |v| v.clone())
             }
         ).into_owned()
+    }
+}
+
+impl StringIncognitoFormat for String {
+    fn incognito_format(&self, arguments: Map<String, String>) -> String {
+        self.as_str().incognito_format(arguments)
     }
 }
 

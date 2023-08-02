@@ -34,6 +34,7 @@ Working at temporal:
 - [ ] `temporal::TimeZone`
   - For string conversion (`ToString`), consider using the `Display` trait which `Chrono` implements.
 - [ ] `temporal::Calendar`
+- [ ] Implement `Display` for every type
 
 Working at file system:
 

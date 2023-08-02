@@ -2,7 +2,7 @@
 When the Rialight runtime is incorrectly configured.
 */
 
-use crate::incorrect_runtime_panic;
+use crate::{incorrect_runtime_panic, temporal::RangeError};
 use std::{time::Duration, ops::{Add, AddAssign, Sub, SubAssign}};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -58,6 +58,7 @@ impl SubAssign<Duration> for Instant {
     }
 }
 
+/*
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
 pub struct ZonedDateTimeInner;
 
@@ -66,3 +67,11 @@ impl ZonedDateTimeInner {
         incorrect_runtime_panic!();
     }
 }
+
+impl TryFrom<&str> for ZonedDateTimeInner {
+    type Error = RangeError;
+    fn try_from(value: &str) -> Result<Self, Self::Error> {
+        incorrect_runtime_panic!();
+    }
+}
+*/
