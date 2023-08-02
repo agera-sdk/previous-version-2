@@ -1,4 +1,4 @@
-use super::{platform, Duration, ZonedDateTime, RangeError};
+use super::{platform, Duration, ZonedDateTime, RangeError, TimeZone, Calendar, ZonedDateTimeOptions};
 use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 #[derive(Copy, Clone, Debug, Eq, Ord, PartialEq, PartialOrd, Hash)]
@@ -9,6 +9,23 @@ pub struct Instant {
 impl Instant {
     pub fn from_epoch(epoch_duration: Duration) -> Self {
         Self { inner: platform::Instant::EPOCH + epoch_duration.try_into().expect("Called temporal::Instant::from_epoch() with a duration out of range") }
+    }
+
+    pub fn epoch(&self) -> Duration {
+        self.inner.epoch().try_into().expect("Overflow on taking instant epoch duration")
+    }
+
+    pub fn to_zoned_date_time_iso(&self, timezone: TimeZone) -> ZonedDateTime {
+        self.to_zoned_date_time(timezone, Calendar::Iso8601)
+    }
+
+    pub fn to_zoned_date_time(&self, timezone: TimeZone, calendar: Calendar) -> ZonedDateTime {
+        match calendar {
+            Calendar::Iso8601 => ZonedDateTime::from(ZonedDateTimeOptions {
+                calendar,
+                Some(timezone),
+            }),
+        }
     }
 
     /// Adds a duration to the instant, returning a new instant.

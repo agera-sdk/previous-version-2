@@ -27,7 +27,7 @@ mod error;
 pub use error::RangeError;
 
 mod zoned_date_time;
-pub use zoned_date_time::ZonedDateTime;
+pub use zoned_date_time::{ZonedDateTime, ZonedDateTimeOptions};
 
 mod timezone;
 pub use timezone::TimeZone;
