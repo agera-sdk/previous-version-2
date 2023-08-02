@@ -67,6 +67,8 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
     - _Building nodes:_ All node kinds are constructed given a callback that takes the node kind itself as `Arc<K>`. This allows writing `K::new(|k| k.set_something(v).set_some_other(v))` instead of `K::new().to::<K>().set_something(v).set_some_other(v)`, not to count that the latter will discard the returned `Node`, being useless. Also, since the kind constructors return a `Node`, you're also able to chain base `Node` methods.
     - _Markup:_ building nodes is normally possible via `::new`, however it'd be nice to have a macro like follows for use in reactive components (`markup!`):
       - https://users.rust-lang.org/t/generic-markup-macro/97830
+      - Use a procedural macro for this: https://doc.rust-lang.org/reference/procedural-macros.html
+        - UI components must define attributes through `set_` prefixed methods and their rendered node must contain a `NodeOutlet`, which is a node that is replaced by child nodes from the markup.
       - `<Svg src="path"/>` would work like `Svg::from_file`.
     - _Button:_ The `Button` node kind has variants, such as `primary()`, `secondary()` and `warning()`.
       - Highly-customized buttons are often created as user UI components.
@@ -79,6 +81,7 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
         - If the size isn't near the size of any of the existing bitmap caches and the limit of caches is reached, no new bitmap cache is created and the nearest-size cache is used, yielding a blinear resized bitmap.
         - If the size is near to any of the existing bitmap caches, that cache is used, yielding a blinear resized bitmap.
         - If the size is not near to any of the existing bitmap caches and the limit of caches has not been reached yet, create a new bitmap cache by rendering the SVG again.
+    - _NodeOutlet:_ The `NodeOutlet` node kind represents an empty node that meant to be replaced by other nodes. It is used, for instance, by the `markup!` macro for user UI components.
   - _Very specific properties:_ Very specific properties from node kinds are often manipulated after a `.to::<SpecificNodeKind>` conversion.
   - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and an union of node kinds (each kind is stored in an `Arc`).
   - _Chaining:_ Most of the `Node` methods, such as `set_visibility`, are chainable, returning a clone of the node's reference. Node kinds also have chainable methods. These methods are defined similiarly to:
