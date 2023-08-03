@@ -149,13 +149,13 @@ lazy_static! {
 
 #### Graphics Markup and Custom Nodes
 
-Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-macros.html) that facilitate defining nodes and custom UI components. For example, `define_node!` generates a separate internal `KKindData` structure, which is contained by `K` (node kind) itself. `K` contains (_base_, _data_). `K::new()` constructs an empty `K`. `K` inherits `NodeKind`, inheriting everything from _base_ (such as `set_skin` and `parent()`). _data_ is an `Arc<KKindData>`.
+Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-macros.html) that facilitate defining nodes and custom UI components. For example, `define_node!` generates a separate internal `KKindData` structure, which is contained by `K` (node kind) itself. `K` contains (_base_, _data_). `K::new()` constructs an empty `K`. `K` implements `NodeKind`, inheriting everything from _base_ (such as `set_skin` and `parent()`). _data_ is an `Arc<KKindData>`.
 
 Syntax:
 
 - `define_node!` is given field-like attributes somewhere, aggregating to a `struct` and automatically aggregating `set_` prefixed methods to `impl K`. There might be support for specifying `set_` methods explicitly too if special processing of the attribute value is desired.
 
-It makes sense for UI components to be nodes, therefore `UiComponent` inherits `NodeKind`. They are defined with a similiar macro `define_ui_component!`.
+It makes sense for UI components to be nodes, therefore `UiComponent` implements `NodeKind`. They are defined with a similiar macro `define_ui_component!`.
 
 Ideally there'll be three macros: `markup!`, `define_node!` and `define_ui_component!`.
 
@@ -187,7 +187,7 @@ The UI API, `rialight::ui`.
   - An UI component may use graphics nodes from the graphics API, `rialight::graphics`. Inclusively, it is already a node too.
   - _Reactive_ data can be shared across all UI components. There may be a proper API for that. In that case, when a state changes, it causes parts of a component that use that state to render again.
 
-UI components are graphical nodes, since `UiComponent` inherits `NodeKind`. They are usually defined with `define_ui_component!`, which is similiar to `define_node!`.
+UI components are graphical nodes, since `UiComponent` implements `NodeKind`. They are usually defined with `define_ui_component!`, which is similiar to `define_node!`.
 
 ### File System
 
