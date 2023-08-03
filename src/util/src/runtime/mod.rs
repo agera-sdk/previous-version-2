@@ -38,10 +38,12 @@ pub macro main {
 
         #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))]
         fn main() {
-            panic!("Incorrect Rialight runtime configuration. \
-                    If you are running a Cargo command to build or run \
-                    your application, you must always instead use \
-                    a Rialight command to build or run it.");
+            compile_error!("Incorrect Rialight runtime configuration..");
+        }
+
+        #[cfg(all(feature = "rialight_default_export", feature = "rialight_browser_export"))]
+        fn main() {
+            compile_error!("Incorrect Rialight runtime configuration..");
         }
     },
 }

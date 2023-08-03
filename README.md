@@ -25,21 +25,19 @@ The project templates share common functionality, including translation resource
 
 There is always a build script, `build.rs`, at the root of the project, which uses an empty function with a `#[rialight::build_main]` attribute. It is used internally by Rialight, but you don't need to touch it.
 
-The `Cargo.toml` file contains a `package.metadata.rialight` section, which contains configuration for the Rialight application.
+The `Cargo.toml` file contains a `package.metadata.rialight` section, which contains configuration for the Rialight application, contains `features.default = ["rialight_default_export"]` and it also passes two features to the `rialight` crate to indicate whether the build target is the browser or not. You don't need to touch this.
 
 ### Debugging and Exporting
 
 Exporting a project should bundle its assets files into the installer, which can be later retrieved through the File API using an `app:` URI.
 
-Rialight uses the Rust's package manager that comes with its installation, however you mustn't use `cargo run` to debug your application as it needs passing a feature to Cargo. You can debug with `rialight run` or `rialight debug`.
+Rialight uses the Rust's package manager that comes with its installation, Cargo. You can debug either with Cargo or the Rialight command interface, through `rialight run` or `rialight debug`.
 
 To export your application, use a Rialight command such as:
 
 ```
 rialight export --platform browser
 ```
-
-If you simply try using aa Cargo command instead to export your application, the runtime will panic during initialization.
 
 ### Graphics
 
