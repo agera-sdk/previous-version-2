@@ -57,9 +57,6 @@ When futurely working on graphical nodes:
 
 - Provide the types `Node` and `WeakRefNode`. Inside `Node` is stored an internal `Arc<NonRefNode>` and inside `WeakRefNode` is an internal `Weak<Gc<NonRefNode>>` to which it dereferences.
 - The parent is stored as a `WeakRefNode` internally.
-- Store a node kind in a `Node` behind an `Arc`, inside an union containing other node kinds.
-- Node methods such as `is`, `to` and `try_into` receive a type that implements `NodeKind`, which requires a `reference_cast` method.
-  - `NodeKind` is implemented like this: https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=a3ea4bfb55e336e19d4ead0a2e61e30d
 - The equality operator compares by reference (`Arc::ptr_eq`) and the clone method clones the reference (`Arc::clone`). _Do not_ use `#[derive(Clone)]`; implement it manually to make sure no content is cloned:
 ```rust
 impl Clone for Node {

@@ -159,7 +159,7 @@ It makes sense for UI components to be nodes, therefore `UiComponent` inherits `
 
 Ideally there'll be three macros: `markup!`, `define_node!` and `define_ui_component!`.
 
-### How Nodes Are Implemented
+#### How Nodes Are Implemented
 
 - `Node` contains an `Arc<NonRefNode>`
 - `NonRefNode` contains common fields and the stores the actual node kind data as `Arc<dyn Any>`.
