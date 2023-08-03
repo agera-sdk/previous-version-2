@@ -62,15 +62,22 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
   - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind and `node.to::<NodeKind>` performs a conversion for accessing very specific properties. `node.to()` returns an `Arc<SpecificNodeKind>`. `node.try_into::<K>()` can be used to convert optionally. Every node kind implements `NodeKind`, and Rialight implements `NodeKind` as well for custom UI components (it includes a `reference_cast` method that results into an `Option<Arc<K>>`, which is used by the general `Node` type itself).
     - _Children:_ Any node can contain other child nodes. For instance, a button can contain further content inside, whether label, SVG or anything.
     - _Focus:_ Any node that supports focus can be focused by default. This can be disabled for a specific node through `set_focusable()`.
-    - _Building nodes:_ `K::new()` constructs an empty node. Although property and children addition methods are chainable, you can use `markup!` to build nodes appropriately. How it looks like: https://users.rust-lang.org/t/generic-markup-macro/97830
+    - _Building nodes:_ `K::new()` constructs an empty node. Although property and children addition methods are chainable, you can use `markup!` to build nodes appropriately. How it looks like:
+```rust
+markup!(
+    <Button>
+        <Svg src="app://res/img/foo.svg"/>
+        { iterable }
+        <Row></Row>
+    </Button>
+)
+```
       - Custom UI components can contain a `NodeOutlet`, which is a node that is replaced by input child nodes.
-      - `<Svg src="path"/>` would work like `Svg::from_file`.
     - _Button:_ The `Button` node kind has variants, such as `primary()`, `secondary()` and `warning()`.
       - Highly-customized buttons are often created as user UI components.
     - _Bitmap:_ The `Bitmap` node kind identifies a pixel grid including transparency. It is optimized and uses different representations inside (like RGB, RGBA and maybe more targetting the GPU).
     - _Svg:_ The `Svg` node kind represents scalable vector graphics, specifically the SVG file format. It can be configured to use RGBA bitmap caching (`use_bitmap_cache`) at any size.
-      - `Svg::from_file`
-        - This method constructs a `Svg` directly from a file (as if by using `File::new(path).read_utf8_sync().unwrap()`). This is often used for loading `app:` SVG resources. It panics if loading fails for any reason.
+      - `set_src` takes a file string supported by `File` from the file system API. It can also take a base-64 `data:` URL.
       - Bitmap caching is clever and will generate a limited amount of bitmap caches.
         - The limit of caches could be something like 7.
         - If the size isn't near the size of any of the existing bitmap caches and the limit of caches is reached, no new bitmap cache is created and the nearest-size cache is used, yielding a blinear resized bitmap.
@@ -153,7 +160,7 @@ Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-ma
 
 Syntax:
 
-- `define_node!` is given field-like attributes somewhere, aggregating to a `struct` and automatically aggregating `set_` prefixed methods to `impl K`. There might be support for specifying `set_` methods explicitly too if special processing of the attribute value is desired.
+- `define_node!` is given field-like attributes somewhere, aggregating to a `struct` and automatically aggregating `set_` prefixed methods to `impl K`. There must be support for specifying `set_` methods explicitly too if special processing of the attribute value is desired (this is common, including for `Svg`'s `src`, which is not a field in fact).
 
 It makes sense for UI components to be nodes, therefore `UiComponent` implements `NodeKind`. They are defined with a similiar macro `define_ui_component!`.
 
