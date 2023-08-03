@@ -178,7 +178,7 @@ Ideally there'll be three macros: `markup!`, `define_node!` and `define_ui_compo
 - `K` will have a `#[derive(Copy)]` attribute and a `Clone` implementation that clones the (_base_, _data_) by reference.
 - Chainable `set_` methods all return `K`, not `&K`
 - `NodeKind` will implement `Into<Node>`, evaluating to _base_ (the kind as the `Node` type).
-- `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`KKindData`).
+- `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`KKindData`). This involves using `Arc::downcast::<KKindData>`.
 - The `markup!` macro will build nodes using something like `let node: Node = K::new().into(); node`, chaining `set_` methods after `::new()`
 
 ### 3D Graphics
