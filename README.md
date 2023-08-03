@@ -23,7 +23,7 @@ When using the `rialight` command, you create new projects instantly:
 
 The project templates share common functionality, including translation resources which use the [Fluent syntax](https://projectfluent.org).
 
-There is always a build script, `build.rs`, at the root of the project, which uses an empty function with a `#[rialight::build_main]` attribute. It is used internally by Rialight, but you don't need to touch it.
+There is always a build script, `build.rs`, at the root of the project, which uses an empty `rialight::build_main!({ /* your build script */ });`. It is used internally by Rialight, but you don't need to touch it.
 
 The `Cargo.toml` file contains a `package.metadata.rialight` section, which contains configuration for the Rialight application, contains `features.default = ["rialight_default_export"]` and it also passes two features to the `rialight` crate to indicate whether the build target is the browser or not. You don't need to touch this.
 
