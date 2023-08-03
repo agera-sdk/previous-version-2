@@ -44,7 +44,7 @@ rialight export --platform browser
 The `rialight::graphics` and `rialight::ui` APIs co-work together.
 
 - Nodes, the primary way to construct a visual application.
-  - The `Node` object is the primary item of the graphics API, which has various variants, such as `Rectangle`, `Canvas`, `Button`, `TabBar` and `Modal`. All of them share full customisation and common properties like visibility and transform (including 3D matrix) which are inherited by default from their parent.
+  - The `Node` object is the primary item of the graphics API, which has various variants, such as `Rectangle`, `Canvas`, `Button`, `TabBar` and `Modal`. All of them share full customisation and common properties like visibility, skin and transform (including 3D matrix) which are inherited by default from their parent.
     - _Reference:_ A `Node` is a thread-safe reference type that uses reference counting internally. If you need a weak reference to a node, you can downgrade it to a `WeakRefNode`.
     - _Children:_ The `Node` type supports common child operations. It also supports node paths described later in this list. `node.children()` returns an iterator. Methods like `append_children` are chainable and accept an iterable.
     - Meta data (optional mapping from `String` to `MetaDataValue` for attaching any data)
@@ -59,18 +59,11 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
   - _Finding nodes_: The most common method for finding nodes by identifier is `by_path`, which accepts a node path.
   - _Node paths:_ Node paths are paths using the slash (`/`) separator and `..` and `.` portions. A `..` portion resolves to the parent and a `.` portion resolves to the current node. If a node path is absolute, that is, it starts with a path separator, it resolves a node relative to the topmost parent.
     - `node.get_path()` returns the absolute node path.
-  - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind and `node.to::<NodeKind>` performs a conversion for accessing very specific properties. `node.to()` returns an `Arc<SpecificNodeKind>`. `node.try_into::<K>()` can be used to convert optionally. Calling `Button::new` returns a `Node`, not `Button`; `Button` is part of `Node`. Every node kind implements `NodeKind`, allowing for custom node kinds, for special cases (it requires the `reference_cast` method that results into an `Option<Arc<K>>`).
-    - _Composition:_ Any node contain another node. For instance, a button can contain further content inside, whether label, SVG or anything.
+  - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind and `node.to::<NodeKind>` performs a conversion for accessing very specific properties. `node.to()` returns an `Arc<SpecificNodeKind>`. `node.try_into::<K>()` can be used to convert optionally. Every node kind implements `NodeKind`, and Rialight implements `NodeKind` as well for custom UI components (it includes a `reference_cast` method that results into an `Option<Arc<K>>`, which is used by the general `Node` type itself).
+    - _Children:_ Any node can contain other child nodes. For instance, a button can contain further content inside, whether label, SVG or anything.
     - _Focus:_ Any node that supports focus can be focused by default. This can be disabled for a specific node through `set_focusable()`.
-    - _Building nodes:_ All node kinds are constructed given a callback that takes the node kind itself as `Arc<K>`. This allows writing `K::new(|k| k.set_something(v).set_some_other(v))` instead of `K::new().to::<K>().set_something(v).set_some_other(v)`, not to count that the latter will discard the returned `Node`, being useless. Also, since the kind constructors return a `Node`, you're also able to chain base `Node` methods.
-    - _Markup:_ building nodes is normally possible via `::new`, but you can also use `markup!`:
-      - Use a procedural macro for this: https://doc.rust-lang.org/reference/procedural-macros.html
-      - Initial idea: https://users.rust-lang.org/t/generic-markup-macro/97830
-      - Logic of procedural macros: idea:
-        - https://github.com/rust-lang/rfcs/pull/3468#issuecomment-1664408841
-        - To use an UI component within markup, the following must hold:
-          - It must implement `Markup` defining attributes through `set_` prefixed methods. `Markup` also inherits `Node` attributes.
-        - User components can contain a `NodeOutlet`, which is a node that is replaced by input child nodes.
+    - _Building nodes:_ `K::new()` constructs an empty node. Although property and children addition methods are chainable, you can use `markup!` to build nodes appropriately. How it looks like: https://users.rust-lang.org/t/generic-markup-macro/97830
+      - Custom UI components can contain a `NodeOutlet`, which is a node that is replaced by input child nodes.
       - `<Svg src="path"/>` would work like `Svg::from_file`.
     - _Button:_ The `Button` node kind has variants, such as `primary()`, `secondary()` and `warning()`.
       - Highly-customized buttons are often created as user UI components.
@@ -85,7 +78,7 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
         - If the size is not near to any of the existing bitmap caches and the limit of caches has not been reached yet, create a new bitmap cache by rendering the SVG again.
     - _NodeOutlet:_ The `NodeOutlet` node kind represents an empty node that meant to be replaced by other nodes. It is used, for instance, by the `markup!` macro for user UI components.
   - _Very specific properties:_ Very specific properties from node kinds are often manipulated after a `.to::<SpecificNodeKind>` conversion.
-  - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and an union of node kinds (each kind is stored in an `Arc`).
+  - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and a `Arc<dyn Any>` that refers to the node kind's data (which is downcasted to another `Arc` via `Arc::downcast`).
   - _Chaining:_ Most of the `Node` methods, such as `set_visibility`, are chainable, returning a clone of the node's reference. Node kinds also have chainable methods. These methods are defined similiarly to:
 ```rust
 impl Node {
@@ -104,7 +97,7 @@ impl Node {
     - Derived means the node's position is determined by the parent.
     - Absolute means the node is positioned at a given global position.
     - Relative means the node is positioned relative to the parent's global position with given coordinates.
-  - _Common properties:_ Scale, opacity, visibility, position, rotation, size and maybe some more.
+  - _Common properties:_ Skin, scale, opacity, visibility, position, rotation, size and maybe some more.
   - _Sizing:_ A node can have a size variant: none, full and specific (given measurement units). Nodes whose position is not _derived_ often need to specify a size variant, otherwise they may not be displayed.
   - _Not covered here yet:_ Alignment, minimum sizing and maybe more.
 - Skins
@@ -116,10 +109,9 @@ impl Node {
 // is **inherited** by children.
 node.set_skin(Some(custom_skin));
 ```
-  - Skins are divided by node kind. That is, a specific style applies to a specific node kind.
+  - Skins are divided by node kind. That is, a specific style applies to a specific node kind. Only native node kinds have applicable skins.
   - Skins are described in Rust code.
   - _RenderingTarget:_ The `RenderingTarget` can be constructed manually, however the application comes with its own.
-    - The `Rende`
     - The `RenderingTarget` can only render Rialight nodes, a RGB pixel rectangle and a RGBA (transparent) pixel rectangle. This includes 3D nodes. Separate methods are used: `render_2d`, `render_3d`, `render_rgb_grid`, `render_rgba_grid`.
     - Support rendering a 3D world from different viewpoints at the same rendering target at different rectangles inside a `RenderingTarget`, useful for multiple cameras.
       - I think this might involve generating triangles from the 3D nodes and subtracting parts of these triangles that overflow the viewpoint rectangle.
@@ -144,7 +136,7 @@ Common skin pratices:
 
 - Static skins are conventionally created as lazily-evaluated statics:
 ```rust
-use rialight::graphics::*;
+use rialight::{prelude::*, graphics::*};
 
 lazy_static! {
     static ref SOME_SKIN: Skin = {
@@ -157,32 +149,27 @@ lazy_static! {
 
 #### Graphics Markup and Custom Nodes
 
-After a not well-received proposal I created for Rust to include generic XML markup macros, I decided I'll have my own, but it must facilitate defining both nodes and custom components, that is, you don't have to define `set_foo_attribute` twice: you'll have just one definition for that and automatically two `impl`s are generated: one for the actual node kind (or UI component) and another for a (_base_, _kind_) group (that comes from `<K as ::rialight::graphics::Markup>::build()`, which constructs the node at an initial state (this is used rather than `K::new()` too)). `Markup<K>::build()` returns a `Markup<K>`. `Markup<K>` provides all common node methods, delegating to _base_.
+Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-macros.html) that facilitate defining nodes and custom UI components. For example, `define_node!` generates a separate `KKindData` structure, which is contained by `K` (node kind) itself. `K` contains (_base_, _data_). `K::new()` constructs an empty `K`. `K` inherits `NodeKind`, inheriting everything from _base_ (such as `set_skin` and `parent()`). _data_ is an `Arc<KKindData>`.
 
-- https://github.com/rust-lang/rfcs/pull/3468
-- https://github.com/rust-lang/rfcs/pull/3468#issuecomment-1664408841
+Syntax:
 
-I've decided too that it makes sense for UI components to be nodes, so `UiComponent` inherits `NodeKind` and are defined with a similiar macro `define_ui_component!`.
+- `define_node!` is given field-like attributes somewhere, aggregating to a `struct` and aggregating `set_` prefixed methods to `impl K`.
 
-Ideally there'll be two macros: `markup!` and `define_node!`. `define_ui_component!` is for custom UI components.
+It makes sense for UI components to be nodes, therefore `UiComponent` inherits `NodeKind`. They are defined with a similiar macro `define_ui_component!`.
 
-The `define_node!` macro, not the `define_ui_component!` one, since it is only used by Rialight, will have a `build` function inside which is used for the `Markup` implementation. It can later be reused by things like `new()` if wished.
+Ideally there'll be three macros: `markup!`, `define_node!` and `define_ui_component!`.
 
-### Re-thinking How Nodes Are Implemented
+### How Nodes Are Implemented
 
-Many of the above ideas may have altered or invalidated a bit with the following decision:
-
-- https://github.com/rust-lang/rfcs/pull/3468#issuecomment-1664544857
-
-What changes basically:
-
-- `Markup` is entirely removed
+- `Node` contains an `Arc<NonRefNode>`
+- `NonRefNode` contains common fields and the stores the actual node kind data as `Arc<dyn Any>`.
 - `K::new()` takes no arguments and returns _K_
 - _K_ contains (_base_, _kind data_).
-- _kind data_ is of type `KKindData`
-- The macros `define_node!` and `define_ui_component!` generate `KKindData`
+- _kind data_ is of type `Arc<KKindData>`
+- The macros `define_node!` and `define_ui_component!` generate a `KKindData` structure
+  - `KKindData` must have a `#[doc(hidden)]` attribute
 - `NodeKind` will implement `Into<Node>`, evaluating to _base_ (the kind as the `Node` type).
-- The `markup!` macro will build nodes using something like `let node: Node = K::new().into(); node`, chaining methods after `::new()`
+- The `markup!` macro will build nodes using something like `let node: Node = K::new().into(); node`, chaining `set_` methods after `::new()`
 
 ### 3D Graphics
 
@@ -196,14 +183,10 @@ The UI API, `rialight::ui`.
 
 - The UI API exports all the node kinds related to user interface (such as `Button`) from the submodule `rialight::graphics::ui` of the graphics API. Such node kinds are not exported directly by the graphics API to avoid confusion. Even `define_ui_component!` comes from there.
 - The UI API exports interfaces for reactive UI components which are defined by the developer.
-  - An UI component may use graphics nodes from the graphics API, `rialight::graphics`. Inclusively, it is already a node.
+  - An UI component may use graphics nodes from the graphics API, `rialight::graphics`. Inclusively, it is already a node too.
   - _Reactive_ data can be shared across all UI components. There may be a proper API for that. In that case, when a state changes, it causes parts of a component that use that state to render again.
 
 UI components are graphical nodes, since `UiComponent` inherits `NodeKind`. They are usually defined with `define_ui_component!`, which is similiar to `define_node!`.
-
-Implementation details:
-
-- A UI component is constructed as a `Node` that has something like `Arc<dyn Any>` inside. This has to be implemented at `rialight::graphics::ui` specifically as it can use the internal node kind variants.
 
 ### File System
 
