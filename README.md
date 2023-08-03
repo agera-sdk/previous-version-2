@@ -149,7 +149,7 @@ lazy_static! {
 
 #### Graphics Markup and Custom Nodes
 
-Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-macros.html) that facilitate defining nodes and custom UI components. For example, `define_node!` generates a separate `KKindData` structure, which is contained by `K` (node kind) itself. `K` contains (_base_, _data_). `K::new()` constructs an empty `K`. `K` inherits `NodeKind`, inheriting everything from _base_ (such as `set_skin` and `parent()`). _data_ is an `Arc<KKindData>`.
+Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-macros.html) that facilitate defining nodes and custom UI components. For example, `define_node!` generates a separate internal `KKindData` structure, which is contained by `K` (node kind) itself. `K` contains (_base_, _data_). `K::new()` constructs an empty `K`. `K` inherits `NodeKind`, inheriting everything from _base_ (such as `set_skin` and `parent()`). _data_ is an `Arc<KKindData>`.
 
 Syntax:
 
