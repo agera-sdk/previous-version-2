@@ -12,8 +12,8 @@ description = "Rialight utilities API."
 [dependencies]
 bitflags = { version = "2" }
 bytes = { version = "1.4.0", features = ["serde"] }
-chrono = { version = "0.4.26", default-features = false, features = ["alloc", "std", "clock"] }
-chrono-tz = "0.8.3"
+# chrono = { version = "0.4.26", default-features = false, features = ["alloc", "std", "clock"] }
+# chrono-tz = "0.8.3"
 futures = "0.3.28"
 lazy-regex = "3.0.0"
 lazy_static = "1.4.0"
@@ -38,7 +38,7 @@ rialight_default_export = [
 
 # browser export only dependencies
 rialight_browser_export = [
-    "chrono/wasmbind",
+    # "chrono/wasmbind",
     "js-sys",
     "web-sys",
     "wasm-bindgen",

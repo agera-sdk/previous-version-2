@@ -9,7 +9,6 @@ Working at temporal:
   - https://tc39.es/proposal-temporal/docs/ambiguity.html
 - [ ] There are a few documentation pages in addition to ambiguity too; just iterate the TC39 Temporal API docs. Add all the home sections too to summarize the API and the _Other documentation_ section.
 - [ ] Fully document the public API according to the TC39 proposal
-- [ ] Check if `chrono` and `chrono-tz` can really be used to implement the functionality in the temporal API internally. It doesn't need to be exactly the same as the TC39's proposal. If not really viable, remove them from `Cargo.toml` and find an alternative, but it looks like it'll work well! About plain types: use the naive module from `chrono`.
 - [ ] `temporal::now`
   - [ ] `instant`
   - [ ] `timezone_id`
@@ -32,7 +31,7 @@ Working at temporal:
 - [ ] `temporal::Duration`
   - Constructed via methods such as `Duration::from_milliseconds()` and things can be accessed like `years()`.
 - [ ] `temporal::TimeZone`
-  - Consider implementing the `Display` trait which `Chrono` implements.
+  - Consider implementing the `Display` trait
 - [ ] `temporal::Calendar`
 - [ ] Implement `Display` for every type
 
