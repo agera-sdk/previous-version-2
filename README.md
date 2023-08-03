@@ -84,7 +84,9 @@ markup!(
         - If the size is near to any of the existing bitmap caches, that cache is used, yielding a blinear resized bitmap.
         - If the size is not near to any of the existing bitmap caches and the limit of caches has not been reached yet, create a new bitmap cache by rendering the SVG again.
     - _NodeOutlet:_ The `NodeOutlet` node kind represents an empty node that meant to be replaced by other nodes. It is used, for instance, by the `markup!` macro for user UI components.
-  - _Very specific properties:_ Very specific properties from node kinds are often manipulated after a `.to::<SpecificNodeKind>` conversion.
+  - _Cameras:_ think of a good design that allows for cameras that follow a certain node, similiar to Godot. Multiple cameras can be interesting (in which case the UI only works properly outside the camera's environment).
+  - _ZOrdered:_ a container that does not position children and re-orders their Z-index from top-down perspective.
+  - _Very specific properties:_ Very specific properties from node kinds that are hold as `Node` are manipulated after a `.to::<SuchKind>` conversion.
   - _Node representation:_ Internally, a node kind holds internal data that is stored behind a `Arc` inside `Node`. The `Node` type contains a single internal `Arc` that refers to further data, including common properties and a `Arc<dyn Any>` that refers to the node kind's data (which is downcasted to another `Arc` via `Arc::downcast`).
   - _Chaining:_ Most of the `Node` methods, such as `set_visibility`, are chainable, returning a clone of the node's reference. Node kinds also have chainable methods. These methods are defined similiarly to:
 ```rust
