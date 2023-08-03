@@ -153,7 +153,7 @@ Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-ma
 
 Syntax:
 
-- `define_node!` is given field-like attributes somewhere, aggregating to a `struct` and aggregating `set_` prefixed methods to `impl K`.
+- `define_node!` is given field-like attributes somewhere, aggregating to a `struct` and automatically aggregating `set_` prefixed methods to `impl K`. There might be support for specifying `set_` methods explicitly too if special processing of the attribute value is desired.
 
 It makes sense for UI components to be nodes, therefore `UiComponent` inherits `NodeKind`. They are defined with a similiar macro `define_ui_component!`.
 
@@ -169,6 +169,7 @@ Ideally there'll be three macros: `markup!`, `define_node!` and `define_ui_compo
 - The macros `define_node!` and `define_ui_component!` generate a `KKindData` structure
   - `KKindData` must have a `#[doc(hidden)]` attribute
 - `NodeKind` will implement `Into<Node>`, evaluating to _base_ (the kind as the `Node` type).
+- `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`KKindData`).
 - The `markup!` macro will build nodes using something like `let node: Node = K::new().into(); node`, chaining `set_` methods after `::new()`
 
 ### 3D Graphics
