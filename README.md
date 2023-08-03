@@ -63,10 +63,14 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
     - _Composition:_ Any node contain another node. For instance, a button can contain further content inside, whether label, SVG or anything.
     - _Focus:_ Any node that supports focus can be focused by default. This can be disabled for a specific node through `set_focusable()`.
     - _Building nodes:_ All node kinds are constructed given a callback that takes the node kind itself as `Arc<K>`. This allows writing `K::new(|k| k.set_something(v).set_some_other(v))` instead of `K::new().to::<K>().set_something(v).set_some_other(v)`, not to count that the latter will discard the returned `Node`, being useless. Also, since the kind constructors return a `Node`, you're also able to chain base `Node` methods.
-    - _Markup:_ building nodes is normally possible via `::new`, however it'd be nice to have a macro like follows for use in reactive components (`markup!`):
-      - https://users.rust-lang.org/t/generic-markup-macro/97830
+    - _Markup:_ building nodes is normally possible via `::new`, but you can also use `markup!`:
       - Use a procedural macro for this: https://doc.rust-lang.org/reference/procedural-macros.html
-        - UI components must define attributes through `set_` prefixed methods and their rendered node must contain a `NodeOutlet`, which is a node that is replaced by child nodes from the markup.
+      - Initial idea: https://users.rust-lang.org/t/generic-markup-macro/97830
+      - Logic of procedural macros: idea:
+        - https://github.com/rust-lang/rfcs/pull/3468#issuecomment-1664408841
+        - To use an UI component within markup, the following must hold:
+          - It must implement `Markup` defining attributes through `set_` prefixed methods. `Markup` also inherits `Node` attributes.
+        - User components can contain a `NodeOutlet`, which is a node that is replaced by input child nodes.
       - `<Svg src="path"/>` would work like `Svg::from_file`.
     - _Button:_ The `Button` node kind has variants, such as `primary()`, `secondary()` and `warning()`.
       - Highly-customized buttons are often created as user UI components.
@@ -151,6 +155,19 @@ lazy_static! {
 // use `SOME_SKIN` where desired!
 ```
 
+#### Graphics Markup and Custom Nodes
+
+After a not well-received proposal I created for Rust to include generic XML markup macros, I decided I'll have my own, but it must facilitate defining both nodes and custom components, that is, you don't have to define `set_foo_attribute` twice: you'll have just one definition for that and automatically two `impl`s are generated: one for the actual node kind (or UI component) and another for a (_base_, _kind_) group (that comes from `<K as ::rialight::graphics::Markup>::build()`, which constructs the node at an initial state (this is used rather than `K::new()` too)).
+
+- https://github.com/rust-lang/rfcs/pull/3468
+- https://github.com/rust-lang/rfcs/pull/3468#issuecomment-1664408841
+
+I've decided too that it makes sense for UI components to be nodes, so `UiComponent` inherits `NodeKind` and are defined with a similiar macro `define_ui_component!`.
+
+Ideally there'll be two macros: `markup!` and `define_node!`. `define_ui_component!` is for custom UI components.
+
+The `define_node!` macro, not the `define_ui_component!` one, since it is only used by Rialight, will have a `build` function inside which is used for the `Markup` implementation. It can later be reused by things like `new()` if wished.
+
 ### 3D Graphics
 
 The 3D graphics API, `rialight::graphics_3d`.
@@ -161,11 +178,16 @@ The 3D graphics API, `rialight::graphics_3d`.
 
 The UI API, `rialight::ui`.
 
-- The UI API exports all the node kinds related to user interface (such as `Button`) from the submodule `rialight::graphics::ui` of the graphics API. Such node kinds are not exported directly by the graphics API to avoid confusion.
-- The UI API defines interfaces for reactive UI componentss which are defined by the developer.
-  - An UI component may use graphics nodes from the graphics API, `rialight::graphics`.
+- The UI API exports all the node kinds related to user interface (such as `Button`) from the submodule `rialight::graphics::ui` of the graphics API. Such node kinds are not exported directly by the graphics API to avoid confusion. Even `define_ui_component!` comes from there.
+- The UI API exports interfaces for reactive UI components which are defined by the developer.
+  - An UI component may use graphics nodes from the graphics API, `rialight::graphics`. Inclusively, it is already a node.
   - _Reactive_ data can be shared across all UI components. There may be a proper API for that. In that case, when a state changes, it causes parts of a component that use that state to render again.
-  - Rialight may use either raw Rust or a markup macro for writing components.
+
+UI components are graphical nodes, since `UiComponent` inherits `NodeKind`. They are usually defined with `define_ui_component!`, which is similiar to `define_node!`.
+
+Implementation details:
+
+- A UI component is constructed as a `Node` that has something like `Arc<dyn Any>` inside. This has to be implemented at `rialight::graphics::ui` specifically as it can use the internal node kind variants.
 
 ### File System
 
