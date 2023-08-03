@@ -56,6 +56,7 @@ Working at file system:
 When futurely working on graphical nodes:
 
 - See [How Nodes Are Implemented](./README.md#how-nodes-are-implemented)
+- Derive `Hash` for `Node` (just uses the `Arc` inside)
 - Provide the types `Node` and `WeakRefNode`. Inside `Node` is stored an internal `Arc<NonRefNode>` and inside `WeakRefNode` is an internal `Weak<Gc<NonRefNode>>` to which it dereferences.
 - The parent is stored as a `WeakRefNode` internally.
 - The equality operator compares by reference (`Arc::ptr_eq`) and the clone method clones the reference (`Arc::clone`). _Do not_ use `#[derive(Clone)]`; implement it manually to make sure no content is cloned:
