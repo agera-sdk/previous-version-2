@@ -94,6 +94,7 @@ When futurely working in the CLI:
   - Pass the feature `rialight_default_export` to `cargo run` internally as the host environment for debugging is generally not a web browser.
 - `rialight export`
   - Pass the feature `rialight_default_export` to `cargo run` internally for a non-browser export
+- Idea: place `default = [...]` as containing `rialight_default_export` in the workspace and metacrate and pass `--no-default-features` to CLI when not targetting the browser.
 
 ## When futurely working in the macros `rialight::main` and `rialight::build_script`
 
