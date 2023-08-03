@@ -157,7 +157,7 @@ lazy_static! {
 
 #### Graphics Markup and Custom Nodes
 
-After a not well-received proposal I created for Rust to include generic XML markup macros, I decided I'll have my own, but it must facilitate defining both nodes and custom components, that is, you don't have to define `set_foo_attribute` twice: you'll have just one definition for that and automatically two `impl`s are generated: one for the actual node kind (or UI component) and another for a (_base_, _kind_) group (that comes from `<K as ::rialight::graphics::Markup>::build()`, which constructs the node at an initial state (this is used rather than `K::new()` too)).
+After a not well-received proposal I created for Rust to include generic XML markup macros, I decided I'll have my own, but it must facilitate defining both nodes and custom components, that is, you don't have to define `set_foo_attribute` twice: you'll have just one definition for that and automatically two `impl`s are generated: one for the actual node kind (or UI component) and another for a (_base_, _kind_) group (that comes from `<K as ::rialight::graphics::Markup>::build()`, which constructs the node at an initial state (this is used rather than `K::new()` too)). `Markup<K>::build()` returns a `Markup<K>`. `Markup<K>` provides all common node methods, delegating to _base_.
 
 - https://github.com/rust-lang/rfcs/pull/3468
 - https://github.com/rust-lang/rfcs/pull/3468#issuecomment-1664408841
