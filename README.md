@@ -168,6 +168,22 @@ Ideally there'll be two macros: `markup!` and `define_node!`. `define_ui_compone
 
 The `define_node!` macro, not the `define_ui_component!` one, since it is only used by Rialight, will have a `build` function inside which is used for the `Markup` implementation. It can later be reused by things like `new()` if wished.
 
+### Re-thinking How Nodes Are Implemented
+
+Many of the above ideas may have altered or invalidated a bit with the following decision:
+
+- https://github.com/rust-lang/rfcs/pull/3468#issuecomment-1664544857
+
+What changes basically:
+
+- `Markup` is entirely removed
+- `K::new()` takes no arguments and returns _K_
+- _K_ contains (_base_, _kind data_).
+- _kind data_ is of type `KKindData`
+- The macros `define_node!` and `define_ui_component!` generate `KKindData`
+- `NodeKind` will implement `Into<Node>`, evaluating to _base_ (the kind as the `Node` type).
+- The `markup!` macro will build nodes using something like `let node: Node = K::new().into(); node`, chaining methods after `::new()`
+
 ### 3D Graphics
 
 The 3D graphics API, `rialight::graphics_3d`.
