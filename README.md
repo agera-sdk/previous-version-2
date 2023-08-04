@@ -183,6 +183,13 @@ define_node! {
 }
 ```
 
+This will generate:
+
+- An `Example` structure.
+  - A `Example::new()` method that returns `Example` and initialises the fields `foo` and `bar` from the internal `Arc<ExampleKindData>`.
+  - A `Example::set_foo(value)` method. `set_foo` takes `self` (not `&self`), returning `Self` (not `&Self`).
+- An internal `ExampleKindData` structure with fields `foo` and `bar`.
+
 #### How Nodes Are Implemented
 
 - `Node` contains an `Arc<NonRefNode>`
@@ -199,7 +206,7 @@ define_node! {
 - Chainable `set_` methods all return `K`, not `&K`
 - `NodeKind` will implement `Into<Node>`, evaluating to _base_ (the kind as the `Node` type).
 - `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`KKindData`). This involves using `Arc::downcast::<KKindData>`.
-- The `markup!` macro will build nodes using something like `let node: Node = K::new().into(); node`, chaining `set_` methods after `::new()`
+- The `markup!` macro will build nodes using something like `K::new()`, chaining `set_` methods after `::new()`. Children tags are appended after an `.into()` call and interpolated children are taken as `IntoIter<Item = Node>`.
 
 ### 3D Graphics
 
