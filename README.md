@@ -149,12 +149,13 @@ lazy_static! {
 
 #### Graphics Markup and Custom Nodes
 
-Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-macros.html) that facilitate defining nodes and custom UI components. For example, `define_node!` generates a separate internal _KKindData_ structure, which is contained by _K_ (node kind) itself. _K_ contains (_base_, _data_). `K::new()` constructs an empty _K_. _K_ implements `NodeKind`, inheriting everything from _base_ (such as `set_skin` and `parent()`). _data_ is an `Arc<KKindData>`.
+Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-macros.html) that facilitate defining nodes and custom UI components. For example, `define_node!` generates a separate internal _K__Internal_ structure, which is contained by _K_ (node kind) itself. _K_ contains (_base_, _data_). `K::new()` constructs an empty _K_. _K_ implements `NodeKind`, inheriting everything from _base_ (such as `set_skin` and `parent()`). _data_ is an `Arc<K__Internal>`.
 
 Syntax:
 
-- `define_node!` is given field-like attributes somewhere, aggregating public fields to the _KKindData_ structure and automatically aggregating `set_` prefixed methods to `impl K`. There must be support for specifying `set_` methods explicitly too if special processing of the attribute value is desired (this is common, including for `Svg`'s `src`, which is not a field in fact).
+- `define_node!` is given field-like attributes somewhere, aggregating public fields to the _K__Internal_ structure and automatically aggregating `set_` prefixed methods to `impl K`. There must be support for specifying `set_` methods explicitly too if special processing of the attribute value is desired (this is common, including for `Svg`'s `src`, which is not a field in fact).
   - Expressions are internally parsed via `syn` (`let expr: syn::Expr = syn::parse(token_tree_stream);`) and expanded back to tokens later inside `K::new()`.
+  - The aggregated _K__Internal_ fields are public because the native nodes hold data used by the render for instance. It doesn't matter whether they're public or internal though, since _K__Internal_ is internal.
 
 It makes sense for UI components to be nodes, therefore `UiComponent` implements `NodeKind`. They are defined with a similiar macro `define_ui_component!`.
 
@@ -204,22 +205,22 @@ All node methods are in `NodeInherited`.
 - `NonRefNode` contains common fields and the stores the actual node kind data as `Arc<dyn Any>`.
 - `K::new()` takes no arguments and returns _K_
 - _K_ contains (_base_, _kind data_).
-- _kind data_ is of type `Arc<KKindData>`
-- The macros `define_node!` and `define_ui_component!` generate a _KKindData_ structure
-  - _KKindData_ must have a `#[doc(hidden)]` attribute
+- _kind data_ is of type `Arc<K__Internal>`
+- The macros `define_node!` and `define_ui_component!` generate a _K__Internal_ structure
+  - _K__Internal_ must have a `#[doc(hidden)]` attribute
 - `NodeKind` has all common methods from `Node` by delegating to _base_, including `append_children`.
 - _K_ implements `NodeKind` and therefore also `NodeInherited` (just giving the base)
 - _K_ will have a `#[derive(Copy)]` attribute and a `Clone` implementation that clones the (_base_, _data_) by reference.
 - _K_ will have `PartialEq`, which verifies _base_ reference equality.
 - Chainable `set_` methods all return `K`, not `&K`
 - `NodeKind` will implement `Into<Node>`, evaluating to _base_ (the kind as the `Node` type).
-- `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`KKindData`). This involves using `Arc::downcast::<KKindData>`.
+- `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`K__Internal`). This involves using `Arc::downcast::<K__Internal>`.
 - The `markup!` macro will build nodes using something like `K::new()`, chaining `set_` methods after `::new()`. Children tags are appended after an `.into()` call and interpolated children are taken as `IntoIterator<Item = Node>`.
 - `Node` implements `NodeInherited` (just giving the base) and `NodeKind` inherits `NodeInherited`.
 
 Additionally:
 
-- _KKindData_ has a `&'static str` that contains the name of the kind (_K_ itself in this case).
+- _K__Internal_ has a `&'static str` that contains the name of the kind (_K_ itself in this case).
 - `Node` and _K_ implement `Debug` and `Display` to display the name of the kind.
 
 ### 3D Graphics
