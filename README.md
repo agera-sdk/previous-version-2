@@ -168,6 +168,37 @@ It makes sense for UI components to be nodes, therefore `UiComponent` implements
 
 Ideally there'll be three macros: `markup!`, `define_node!` and `define_ui_component!`.
 
+Here's what `define_node!` looks like:
+
+```rust
+// `define_node!` defines one node kindd
+// at a time.
+define_node! {
+    pub type Example {
+        foo: RwLock<i64>,
+
+        // `explicit_setter` tells `define_node!`
+        // to not generate a `set_`.
+        #[explicit_setter]
+        bar: RwLock<i64>,
+    }
+
+    // `new` returns `KKindData`. It looks like
+    // it's returning `Example`, but it's rather
+    // returning the example `ExampleKindData`
+    // under the hood.
+    //
+    // it's a compile error if this `new` function
+    // doesn't look like this.
+    fn new() {
+        Self {
+            foo: RwLock::new(0),
+            bar: RwLock::new(0),
+        }
+    }
+}
+```
+
 #### How Nodes Are Implemented
 
 - `Node` contains an `Arc<NonRefNode>`
@@ -177,7 +208,8 @@ Ideally there'll be three macros: `markup!`, `define_node!` and `define_ui_compo
 - _kind data_ is of type `Arc<KKindData>`
 - The macros `define_node!` and `define_ui_component!` generate a `KKindData` structure
   - `KKindData` must have a `#[doc(hidden)]` attribute
-- `K` will have a `#[derive(Copy)]` attribute and a `Clone` implementation that clones the (_base_, _data_) by reference.
+- _K_ will have a `#[derive(Copy)]` attribute and a `Clone` implementation that clones the (_base_, _data_) by reference.
+- _K will have `PartialEq`, which verifies _base_ reference equality.
 - Chainable `set_` methods all return `K`, not `&K`
 - `NodeKind` will implement `Into<Node>`, evaluating to _base_ (the kind as the `Node` type).
 - `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`KKindData`). This involves using `Arc::downcast::<KKindData>`.
