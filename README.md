@@ -72,7 +72,7 @@ markup!(
     </Button>
 )
 ```
-      - Custom UI components can contain a `NodeOutlet`, which is a node that is replaced by input child nodes.
+    - Custom UI components can contain a `NodeOutlet`, which is a node that is replaced by input child nodes.
     - _Button:_ The `Button` node kind has variants, such as `primary()`, `secondary()` and `warning()`.
       - Highly-customized buttons are often created as user UI components.
     - _Bitmap:_ The `Bitmap` node kind identifies a pixel grid including transparency. It is optimized and uses different representations inside (like RGB, RGBA and maybe more targetting the GPU).
