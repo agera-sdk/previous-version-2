@@ -171,30 +171,14 @@ Ideally there'll be three macros: `markup!`, `define_node!` and `define_ui_compo
 Here's what `define_node!` looks like:
 
 ```rust
-// `define_node!` defines one node kindd
-// at a time.
 define_node! {
     pub type Example {
-        foo: RwLock<i64>,
+        foo: RwLock<i64> = RwLock::new(0),
 
         // `explicit_setter` tells `define_node!`
         // to not generate a `set_`.
         #[explicit_setter]
-        bar: RwLock<i64>,
-    }
-
-    // `new` returns `KKindData`. It looks like
-    // it's returning `Example`, but it's rather
-    // returning the example `ExampleKindData`
-    // under the hood.
-    //
-    // it's a compile error if this `new` function
-    // doesn't look like this.
-    fn new() {
-        Self {
-            foo: RwLock::new(0),
-            bar: RwLock::new(0),
-        }
+        bar: RwLock<i64> = RwLock::new(0),
     }
 }
 ```
@@ -208,6 +192,8 @@ define_node! {
 - _kind data_ is of type `Arc<KKindData>`
 - The macros `define_node!` and `define_ui_component!` generate a `KKindData` structure
   - `KKindData` must have a `#[doc(hidden)]` attribute
+- `NodeKind` has all common methods from `Node` by delegating to _base_, including `append_children`.
+- _K_ implements `NodeKind`
 - _K_ will have a `#[derive(Copy)]` attribute and a `Clone` implementation that clones the (_base_, _data_) by reference.
 - _K will have `PartialEq`, which verifies _base_ reference equality.
 - Chainable `set_` methods all return `K`, not `&K`
