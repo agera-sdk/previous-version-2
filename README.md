@@ -277,7 +277,7 @@ Ideas for the event API, `rialight::event`.
   - An event that can be listened to. `event.listen(|e| {});`
 - `EventListener`
   - Object returned by `event.listen(listen_fn)`.
-  - Can be cancelled: `event_listener.cancel();`
+  - Can be cancelled: `event_listener.stop();`
 - Structures for native events, including touch and keyboard events.
 
 ### Mathematics
