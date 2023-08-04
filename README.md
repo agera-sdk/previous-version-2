@@ -149,11 +149,11 @@ lazy_static! {
 
 #### Graphics Markup and Custom Nodes
 
-Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-macros.html) that facilitate defining nodes and custom UI components. For example, `define_node!` generates a separate internal `KKindData` structure, which is contained by `K` (node kind) itself. `K` contains (_base_, _data_). `K::new()` constructs an empty `K`. `K` implements `NodeKind`, inheriting everything from _base_ (such as `set_skin` and `parent()`). _data_ is an `Arc<KKindData>`.
+Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-macros.html) that facilitate defining nodes and custom UI components. For example, `define_node!` generates a separate internal _KKindData_ structure, which is contained by _K_ (node kind) itself. _K_ contains (_base_, _data_). `K::new()` constructs an empty _K_. _K_ implements `NodeKind`, inheriting everything from _base_ (such as `set_skin` and `parent()`). _data_ is an `Arc<KKindData>`.
 
 Syntax:
 
-- `define_node!` is given field-like attributes somewhere, aggregating to a `struct` and automatically aggregating `set_` prefixed methods to `impl K`. There must be support for specifying `set_` methods explicitly too if special processing of the attribute value is desired (this is common, including for `Svg`'s `src`, which is not a field in fact).
+- `define_node!` is given field-like attributes somewhere, aggregating public fields to the _KKindData_ structure and automatically aggregating `set_` prefixed methods to `impl K`. There must be support for specifying `set_` methods explicitly too if special processing of the attribute value is desired (this is common, including for `Svg`'s `src`, which is not a field in fact).
   - Expressions are internally parsed via `syn` (`let expr: syn::Expr = syn::parse(token_tree_stream);`) and expanded back to tokens later inside `K::new()`.
 
 It makes sense for UI components to be nodes, therefore `UiComponent` implements `NodeKind`. They are defined with a similiar macro `define_ui_component!`.
