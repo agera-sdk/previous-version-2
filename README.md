@@ -205,8 +205,8 @@ All node methods are in `NodeMethods`.
 - `K::new()` takes no arguments and returns _K_
 - _K_ contains (_base_, _kind data_).
 - _kind data_ is of type `Arc<KKindData>`
-- The macros `define_node!` and `define_ui_component!` generate a `KKindData` structure
-  - `KKindData` must have a `#[doc(hidden)]` attribute
+- The macros `define_node!` and `define_ui_component!` generate a _KKindData_ structure
+  - _KKindData_ must have a `#[doc(hidden)]` attribute
 - `NodeKind` has all common methods from `Node` by delegating to _base_, including `append_children`.
 - _K_ implements `NodeKind` and therefore also `NodeMethods` (just giving the base)
 - _K_ will have a `#[derive(Copy)]` attribute and a `Clone` implementation that clones the (_base_, _data_) by reference.
@@ -216,6 +216,11 @@ All node methods are in `NodeMethods`.
 - `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`KKindData`). This involves using `Arc::downcast::<KKindData>`.
 - The `markup!` macro will build nodes using something like `K::new()`, chaining `set_` methods after `::new()`. Children tags are appended after an `.into()` call and interpolated children are taken as `IntoIterator<Item = Node>`.
 - `Node` implements `NodeMethods` (just giving the base) and `NodeKind` inherits `NodeMethods`.
+
+Additionally:
+
+- _KKindData_ has a `&'static str` that contains the name of the kind (_K_ itself in this case).
+- `Node` and _K_ implement `Debug` and `Display` to display the name of the kind.
 
 ### 3D Graphics
 
