@@ -62,16 +62,7 @@ The `rialight::graphics` and `rialight::ui` APIs co-work together.
   - _Node kinds:_ The `node.is::<NodeKind>` method can be used to test if a node is of a specific kind and `node.to::<NodeKind>` performs a conversion for accessing very specific properties. `node.to()` returns an `Arc<SpecificNodeKind>`. `node.try_into::<K>()` can be used to convert optionally. Every node kind implements `NodeKind`, and Rialight implements `NodeKind` as well for custom UI components (it includes a `reference_cast` method that results into an `Option<Arc<K>>`, which is used by the general `Node` type itself).
     - _Children:_ Any node can contain other child nodes. For instance, a button can contain further content inside, whether label, SVG or anything.
     - _Focus:_ Any node that supports focus can be focused by default. This can be disabled for a specific node through `set_focusable()`.
-    - _Building nodes:_ `K::new()` constructs an empty node. Although property and children addition methods are chainable, you can use `markup!` to build nodes appropriately. How it looks like:
-```rust
-markup!(
-    <Button>
-        <Svg src="app://res/img/foo.svg"/>
-        { iterable }
-        <Row></Row>
-    </Button>
-)
-```
+    - _Building nodes:_ `K::new()` constructs an empty node. Although property and children addition methods are chainable, you can use `markup!` to build nodes appropriately.
     - Custom UI components can contain a `NodeOutlet`, which is a node that is replaced by input child nodes.
     - _Button:_ The `Button` node kind has variants, such as `primary()`, `secondary()` and `warning()`.
       - Highly-customized buttons are often created as user UI components.
@@ -189,6 +180,20 @@ This will generate:
   - A `Example::new()` method that returns `Example` and initialises the fields `foo` and `bar` from the internal `Arc<ExampleKindData>`.
   - A `Example::set_foo(value)` method. `set_foo` takes `self` (not `&self`), returning `Self` (not `&Self`).
 - An internal `ExampleKindData` structure with fields `foo` and `bar`.
+
+Here's what `markup!` looks like:
+
+```rust
+markup!(
+    <Button>
+        <Svg src="app://res/img/foo.svg"/>
+        { iterable }
+        <Row></Row>
+    </Button>
+)
+```
+
+`markup!` constructs a single node with any child nodes.
 
 #### How Nodes Are Implemented
 
