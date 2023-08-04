@@ -198,7 +198,7 @@ markup!(
 
 #### How Nodes Are Implemented
 
-All node methods are in `NodeMethods`.
+All node methods are in `NodeInherited`.
 
 - `Node` contains an `Arc<NonRefNode>`
 - `NonRefNode` contains common fields and the stores the actual node kind data as `Arc<dyn Any>`.
@@ -208,14 +208,14 @@ All node methods are in `NodeMethods`.
 - The macros `define_node!` and `define_ui_component!` generate a _KKindData_ structure
   - _KKindData_ must have a `#[doc(hidden)]` attribute
 - `NodeKind` has all common methods from `Node` by delegating to _base_, including `append_children`.
-- _K_ implements `NodeKind` and therefore also `NodeMethods` (just giving the base)
+- _K_ implements `NodeKind` and therefore also `NodeInherited` (just giving the base)
 - _K_ will have a `#[derive(Copy)]` attribute and a `Clone` implementation that clones the (_base_, _data_) by reference.
 - _K_ will have `PartialEq`, which verifies _base_ reference equality.
 - Chainable `set_` methods all return `K`, not `&K`
 - `NodeKind` will implement `Into<Node>`, evaluating to _base_ (the kind as the `Node` type).
 - `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`KKindData`). This involves using `Arc::downcast::<KKindData>`.
 - The `markup!` macro will build nodes using something like `K::new()`, chaining `set_` methods after `::new()`. Children tags are appended after an `.into()` call and interpolated children are taken as `IntoIterator<Item = Node>`.
-- `Node` implements `NodeMethods` (just giving the base) and `NodeKind` inherits `NodeMethods`.
+- `Node` implements `NodeInherited` (just giving the base) and `NodeKind` inherits `NodeInherited`.
 
 Additionally:
 
