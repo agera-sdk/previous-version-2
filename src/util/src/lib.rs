@@ -24,6 +24,6 @@ pub mod runtime;
 
 pub(crate) macro incorrect_runtime_panic {
     () => {
-        compile_error!("Incorrect Rialight runtime configuration");
+        panic!("Incorrect Rialight runtime configuration");
     }
 }
