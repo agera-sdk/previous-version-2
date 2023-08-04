@@ -1,5 +1,9 @@
 # Tasks
 
+Observables:
+
+- [ ] Use a procedural macro instead of a simple macro for `observer!`, allowing arbitrary field order and omitting fields.
+
 Working at temporal:
 
 - References
