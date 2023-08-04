@@ -206,7 +206,7 @@ This will generate:
 - Chainable `set_` methods all return `K`, not `&K`
 - `NodeKind` will implement `Into<Node>`, evaluating to _base_ (the kind as the `Node` type).
 - `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`KKindData`). This involves using `Arc::downcast::<KKindData>`.
-- The `markup!` macro will build nodes using something like `K::new()`, chaining `set_` methods after `::new()`. Children tags are appended after an `.into()` call and interpolated children are taken as `IntoIter<Item = Node>`.
+- The `markup!` macro will build nodes using something like `K::new()`, chaining `set_` methods after `::new()`. Children tags are appended after an `.into()` call and interpolated children are taken as `IntoIterator<Item = Node>`.
 
 ### 3D Graphics
 
