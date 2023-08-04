@@ -36,12 +36,7 @@ pub macro main {
             });
         }
 
-        #[cfg(not(any(feature = "rialight_default_export", feature = "rialight_browser_export")))]
-        fn main() {
-            compile_error!("Incorrect Rialight runtime configuration..");
-        }
-
-        #[cfg(all(feature = "rialight_default_export", feature = "rialight_browser_export"))]
+        #[cfg(any(not(any(feature = "rialight_default_export", feature = "rialight_browser_export"))), all(feature = "rialight_default_export", feature = "rialight_browser_export"))]
         fn main() {
             compile_error!("Incorrect Rialight runtime configuration..");
         }
