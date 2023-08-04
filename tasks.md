@@ -69,6 +69,7 @@ impl Clone for Node {
 ```
 - `node.clone_by_content()` clones the node by content and not reference, including the children. This is equivalent to the next fine-tuned method.
   - This method will clone all events and attributes
+  - Custom UI components may not support this method, panicking instead.
 - `node.clone_by_content_fine_tuned(flags)` is similiar to the previous method, but reserves for future flags.
 - Rendering
   - `lyon` might be used for rendering vector graphics for the GPU. How to anti-alias though, it'll have to be learnt.
