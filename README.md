@@ -154,6 +154,7 @@ Define two [procedural macros](https://doc.rust-lang.org/reference/procedural-ma
 Syntax:
 
 - `define_node!` is given field-like attributes somewhere, aggregating to a `struct` and automatically aggregating `set_` prefixed methods to `impl K`. There must be support for specifying `set_` methods explicitly too if special processing of the attribute value is desired (this is common, including for `Svg`'s `src`, which is not a field in fact).
+  - Expressions are internally parsed via `syn` (`let expr: syn::Expr = syn::parse(token_tree_stream);`) and expanded back to tokens later inside `K::new()`.
 
 It makes sense for UI components to be nodes, therefore `UiComponent` implements `NodeKind`. They are defined with a similiar macro `define_ui_component!`.
 
