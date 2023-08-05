@@ -17,10 +17,11 @@ pub mod file_paths;
 pub mod observable;
 pub mod string;
 pub mod timing;
-pub mod temporal;
 pub mod futures;
 pub mod number;
 pub mod runtime;
+
+pub use ::temporal;
 
 pub(crate) macro incorrect_runtime_panic {
     () => {
