@@ -1,5 +1,7 @@
 # Tasks
 
+- [ ] Implement `From` instead of `Into` everywhere.
+
 Working at temporal (probably do that at another crate):
 
 - References

@@ -212,8 +212,8 @@ All node methods are in `NodeInherited`.
 - _K_ implements `NodeKind` and therefore also `NodeInherited` (just giving the base)
 - _K_ will have a `#[derive(Copy)]` attribute and a `Clone` implementation that clones the (_base_, _data_) by reference.
 - _K_ will have `PartialEq`, which verifies _base_ reference equality.
-- Chainable `set_` methods all return `K`, not `&K`
-- `NodeKind` will implement `Into<Node>`, evaluating to _base_ (the kind as the `Node` type).
+- Chainable `set_` methods all return _K_, not `&K`
+- _K_ will implement `From<K>` to _Node_, evaluating to _base_ (the kind as the `Node` type), allowing `.into()` calls.
 - `NodeKind` has a static function `reference_cast` that takes a `node: Node` and returns `Option<K>`. This is used by `Node` methods such as `.to`, which unfortunately have no access to the type from the node kind's data structure (`K__Internal`). This involves using `Arc::downcast::<K__Internal>`.
 - The `markup!` macro will build nodes using something like `K::new()`, chaining `set_` methods after `::new()`. Children tags are appended after an `.into()` call and interpolated children are taken as `IntoIterator<Item = Node>`.
 - `Node` implements `NodeInherited` (just giving the base) and `NodeKind` inherits `NodeInherited`.
