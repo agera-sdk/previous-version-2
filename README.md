@@ -241,6 +241,10 @@ The UI API, `rialight::ui`.
 
 UI components are graphical nodes, since `UiComponent` implements `NodeKind`. They are usually defined with `define_ui_component!`, which is similiar to `define_node!`.
 
+#### Reactivity
+
+The `define_ui_component!` probably should define states in a way that they can be used "lexically" inside the render markup, allowing only very specific parts that rely on a set of states to render again and not the whole component. In this case, the `https://crates.io/crates/syn` crate should be considered for deep lookup of states in a markup, maybe ignoring any `let` bindings for instance (doesn't make sense anyway...).
+
 ### File System
 
 Ideas for the File System API, `rialight::filesystem`.
