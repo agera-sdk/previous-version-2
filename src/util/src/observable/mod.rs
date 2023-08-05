@@ -16,7 +16,6 @@ the `AbstractObserver` trait.
 # Example
 
 ```
-# use std::sync::Arc;
 # use rialight_util::observable::*;
 
 fn my_observable() -> Observable<String> {
