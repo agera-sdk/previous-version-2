@@ -21,7 +21,7 @@ pub mod futures;
 pub mod number;
 pub mod runtime;
 
-pub use ::temporal;
+pub use rust_temporal as temporal;
 
 pub(crate) macro incorrect_runtime_panic {
     () => {

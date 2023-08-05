@@ -222,7 +222,7 @@ Additionally:
 
 - _K__Internal_ has a `&'static str` that contains the name of the kind (_K_ itself in this case).
 - `Node` and _K_ implement `Debug` and `Display` to display the name of the kind.
-- Consider catching definition's `#[attribute]` and RustDoc comments.
+- Consider retaining definition's `#[attribute]`, however interpret `#[explicit_setter]` specifically.
 
 ### 3D Graphics
 
