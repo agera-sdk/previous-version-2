@@ -26,9 +26,9 @@ fn my_observable() -> Observable<String> {
 
         // return a cleanup function that runs once all observers
         // unsubscribe.
-        Arc::new(|| {
+        || {
             println!("cleanup on unsubscribe");
-        })
+        }
     })
 }
 
