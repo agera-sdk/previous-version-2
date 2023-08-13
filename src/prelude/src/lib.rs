@@ -87,4 +87,4 @@ pub mod futures {
 }
 pub use futures::*;
 
-pub use rialight_util::number::{BigInt, UnsignedBigInt};
+pub use rialight_util::number::{BigInt, NonNegBigInt};
