@@ -1,10 +1,5 @@
 # Tasks
 
-Working at temporal in a separate crate.
-
-- [ ] Finish it.
-- [ ] Update temporal dependency version
-
 Working at file system:
 
 - Design an API that works across all platforms, including Android.

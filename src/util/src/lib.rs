@@ -20,7 +20,7 @@ pub mod futures;
 pub mod number;
 pub mod runtime;
 
-pub use rust_temporal as temporal;
+pub use ::chrono as temporal;
 pub use ::file_paths as file_paths;
 
 pub(crate) macro incorrect_runtime_panic {

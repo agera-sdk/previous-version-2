@@ -12,13 +12,13 @@ description = "Rialight utilities API."
 [dependencies]
 bitflags = { version = "2" }
 bytes = { version = "1.4.0", features = ["serde"] }
+chrono = { version = "0.4.26", default-features = false, features = ["std", "alloc", "clock"] }
 file_paths = "0.1.2"
 futures = "0.3.28"
 lazy-regex = "3.0.0"
 lazy_static = "1.4.0"
 num-bigint = { version = "0.4", features = ["rand"] }
 rust_observable = "0.2.0"
-rust_temporal = "0.1.0"
 serde = { version = "1.0.175", features = ["derive"] }
 serde_json = "1.0.103"
 
@@ -39,7 +39,7 @@ rialight_default_export = [
 
 # browser export only dependencies
 rialight_browser_export = [
-    "rust_temporal/browser_support",
+    "chrono/wasmbind",
     "js-sys",
     "web-sys",
     "wasm-bindgen",
