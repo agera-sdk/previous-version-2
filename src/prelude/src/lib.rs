@@ -41,7 +41,11 @@ pub use serialization::*;
 
 pub use rialight_util::lazy_statics::lazy_static;
 pub use rialight_util::flags::flags;
-pub use rialight_util::collection_literals::{map, set};
+pub use rialight_util::collection_literals::{
+    map, set,
+    hash_map, hash_set,
+    btree_map, btree_set,
+};
 
 pub mod reg_exp {
     pub use rialight_util::reg_exp::{
