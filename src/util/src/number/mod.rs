@@ -46,7 +46,8 @@ impl CommaSeparated for NonNegBigInt {
 
 impl CommaSeparated for BigInt {
     fn comma_separated(&self) -> String {
-        let neg = self.sign() == num_bigint::Sign::Minus;
+        use num_traits::Signed;
+        let neg = self.is_negative();
         let n = if neg { -self } else { self.clone() };
         (if neg { "-" } else { "" }).to_owned() + &n.to_biguint().unwrap().comma_separated()
     }
