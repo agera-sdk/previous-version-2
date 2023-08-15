@@ -1,6 +1,7 @@
 # Rialight
 
-> **Note:** Rialight is not yet done. [Here are the current tasks.](tasks.md)
+> - **Note (1):** Rialight is not yet done. [Here are the current tasks.](tasks.md)
+> - **Note (2):** Rialight is not in development. You might want to look at the Bevy Engine instead.
 
 Rialight aims to be a multi-purpose gaming and graphical application framework combining reactivity and nodes and shipping various fundamental APIs, requiring you to just know the Rust standard library and the Rialight API. Rialight is designed for the Rust language.
 
